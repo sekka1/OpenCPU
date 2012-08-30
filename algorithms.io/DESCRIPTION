@@ -1,0 +1,25 @@
+Package: algorithms.io
+Maintainer: Robert I. <robert@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Base Class
+Type: Package
+Author: Robert I.
+Description: The R Framework for Algorithms.io for more information visit this URL
+Version: 0.1
+Date: 8/6/2012
+URL: http://algorithms.io
+Suggests:
+    lattice,
+    ggplot2,
+    quantmod,
+    plyr,
+    reshape2,
+    lattice,
+    ggplot2,
+    httpRequest,
+    RCurl,
+    RJSONIO,
+    mgcv
+Collate:
+    'algomath.R'

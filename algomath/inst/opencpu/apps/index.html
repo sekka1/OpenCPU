@@ -1,0 +1,74 @@
+<html>
+	<head> 
+	<style type="text/css">
+	hr {color:sienna;}
+	li {color:sienna;}
+	margin-left:50px;
+	</style>
+		<title> Algorithms.io Showcase </title> 
+	</head>
+<body style="margin-left: 180px;">
+<img src="https://launchrock-assets.s3.amazonaws.com/logo-files/NhZETApGM7n3WbE.png" width=10% height=5%></img>
+<h3> View World Population Example #1 </h3>
+	</br>
+	<ul>
+	<li>REST CALL : /R/call/AlgoDemo/displayWorldPopulation/png
+	<li>Has 0 Required parameter :
+	<li>Has 0 Optional parameter :
+	</ul>
+	</br>
+<form enctype="multipart/form-data" action="/R/call/AlgoDemo/displayWorldPopulation/png" method="GET"> 
+<input type="submit" value="Show world Populations" />
+</form>
+<hr> 
+<h3> Getting a Webpage Example #2 </h3>
+	</br>
+	<ul>
+	<li>REST CALL : /R/call/AlgoDemo/getWebpage/json
+	<li>Has 1 Required parameter : URL[it must be surrounded by " marks "]
+	<li>Has 0 Optional parameter :
+	</ul>
+	</br>
+<form enctype="multipart/form-data" action="/R/call/AlgoDemo/getWebpage/json" method="GET">
+<!--notice how the name URL links to the R functions parameter-->
+<label for="URL">URL:</label>
+<input type="text" name="URL" id="URL" value='"http://www.yahoo.com/"'>
+<input type="submit" value="Show web page" />
+</form>
+<hr> 
+<h3> Data Analytics : CSV File - Find common elements among columns #3 </h3>
+	</br>
+	<ul>
+	<li>REST CALL : /R/call/AlgoDemo/getIntersectionCSV/json
+	<li>Has 1 Required parameter : CSVFilePath
+	<li>Has 2 Optional parameter : columnIndices(1),hasHeader(FALSE)
+	</ul>
+	</br>
+<p>This function reads in the file /opt/Data-Sets/Automation/test.csv. That file looks like this : </p>
+<table border="1">
+<tr><td><em>Factors of 21 </em></td><td><em>Factors of 7 </em></td><td><em>Factors of 12 </em></td></tr>
+<tr><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>3</td><td>7</td><td>2</td></tr>
+<tr><td>7</td><td></td><td>3</td></tr>
+<tr><td>21</td><td></td><td>4</td></tr>
+<tr><td></td><td></td><td>6</td></tr>
+<tr><td></td><td></td><td>12</td></tr>
+<tr><td></td></tr>
+</table>
+</br>
+<p>To find the common elements (in this case factors of two columns) we can enter 1 and 2 to find the common denominators of 7 and 21</p>
+</br>
+<form enctype="multipart/form-data" action="/R/call/AlgoDemo/getIntersectionCSV/json" method="GET">
+<!--notice how the name URL links to the R functions parameter-->
+<label for="CSVFilePath">CSVFilePath:</label>
+<input type="text" id="CSVFilePath" name="CSVFilePath" value='"/opt/Data-Sets/Automation/test.csv"'>
+</br>
+<label for="columnIndices">columnIndices:</label>
+<input type="text" id="columnIndices" name="columnIndices" value="c(1,2)">
+</br>
+<label for="hasHeader">hasHeader:</label>
+<input type="text" name="hasHeader" id="hasHeader" value="TRUE">
+<input type="submit" value="Find Common Denominators" />
+</form>
+</body>
+</html>

@@ -1,0 +1,30 @@
+Package: AlgoDemo
+Maintainer: Robert I. <robert@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Demo Showcase
+Type: Package
+Author: Robert I.
+Description: An example of some of the nice features of R on our platform
+Version: 0.1
+Date: 8/11/2012
+URL: http://algorithms.io
+Suggests:
+    lattice,
+    ggplot2,
+    quantmod,
+    plyr,
+    reshape2,
+    lattice,
+    ggplot2,
+    httpRequest,
+    RCurl,
+    RJSONIO,
+    mgcv
+Collate:
+	'func.R'
+Depends:
+	RCurl,
+	XML,
+	ggplot2,
+	

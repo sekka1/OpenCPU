@@ -1,0 +1,30 @@
+Package: algo2r
+Maintainer: Robert I. <robert@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Demo Showcase
+Type: Package
+Author: Robert I.
+Description: The Algorithms.io Wrapper
+Version: 0.2
+Date: 8/19/2012
+URL: http://algorithms.io
+Suggests:
+    lattice,
+    ggplot2,
+    quantmod,
+    plyr,
+    reshape2,
+    lattice,
+    ggplot2,
+    httpRequest,
+    RCurl,
+    RJSONIO,
+    mgcv
+Collate:
+	'do.R'
+Depends:
+	RCurl,
+	digest,
+	plotrix,
+	

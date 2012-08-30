@@ -1,0 +1,31 @@
+Package: algomath
+Maintainer: Robert I. <robert@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Math Package
+Type: Package
+Author: Robert I.
+Description: Mathematics at your fingertips
+Version: 0.1
+Date: 8/11/2012
+URL: http://algorithms.io
+Suggests:
+    lattice,
+    ggplot2,
+    quantmod,
+    plyr,
+    reshape2,
+    lattice,
+    ggplot2,
+    httpRequest,
+    RCurl,
+    RJSONIO,
+    mgcv
+Collate:
+	'do.R'
+Depends:
+	gsubfn,
+	conf.design,
+	graphics,
+	RJSONIO
+	

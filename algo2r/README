@@ -1,0 +1,4 @@
+Algorithms.io
+Usages :
+getWebpage("www.google.com")
+displayWorldPopulation()
