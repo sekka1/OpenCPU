@@ -116,11 +116,13 @@ getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorit
 #' @param type string proxyFunction
 #' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
 #' @param type string proxyParametersList
+#' @param additional_dataset IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
+#' @param type string additional_dataset
 #' @return The end-results of your proxyFunction that you called 
 #' @author Robert I.
 #' @export
-openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.algorithms.io/", proxyPackage, proxyFunction, proxyParametersList )
-{	
+openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, additional_dataset = "{}" )
+{
 	require(RJSONIO);
 	library(proxyPackage,character.only=TRUE);
 	x <- as.list(fromJSON(proxyParametersList)) 
@@ -131,12 +133,40 @@ openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.a
 	fileName <- getFile(authToken,datasetID, algoServer);
 	}
 	if (fileName!="none") x['dataFile'] <- fileName;
-	proxyOutput <- do.call(proxyFunction,x);
+	
+	y <<- as.list(fromJSON(additional_dataset));
+	if (length(y)!=0) #files to download
+	{	
+		for(i in 1:length(y)) {
+	y[[i]] <<- getFile(authToken,y[[i]], algoServer);
+}
+	}
+	else {
+		#no addtional datasets added here
+	}
+
+
+	proxyOutput <- do.call(proxyFunction,append(x,y));
 	print(proxyOutput);
 
 	#then we clean up the file after this
 	if ( file.exists(fileName) ){
 	file.remove(fileName)
+	}
+	
+	for ( additional_files in y )
+	{
+		if ( file.exists(additional_files) ){
+		file.remove(additional_files)
+		}
+		else
+		{
+			if (debug)
+			{
+				print("odd, the additional file is not found");
+				print(additional_files);
+			}
+		}
 	}
 	
 	print(dataHere)

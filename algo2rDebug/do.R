@@ -141,10 +141,12 @@ getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorit
 #' @param type string proxyFunction
 #' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
 #' @param type string proxyParametersList
+#' @param additional_dataset IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
+#' @param type string additional_dataset
 #' @return The end-results of your proxyFunction that you called 
 #' @author Robert I.
 #' @export
-openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0 )
+openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, additional_dataset = "{}" )
 {	
 	require(RJSONIO);
 	require(plotrix);
@@ -160,6 +162,19 @@ openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.a
 	
 	if (fileName!="none") x['dataFile'] <- fileName;
 	
+	y <<- as.list(fromJSON(additional_dataset));
+	if (length(y)!=0) #files to download
+	{	
+		for(i in 1:length(y) ) {
+			y[[i]] <<- "fileNameHere";
+		}
+	}
+	else {
+		print('none happens')
+	}
+
+
+	stop("hi");
 
 
 	validateCall(proxyFunction, x, debug)
@@ -194,4 +209,19 @@ openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.a
 }
 
 
+#
+#
+openCPUExecute( "561285e69a626150fd3276e71059bc39", "none", algoServer = "https://v1.api.algorithms.io/", "yourpackage", "yourFunction1", proxyParametersList = '{ "bar":5}', debug = 0, additional_dataset = '{ "foo":"2043", "dataFile":"2043" }' );	
+#
+#
+#
 
+
+
+
+for(i in 1:length(trollin)) {
+	print(i);
+}
+#
+#
+#
