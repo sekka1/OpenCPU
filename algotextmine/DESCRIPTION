@@ -1,0 +1,28 @@
+Package: algotextmine
+Maintainer: Robert I. <robert@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms Text Miner
+Type: Package
+Author: Robert I.
+Description: I count the number of times words in a custom dictionary appear in a document for you.
+Version: 0.1
+Date: 9/5/2012
+URL: http://algorithms.io
+Suggests:
+    lattice,
+    ggplot2,
+    quantmod,
+    plyr,
+    reshape2,
+    lattice,
+    ggplot2,
+    httpRequest,
+    RCurl,
+    RJSONIO,
+    mgcv
+Collate:
+    'do.R'
+Depends:
+	RJSONIO,
+	tm,
