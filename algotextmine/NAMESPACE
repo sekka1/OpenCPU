@@ -1,1 +1,1 @@
-export(findFactorsFor)
+export(mainAnalyze)

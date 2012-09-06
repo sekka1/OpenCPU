@@ -5,12 +5,12 @@ listFiles <- function( folder = "documents" )
 	return(list.files(path = path))
 }
 
-fetchDocument <- function( folder = "documents", filename )
+fetchDocument <- function( filename )
 {
 	require(tm);
 	
-	path <- paste(config_dataFolder,folder,sep="/")
-	setwd(path);
+	#path <- paste(config_dataFolder,folder,sep="/")
+	#setwd(path);
 
 
 	con  <- file(filename, open = "r")
@@ -41,8 +41,8 @@ fetchDocument <- function( folder = "documents", filename )
 loadDictionary <- function( dtm, dictionary)
 {
 	
-	path <- paste(config_dataFolder,"dictionary",sep="/")
-	setwd(path);
+	#path <- paste(config_dataFolder,"dictionary",sep="/")
+	#setwd(path);
 	
 	con  <- file(dictionary, open = "r")
 	stringText <- "";
@@ -64,8 +64,6 @@ calculateScore <- function(dtm)
 
 #' Computes scores of documents by text frequency analysis
 #' 
-#' @param folder The folder name that contains the documents, I put all my documents in the folder documents so I just use documents as the value for this parameter
-#' @param type string folder
 #' @param files A list of files you want to have scored by the system
 #' @param type list files
 #' @param dictionaries A list of dictionary file names complete with extensions like c("beachDictionary.txt","golfDictionary.txt")
@@ -73,24 +71,26 @@ calculateScore <- function(dtm)
 #' @return Scored documents based off of dictionaries
 #' @author Robert I.
 #' @export
-mainAnalyze <- function( folder, files, dictionaries)
+mainAnalyze <- function( files, dictionaries )
 {
-	config_dataFolder <<- "/opt/Data-Sets/Automation"
+	config_dataFolder <<- "/opt/Data-Sets/Automation";
 	require(RJSONIO);
 	require(tm);
 	myParentList <- list();
 	
-	fileFolder <- listFiles( folder = "documents");
-	fileFolder;
+	#fileFolder <- listFiles( folder = "documents");
+	#fileFolder;
 
-	for (file in files)
-	{
+	#for (file in files)
+	#{
+	file <- files;
 		#fetch 1 document and tokenize it
-		dtm <- fetchDocument(folder,file);
+		dtm <- fetchDocument(file);
 
 		#then we will load it here
-		for (dictionary in dictionaries)
-		{
+		#for (dictionary in dictionaries)
+		#{
+			dictionary <- dictionaries;
 			loadDictionary(dtm,dictionary);
 			dtm.mat <- as.matrix(dtm)
 			dtm.mat 	
@@ -104,10 +104,10 @@ mainAnalyze <- function( folder, files, dictionaries)
 			myList[["normalScore"]] <- score/total_words_unique;
 			#myParentList[length(myParentList)+1] <- myList
 			print(toJSON(myList))
-		}
+		#}
 
 		rm(dtm)
-	}
+	#}
 
 	dataHere <<- toJSON(myList)
 }
