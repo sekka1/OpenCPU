@@ -1,13 +1,13 @@
-Package: algo2r
+Package: demopackage
 Maintainer: Robert I. <robert@algorithms.io>
 License: AGPL
 Encoding: UTF-8
-Title: Algorithms IO Demo Showcase
+Title: OpenCPU Demo Package
 Type: Package
 Author: Robert I.
-Description: The Algorithms.io Wrapper
-Version: 0.2
-Date: 8/19/2012
+Description: An example
+Version: 0.1
+Date: 8/6/2012
 URL: http://algorithms.io
 Suggests:
     lattice,
@@ -22,10 +22,4 @@ Suggests:
     RJSONIO,
     mgcv
 Collate:
-	'do.R'
-Depends:
-	RCurl,
-	digest,
-	plotrix,
-	plyr,
-	
+    'do.R'

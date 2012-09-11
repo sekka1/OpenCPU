@@ -77,38 +77,33 @@ mainAnalyze <- function( files, dictionaries )
 	require(RJSONIO);
 	require(tm);
 	myParentList <- list();
-	
-	#fileFolder <- listFiles( folder = "documents");
-	#fileFolder;
-
-	#for (file in files)
-	#{
-	file <- files;
+	dataHere <<- "";
+	tempStr <<- "";
+	for (myfile in files)
+	{
 		#fetch 1 document and tokenize it
-		dtm <- fetchDocument(file);
+		dtm <- fetchDocument(myfile);
 
 		#then we will load it here
-		#for (dictionary in dictionaries)
-		#{
-			dictionary <- dictionaries;
+		for (dictionary in dictionaries)
+		{
 			loadDictionary(dtm,dictionary);
 			dtm.mat <- as.matrix(dtm)
 			dtm.mat 	
 			total_words_unique <- length(dtm.mat)
 
 			myList <<- list()
-			myList[["fileName"]] <- file
+			myList[["fileName"]] <- myfile
 			myList[["dictionary"]] <- dictionary
 			score <- calculateScore(dtm);
 			myList[["rawScore"]] <- score
 			myList[["normalScore"]] <- score/total_words_unique;
 			#myParentList[length(myParentList)+1] <- myList
-			print(toJSON(myList))
-		#}
+			tempStr <<- paste(tempStr,toJSON(myList));
+		}
 
 		rm(dtm)
-	#}
-
-	dataHere <<- toJSON(myList)
+	}
+	dataHere <<- tempStr;
 }
 
