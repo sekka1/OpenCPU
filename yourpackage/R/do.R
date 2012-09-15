@@ -12,14 +12,24 @@
 yourFunction1=function(foo,bar,dataFile="none")
 {
 	tempVar <- "";
-	tempVar <- c(foo);
-	tempVar <- c(tempVar,bar + 5);
-	tempVar <- c(tempVar,dataFile);
+	tempVar <- foo;
+	tempVar <- paste(tempVar,bar + 5);
+	tempVar <- paste(tempVar,dataFile);
 	if (dataFile=="none") {
-	tempVar <- c(tempVar,"No datasource was specified in your request, or File Not Found 404");
+	tempVar <- paste(tempVar,"No datasource was specified in your request, or File Not Found 404");
 	} else {
-	lines <-readLines(dataFile)
-	tempVar <- c(tempVar,lines);
+	
+	#CRITICAL!!! Even though the datasets can pass a single dataFile, its still treated as a list!
+	#this will be very confusing because people will treat all their dataset variables as a single string
+	#but its actually a list of a single string!
+	for ( singleFile in dataFile)
+	{
+			con  <- file(singleFile, open = "r")
+
+			mylines <-readLines(con)
+			close(con)
+			tempVar <- paste(tempVar,mylines);
+	}
 	}
 	dataHere <<- tempVar;
 }
