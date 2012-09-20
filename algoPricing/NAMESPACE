@@ -1,1 +1,3 @@
-export(price)
+export(priceLinearPericom)
+export(trainLinear)
+export(predictLinear)
