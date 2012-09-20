@@ -11,7 +11,11 @@ algoFactor <- function( dataFile="none" )
 	require(conf.design)
 	require(gsubfn)
 
-	lines <- readLines(dataFile);
+	
+	#dataFile is actually treated as a list
+	for (singleData in dataFile)
+	{
+	lines <- readLines(singleData);
 
 	
 	indexCut <- regexpr("data\":", lines )[1] + 7;
@@ -21,6 +25,7 @@ algoFactor <- function( dataFile="none" )
 	parsedLines <- as.vector(parsedLines,mode="numeric");
 	
 	temp <- factorize(parsedLines);
+	}
 	
 	dataHere <<- paste(parsedLines,temp,sep=":");
 }
@@ -68,7 +73,7 @@ stopifnot(all.equal(cl$ totss,        ss(x)),
 	  )
 
 
-kmeans(x,1)$withinss # trivial one-cluster, (its W.SS == ss(x))
+#kmeans(x,1)$withinss # trivial one-cluster, (its W.SS == ss(x))
 
 ## random starts do help here with too many clusters
 ## (and are often recommended anyway!):
@@ -94,8 +99,9 @@ require(algoDebug)
 require(graphics)
 require(RJSONIO)
 
-dataFile <- getFileLocal("561285e69a626150fd3276e71059bc39","2044");
-lines <- readLines(dataFile);
+for (singleDataFile in dataFile)
+{
+lines <- readLines(singleDataFile);
 
 indexCut <- regexpr("data\":", lines )[1] + 7;
 	parsedLines <- "";
@@ -115,15 +121,28 @@ first_col <- parsedLines[seq(1, length(parsedLines), 2)]
 sec_col   <- parsedLines[seq(2, length(parsedLines), 2)]
 
 x <- rbind(matrix(first_col,ncol=2),
-		matrix(sec_col,ncol=2),
 		matrix(sec_col,ncol=2))
 
-colnames(x) <- c("x", "y", "z")
+colnames(x) <- c("x", "y")
 (cl <- kmeans(x, numClusters))
 plot(x, col = cl$cluster)
-points(cl$centers, col = 1:3, pch = 8, cex=2)
+points(cl$centers, col = 1:2, pch = 8, cex=2)
+dataHere <<- cl;
+}
 }
 
-algoClusterData (3);
+
+algoClusterRandomPoints <- function( numberPoints )
+{
+require(graphics)
+require(RJSONIO)
+
+# a 2-dimensional example
+x <- rbind(matrix(rnorm(numberPoints , sd = 0.3), ncol = 2),
+           matrix(rnorm(numberPoints , mean = 1, sd = 0.3), ncol = 2))
+colnames(x) <- c("x", "y")
+plot(x)
+}
+#
 #
 #
