@@ -43,7 +43,7 @@ predictLM <- function(dataFrame, dependentVariable, inverseVariables=list(), exc
     }
     formula <- paste("lm(", dependentVariable, "~")
     for (name in names(query)) {
-        if (!any(excludeVariables == name))  {
+        if (!any(name %in% excludeVariables))  {
         # we want to ignore columns which are not in the maximal model
             if (is.factor(dataFrame[[name]])) {
             # query factor level exists in training data
@@ -95,12 +95,12 @@ priceLinearPericom <- function(salesDataFile, query) {
     columnNameToTypeMap <- list("item_cost"="numeric", "shipped_quantity"="numeric", "quarter_num"="factor", "Ordered_Qty_Extended_Price"="numeric", "unit_selling_price"="numeric")
     sales <- convertTypes(sales, columnNameToTypeMap)
     # don't allow all columns in query
-    query <- subset(query, subset=names(query) %in% list("Martket_Segment", "Product_Line", "Product_Family", "Technology",
-                            "Sold_To", "End_Customer", "Final_Customer", "Internal_Part_number", "quarter_num", "Ordered_Qty_Extended_Price",
-                            "shipped_quantity", "ASM_Region", "segment1.Territory", "segment3.Region", "item_cost"))
     price <- max(predictLM(dataFrame=sales,
                     dependentVariable="unit_selling_price",
                     inverseVariables="shipped_quantity",
+                    excludeVariables=subset(sales, subset=!(names(sales) %in% list("Martket_Segment", "Product_Line", "Product_Family", "Technology",
+                            "Sold_To", "End_Customer", "Final_Customer", "Internal_Part_number", "quarter_num", "Ordered_Qty_Extended_Price",
+                            "shipped_quantity", "ASM_Region", "segment1.Territory", "segment3.Region", "item_cost"))),
                     query=query), 0) # don't want to return negative prices
 }
 # sample invocation:
