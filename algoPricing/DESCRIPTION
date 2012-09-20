@@ -1,0 +1,15 @@
+Package: Pricing
+Maintainer: Rajiv Subrahmanyam <rajiv@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Pricing algorithm
+Type: Package
+Author: Rajiv Subrahmanyam
+Description: Algorithms IO Pricing algorithm
+Version: 0.1
+Date: 9/19/2012
+URL: http://algorithms.io
+Suggests:
+Collate:
+	'do.R'
+Depends:
