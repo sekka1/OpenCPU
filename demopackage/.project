@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>algorithms.io</name>
-	<comment>This is the base class</comment>
+	<name>demopackage</name>
+	<comment>This is an example usage of OpenCPU</comment>
 	<projects>
 	</projects>
 	<buildSpec>
