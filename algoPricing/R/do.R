@@ -43,8 +43,9 @@ extractMinimalFrame <- function(dataFrame, query, dependentVariable, maxFactorLe
     }
     
     # drop unnecessary levels
-    if (nrow(intersectionFrame) == 0) dataFrame <- unionFrame
-    else dataFrame <- intersectionFrame
+    # if (nrow(intersectionFrame) == 0)
+    dataFrame <- unionFrame
+    # else dataFrame <- intersectionFrame
 
     # keep only columns which are in the query and are factors with more than 1 value or numeric
     dataFrame <- droplevels(dataFrame)
@@ -119,7 +120,7 @@ extractMinimalFrame <- function(dataFrame, query, dependentVariable, maxFactorLe
 #'
 #' @author Rajiv Subrahmanyam
 #' -- need not be exported @export
-trainLinear <- function(dataFrame, dependentVariable, inverseVariables=list(), excludeVariables=list(), maxFactorLevels=100, query) {
+trainLinear <- function(dataFrame, dependentVariable, inverseVariables=list(), excludeVariables=list(), maxFactorLevels=500, query) {
     minimalFrame <- extractMinimalFrame(dataFrame, query, dependentVariable, maxFactorLevels)
     terms <- list()
     for (name in names(minimalFrame)) {
@@ -141,7 +142,7 @@ trainLinear <- function(dataFrame, dependentVariable, inverseVariables=list(), e
     trained = list()
     trained$trainingSet <- minimalFrame
     if (length(terms) > 0) {
-        formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=minimalFrame)")
+        formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=minimalFrame, na.action='na.exclude')")
         print(formula)
         ## At this point, if we had a braincell, we would first check to see if we have a cached trained model corresponding to these parameters
         ## Then fall back on actually creating it. But.. sadly, the said braincell is missing at the moment.
