@@ -36,14 +36,14 @@ listFiles <- function( authToken )
 
 #' Gets a datafile from the Data Warehouse
 #' 
-#' @param authToken your authorization token linked to your user account
-#' @param type string authToken
 #' @param datasetID The datasetID like rec_1908
 #' @param type string datasetID
+#' @param authToken your authorization token linked to your user account
+#' @param type string authToken
 #' @return the full filepath the file is saved locally to THIS server
 #' @author Robert I.
 #' @export
-getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorithms.io/" )
+getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" )
 {
 	require(RCurl)
 	require(digest)
@@ -58,7 +58,7 @@ getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorit
 	curlH = getCurlHandle(
 	cookiefile = cookie,
 	useragent =  "Mozilla/5.0 (Windows; U; Windows NT 5.1; en - US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6",
-	header = TRUE,
+	header = FALSE,
 	verbose = TRUE,
 	netrc = TRUE,
 	maxredirs = as.integer(20),
@@ -97,9 +97,10 @@ getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorit
 #pre-parse the content to remove the HTTP headers
 #000000B0                    0D 0A 0D 0A                          ....
 	#
-	textOutput <- rawToChar(content);
-	indexOfHTTPHeader <- regexpr("\r\n\r\n", textOutput)[1]
-	writeLines(substr(textOutput,indexOfHTTPHeader + 4,nchar(textOutput)), destfile)
+	textOutput <<- rawToChar(content);
+	#indexOfHTTPHeader <- regexpr("\r\n\r\n", textOutput)[1]
+	#writeLines(substr(textOutput,indexOfHTTPHeader + 4,nchar(textOutput)), destfile)
+	writeLines(textOutput, destfile)
 	echoBack <- destfile;
 	return(echoBack);
 }
@@ -108,38 +109,32 @@ getFile <- function( authToken , datasetID, algoServer = "https://v1.api.algorit
 #' 
 #' @param authToken your authorization token linked to your user account
 #' @param type string authToken
-#' @param datasetID The datasetID like rec_1908
-#' @param type string datasetID
 #' @param proxyPackage The name of the package your R function is in, you can use yourpackage to test this
 #' @param type string proxyPackage
 #' @param proxyFunction The name of the function in the package you want to call, you can use yourfunction1 to test this
 #' @param type string proxyFunction
 #' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
 #' @param type string proxyParametersList
-#' @param additional_dataset IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
-#' @param type string additional_dataset
+#' @param datasets IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
+#' @param type string datasets
 #' @return The end-results of your proxyFunction that you called 
 #' @author Robert I.
 #' @export
-openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, additional_dataset = "{}" )
+openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, datasets = "{}" )
 {
 	require(RJSONIO);
 	library(proxyPackage,character.only=TRUE);
+	require(plyr);
 	x <- as.list(fromJSON(proxyParametersList)) 
-	if (datasetID=="none") {
-	fileName <- "none";
-	}
-	else {
-	fileName <- getFile(authToken,datasetID, algoServer);
-	}
-	if (fileName!="none") x['dataFile'] <- fileName;
 	
-	y <<- as.list(fromJSON(additional_dataset));
+	y <<- as.list(fromJSON(datasets));
 	if (length(y)!=0) #files to download
 	{	
 		for(i in 1:length(y)) {
-	y[[i]] <<- getFile(authToken,y[[i]], algoServer);
-}
+		{
+			y[[i]] <<- lapply(y[[i]], FUN = getFile,authToken,algoServer);
+		}
+	}
 	}
 	else {
 		#no addtional datasets added here
@@ -148,26 +143,23 @@ openCPUExecute <- function( authToken, datasetID, algoServer = "https://v1.api.a
 
 	proxyOutput <- do.call(proxyFunction,append(x,y));
 	print(proxyOutput);
-
-	#then we clean up the file after this
-	if ( file.exists(fileName) ){
-	file.remove(fileName)
-	}
-	
-	for ( additional_files in y )
-	{
-		if ( file.exists(additional_files) ){
-		file.remove(additional_files)
-		}
-		else
-		{
-			if (debug)
-			{
-				print("odd, the additional file is not found");
-				print(additional_files);
-			}
-		}
-	}
 	
 	print(dataHere)
+	
+	#for ( additional_files in y )
+	#{
+	#	if ( file.exists(additional_files) ){
+	#	file.remove(additional_files)
+	#	}
+	#	else
+	#	{
+	#		if (debug)
+	#		{
+	#			print("odd, the additional file is not found");
+	#			print(additional_files);
+	#		}
+	#	}
+	#}
+	
+	
 }
