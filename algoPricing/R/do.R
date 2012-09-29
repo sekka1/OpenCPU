@@ -29,83 +29,45 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
 #' @param dataFrame the data frame
 #' @param query the query
 #' @return a list containing minimalSet (minimal rows from dataFrame matching terms in query), and filterCondition
-extractMinimalFrame <- function(dataFrame, query, dependentVariable, maxFactorLevels) {
-    # get just factor terms
-    factorTerms <- Filter(function(x) is.factor(dataFrame[[x]]) && query[[x]] %in% levels(dataFrame[[x]]), names(query))
-    intersectionFrame <- dataFrame;
-    unionFrame <- data.frame();
-    for (factorVar in factorTerms) {
-        factorValue <- query[[factorVar]]
-        if (factorValue %in% levels(dataFrame[[factorVar]])) {
-            intersectionFrame <- intersectionFrame[intersectionFrame[[factorVar]] == query[[factorVar]],]
-            unionFrame <- rbind(unionFrame, dataFrame[dataFrame[[factorVar]] == query[[factorVar]],])
-        } else warning(paste("Ignoring factor", name, "as it didn't appear in the training data"))
-    }
-    
-    # drop unnecessary levels
-    # if (nrow(intersectionFrame) == 0)
-    dataFrame <- unionFrame
-    # else dataFrame <- intersectionFrame
-
-    # keep only columns which are in the query and are factors with more than 1 value or numeric
-    dataFrame <- droplevels(dataFrame)
-    factorTerms <- Filter(function(x) nlevels(dataFrame[[x]]) > 1, factorTerms)
-    numericTerms <- Filter(function(x) is.numeric(dataFrame[[x]]), names(query))
-    dataFrame <- dataFrame[,c(factorTerms, numericTerms, dependentVariable)]
-
-    # keep only top n levels
-    for (factorVar in factorTerms) {
-        if (nlevels(dataFrame[[factorVar]]) > maxFactorLevels) {
-        # The top maxFactorLevels levels by occurrence count will be retained, + the one in the query
-            newLevels <- names(summary(dataFrame[[factorVar]], maxsum=maxFactorLevels))
-            if (!(query[[factorVar]] %in% newLevels)) {
-                newLevels[[maxFactorLevels]] <- query[[factorVar]]
-            }
-            dataFrame[[factorVar]] <- factor(dataFrame[[factorVar]], levels=newLevels)
+extractMinimal <- function(dataFrame, query, dependentVariable, inverseVariables=list(), maxFactorLevels) {
+    validColumns <- c(dependentVariable)
+    condition <- "F"
+    for (queryVar in names(query)) {
+        if (is.factor(dataFrame[[queryVar]]) && query[[queryVar]] %in% levels(dataFrame[[queryVar]])) {
+            condition <- paste(condition, " | dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
+            validColumns <- c(validColumns, queryVar)
+        } else if(is.numeric(dataFrame[[queryVar]])) {
+            validColumns <- c(validColumns, queryVar)
         }
     }
 
-    dataFrame
+    dataFrame <- dataFrame[eval(parse(text=condition)),validColumns]
+    dataFrame <- droplevels(dataFrame[complete.cases(dataFrame),])
+    validColumns <- Filter(function(x) is.factor(dataFrame[[x]]) && nlevels(dataFrame[[x]]) > 1 || is.numeric(dataFrame[[x]]), validColumns)
+    dataFrame <- dataFrame[,validColumns]
 
-#    f <- list()
-#    for (name in factorTerms) {
-#        f <- c(f, paste(name, " == '", query[[name]], "'", sep=''))
-#    }
-#
-#    orConditions <- list()
-#    numConditions <- length(f)
-#    while (numConditions > 1) {
-#        print("f")
-#        print(f)
-#        intersectionCount <- matrix(data=0, nrow=numConditions, ncol=numConditions)
-#        intersectionCondition <- matrix(nrow=numConditions, ncol=numConditions)
-#        # find pairs of conditions with intersections
-#        for (i in 1:(numConditions-1)) {
-#            for (j in (i+1):numConditions) {
-#                intersectionCondition[j, i] <- intersectionCondition[i, j] <- paste("(", f[i], "&", f[j], ")")
-#                sub <- subset(dataFrame, subset=eval(parse(text=intersectionCondition[i,j])))
-#                intersectionCount[j, i] <- intersectionCount[i, j] <- nrow(sub)
-#            }
-#        }
-#    
-#        newF <- list()
-#        intersectionExists <- which(rowSums(intersectionCount) > 0)
-#        for (i in 1:numConditions) {
-#            if (i %in% intersectionExists) {
-#                for (j in (i+1):numConditions) {
-#                    if (j %in% intersectionExists) {
-#                        newF <- c(newF, intersectionCondition[i, j])
-#                    }
-#                }
-#            } else orConditions <- c(orConditions, f[i])
-#        }
-#        print("newF")
-#        print(newF)
-#        print("orC")
-#        print(orConditions)
-#        f <- newF
-#        numConditions <- length(f)
-#    }
+    terms <- list()
+    for (queryVar in validColumns[validColumns != dependentVariable]) {
+        if (is.factor(dataFrame[[queryVar]])) {
+            terms <- c(terms, queryVar)
+        } else if(is.numeric(dataFrame[[queryVar]])) {
+            if (queryVar %in% inverseVariables) terms <- c(terms, paste("I(1/", queryVar, ")"))
+            else terms <- c(terms, queryVar)
+        } else query[[queryVar]] <- NULL
+    }
+
+    minimal <- list()
+    minimal$dataFrame <- dataFrame
+    minimal$terms <- terms
+    minimal$query <- query
+    if (length(terms) > 0) {
+        formula <- paste("lm(", dependentVariable, "~")
+        for (term in terms) formula <- paste(formula,term,"+")
+        formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=dataFrame, na.action='na.exclude')")
+        minimal$formula <- formula
+        minimal$model <- eval(parse(text=formula))
+    }
+    minimal
 }
 
 #' Create a dynamic model that matches "query" with training set "dataFrame". The model is built dynamically based on what's available in the query
@@ -121,49 +83,7 @@ extractMinimalFrame <- function(dataFrame, query, dependentVariable, maxFactorLe
 #' @author Rajiv Subrahmanyam
 #' -- need not be exported @export
 trainLinear <- function(dataFrame, dependentVariable, inverseVariables=list(), excludeVariables=list(), maxFactorLevels=500, query) {
-    minimalFrame <- extractMinimalFrame(dataFrame, query, dependentVariable, maxFactorLevels)
-    terms <- list()
-    for (name in names(minimalFrame)) {
-        if (!(name %in% c(excludeVariables, dependentVariable)))  {
-        # we want to ignore columns which are not in the maximal model
-            if (is.factor(minimalFrame[[name]])) {
-                terms <- c(terms, name)
-            } else if (is.numeric(dataFrame[[name]])) {
-                if (any(inverseVariables == name)) terms <- c(terms, paste("I(1/", name, ")"))
-                else terms <- c(terms, name)
-            } else warning(paste("Ignoring", name, "as it's neither a factor not a number"))
-        } else warning(paste("Ignoring variable", name, "as it is to be excluded"))
-    }
-    formula <- paste("lm(", dependentVariable, "~")
-    for (term in terms) {
-        formula <- paste(formula,term,"+")
-    }
-
-    trained = list()
-    trained$trainingSet <- minimalFrame
-    if (length(terms) > 0) {
-        formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=minimalFrame, na.action='na.exclude')")
-        print(formula)
-        ## At this point, if we had a braincell, we would first check to see if we have a cached trained model corresponding to these parameters
-        ## Then fall back on actually creating it. But.. sadly, the said braincell is missing at the moment.
-        trained$model <- eval(parse(text=formula))
-    }
-    trained
-}
-
-#' Predict value of query using model.
-#'
-#' @param linearModel trained linear model
-#' @param query list containing name="value" for all the known variables in the query
-#' @return predicted value with goodness of fit
-#'
-#' @author Rajiv Subrahmanyam
-#' -- need not be exported @export
-predictLinear <- function(linearModel, query) {
-    prediction <- list()
-    prediction$value <- predict(linearModel, query)
-    prediction$goodnessOfFit <- summary(linearModel)$r.squared
-    prediction
+    minimal <- extractMinimal(dataFrame, query, dependentVariable, inverseVariables, maxFactorLevels)
 }
 
 #' Suggest a price for a query based on training data from sales history.
@@ -181,23 +101,24 @@ predictLinear <- function(linearModel, query) {
 priceLinearPericom <- function(salesDataFile, query) {
     sales <- read.csv(salesDataFile)
     columnNameToTypeMap <- list("item_cost"="numeric", "shipped_quantity"="numeric", "quarter_num"="factor", "Ordered_Qty_Extended_Price"="numeric", "unit_selling_price"="numeric")
-    sales$Internal_Part_number <- as.factor(sub("(A$|B$|C$|FA$|FAE$|FB$|FC$|FD$|FF$|FG$|GA$|H$|J$|K$|L$|MA$|NA$|NB$|NC$|ND$|NE$|NF$|NH$|NJ$|NK$|NL$|Q$|S$|T$|U$|V$|W$|ZA$|ZB$|ZD$|ZE$|ZE$|ZF$|ZF$|ZG$|ZH$|ZI$|ZJ$|ZK$|ZL$|ZM$|ZN$|ZP$|ZR$|ZT$|ZX$|XA$|AE$|BE$|CE$|FAE$|FAEE$|FBE$|FCE$|FDE$|FFE$|FGE$|GAE$|HE$|JE$|KE$|LE$|MAE$|NAE$|NBE$|NCE$|NDE$|NEE$|NFE$|NHE$|NJE$|NKE$|NLE$|QE$|SE$|TE$|UE$|VE$|WE$|ZAE$|ZBE$|ZDEZEE$|ZFE$|ZGE$|ZHE$|ZIE$|ZJE$|ZKE$|ZLE$|ZME$|ZNE$|ZPE$|ZRE$|ZTE$|ZXE$|XAE$|AEX$|BEX$|CEX$|FAEX$|FAEEX$|FBEX$|FCEX$|FDEX$|FFEX$|FGEX$|GAEX$|HEX$|JEX$|KEX$|LEX$|MAEX$|NAEX$|NBEX$|NCEX$|NDEX$|NEEX$|NFEX$|NHEX$|NJEX$|NKEX$|NLEX$|QEX$|SEX$|TEX$|UEX$|VEX$|WEX$|ZAEX$|ZBEX$|ZDEX$|ZEEX$|ZFEX$|ZGEX$|ZHEX$|ZIEX$|ZJEX$|ZKEX$|ZLEX$|ZMEX$|ZNEX$|ZPEX$|ZREX$|ZTEX$|ZXEX$|EVB$|XAEX$|\\+.*)", "", as.character(sales$Internal_Part_number)))
-    query$Internal_Part_number <- sub("(A$|B$|C$|FA$|FAE$|FB$|FC$|FD$|FF$|FG$|GA$|H$|J$|K$|L$|MA$|NA$|NB$|NC$|ND$|NE$|NF$|NH$|NJ$|NK$|NL$|Q$|S$|T$|U$|V$|W$|ZA$|ZB$|ZD$|ZE$|ZE$|ZF$|ZF$|ZG$|ZH$|ZI$|ZJ$|ZK$|ZL$|ZM$|ZN$|ZP$|ZR$|ZT$|ZX$|XA$|AE$|BE$|CE$|FAE$|FAEE$|FBE$|FCE$|FDE$|FFE$|FGE$|GAE$|HE$|JE$|KE$|LE$|MAE$|NAE$|NBE$|NCE$|NDE$|NEE$|NFE$|NHE$|NJE$|NKE$|NLE$|QE$|SE$|TE$|UE$|VE$|WE$|ZAE$|ZBE$|ZDEZEE$|ZFE$|ZGE$|ZHE$|ZIE$|ZJE$|ZKE$|ZLE$|ZME$|ZNE$|ZPE$|ZRE$|ZTE$|ZXE$|XAE$|AEX$|BEX$|CEX$|FAEX$|FAEEX$|FBEX$|FCEX$|FDEX$|FFEX$|FGEX$|GAEX$|HEX$|JEX$|KEX$|LEX$|MAEX$|NAEX$|NBEX$|NCEX$|NDEX$|NEEX$|NFEX$|NHEX$|NJEX$|NKEX$|NLEX$|QEX$|SEX$|TEX$|UEX$|VEX$|WEX$|ZAEX$|ZBEX$|ZDEX$|ZEEX$|ZFEX$|ZGEX$|ZHEX$|ZIEX$|ZJEX$|ZKEX$|ZLEX$|ZMEX$|ZNEX$|ZPEX$|ZREX$|ZTEX$|ZXEX$|EVB$|XAEX$|\\+.*)", "", query$Internal_Part_number)
+#    sales$Internal_Part_number <- as.factor(sub("(A$|B$|C$|FA$|FAE$|FB$|FC$|FD$|FF$|FG$|GA$|H$|J$|K$|L$|MA$|NA$|NB$|NC$|ND$|NE$|NF$|NH$|NJ$|NK$|NL$|Q$|S$|T$|U$|V$|W$|ZA$|ZB$|ZD$|ZE$|ZE$|ZF$|ZF$|ZG$|ZH$|ZI$|ZJ$|ZK$|ZL$|ZM$|ZN$|ZP$|ZR$|ZT$|ZX$|XA$|AE$|BE$|CE$|FAE$|FAEE$|FBE$|FCE$|FDE$|FFE$|FGE$|GAE$|HE$|JE$|KE$|LE$|MAE$|NAE$|NBE$|NCE$|NDE$|NEE$|NFE$|NHE$|NJE$|NKE$|NLE$|QE$|SE$|TE$|UE$|VE$|WE$|ZAE$|ZBE$|ZDEZEE$|ZFE$|ZGE$|ZHE$|ZIE$|ZJE$|ZKE$|ZLE$|ZME$|ZNE$|ZPE$|ZRE$|ZTE$|ZXE$|XAE$|AEX$|BEX$|CEX$|FAEX$|FAEEX$|FBEX$|FCEX$|FDEX$|FFEX$|FGEX$|GAEX$|HEX$|JEX$|KEX$|LEX$|MAEX$|NAEX$|NBEX$|NCEX$|NDEX$|NEEX$|NFEX$|NHEX$|NJEX$|NKEX$|NLEX$|QEX$|SEX$|TEX$|UEX$|VEX$|WEX$|ZAEX$|ZBEX$|ZDEX$|ZEEX$|ZFEX$|ZGEX$|ZHEX$|ZIEX$|ZJEX$|ZKEX$|ZLEX$|ZMEX$|ZNEX$|ZPEX$|ZREX$|ZTEX$|ZXEX$|EVB$|XAEX$|\\+.*)", "", as.character(sales$Internal_Part_number)))
     dependentVariable <- "unit_selling_price"
     sales <- convertTypes(sales, columnNameToTypeMap)
     trained <- trainLinear(dataFrame=sales,
                     dependentVariable=dependentVariable,
                     inverseVariables="shipped_quantity",
                     query=query)
+    price <- list()
+    price$training <- trained
     if (!is.null(trained$model)) {
         query <- convertTypes(query, columnNameToTypeMap)
-        prediction <- predictLinear(linearModel=trained$model, query=query)
-        prediction$value <- max(prediction$value, 0) # negative prices are ridiculous
-        prediction
+        price$value <- predict(trained$model, query=trained$query)
+        price$value <- max(price$value, 0) # negative prices are ridiculous
     } else {
         warning("No model. Returning mean")
-        mean(trained$trainingSet)
+        price$value <- mean(trained$dataFrame)
     }
+    price
 }
 # sample invocation:
 # priceLinearPericom(salesDataFile="salesOrders_081712.csv", query=list(Martket_Segment = "AUDIO", Product_Line = "Clock n SAW Oscillators", Technology = "CSO SNGL CER CNV", Sold_To = "AVNET EUROPE COMM VA", Internal_Part_number = "FD5000032", quarter_num = "4", Ordered_Qty_Extended_Price = "1960", shipped_quantity = "4000", ASM_Region = "Europe Distributor", item_cost = ".41926"))

@@ -5,40 +5,28 @@
 	li {color:sienna;}
 	margin-left:50px;
 	</style>
-		<title> Algorithms.io algo2r </title> 
+		<title>Pricing</title> 
 	</head>
 <body style="margin-left: 180px;">
 <img src="https://launchrock-assets.s3.amazonaws.com/logo-files/NhZETApGM7n3WbE.png" width=10% height=5%></img>
-<h3>Example #1 : Listing out your Datasets stored on v1.api.algorithms.io v1</h3>
+<h3>Pericom pricing</h3>
 	</br>
 	<ul>
-	<li>REST CALL : /R/call/algo2r/listFiles/json
-	<li>Has 1 Required parameter : authToken
-	<li>Has 0 Optional parameter :
-	<li>Returns : JSON, the list of file you have on the v1.api.algorithms.io server
+	<li>REST CALL : /R/call/algoPricing/priceLinearPericom/json
+	<li>Has 2 Required parameter : salesDataFile, query
 	</ul>
 	</br>
-	<form enctype="multipart/form-data" action="/R/call/algo2r/listFiles/json" method="GET">
-	<label for="authToken">authToken:</label>
-	<input type="text" name="authToken" id="authToken" value='"null"'>
-	<input type="submit" value="Get File" />
-	</form>
-<hr>
-<h3>Example #2 : Getting a file onto THIS server from v1.api.algorithms.io</h3>
-	</br>
-	<ul>
-	<li>REST CALL : /R/call/algo2r/getFile/json
-	<li>Has 2 Required parameter : authToken, datasetID
-	<li>Has 0 Optional parameter :
-	<li>Returns : the file in /opt/Data-Sets/Automation/
-	</ul>
-	</br>
-	<form enctype="multipart/form-data" action="/R/call/algo2r/getFile/json" method="GET">
-	<label for="authToken">authToken:</label>
-	<input type="text" name="authToken" id="authToken" value='"null"'>
-	<label for="datasetID">datasetID:</label>
-	<input type="text" name="datasetID" id="datasetID" value='"null"'>
-	<input type="submit" value="Get File" />
-	</form>
+</br>
+</br>
+<form enctype="multipart/form-data" action="/R/call/algoPricing/priceLinearPericom/json" method="GET">
+<!--notice how the name URL links to the R functions parameter-->
+<label for="salesDataFile">salesDataFile:</label>
+<input type="text" id="salesDataFile" name="salesDataFile" size=100 value='"/tmp/salesOrders_081712.csv"'>
+</br>
+<label for="query">query:</label>
+<input type="text" id="query" name="query" size=1000 value='{"Martket_Segment":"AUDIO","shipped_quantity":"4000","ASM_Region":"Europe Distributor","item_cost":".41926"}'>
+</br>
+<input type="submit" value="Price" />
+</form>
 </body>
 </html>
