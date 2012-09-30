@@ -36,22 +36,39 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
 #'
 #' @author Rajiv Subrahmanyam
 #' @export
-trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=list(), maxFactorLevels) {
+trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=list(), intersectionThreshold=1, maxFactorLevels) {
     # Extract a minimal set of rows from the dataFrame where all terms in the query are present.
     validColumns <- c(dependentVariable)
-    condition <- "F"
+    numericColumns <- vector()
+    orCondition <- "F"
+    andCondition <- "T"
     for (queryVar in names(query)) {
         if (is.factor(dataFrame[[queryVar]]) && query[[queryVar]] %in% levels(dataFrame[[queryVar]])) {
-            condition <- paste(condition, " | dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
+            orCondition <- paste(orCondition, " | dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
+            andCondition <- paste(andCondition, " & dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
             validColumns <- c(validColumns, queryVar)
         } else if(is.numeric(dataFrame[[queryVar]])) {
             validColumns <- c(validColumns, queryVar)
+            numericColumns <- c(numericColumns, queryVar)
         }
     }
-    if (condition == "F") condition = "T"
+    if (orCondition == "F") orCondition <- "T"
+    if (andCondition == "T") andCondition <- "F"
 
-    dataFrame <- dataFrame[eval(parse(text=condition)),validColumns]
-#    dataFrame <- dataFrame[,validColumns]
+    andFrame <- dataFrame[eval(parse(text=andCondition)),validColumns]
+    print(paste("andCondition:", andCondition, "orCondition:", orCondition, "numand:", nrow(andFrame)))
+    useIntersection <- T
+    if (nrow(andFrame) >= intersectionThreshold) {
+        for (numCol in numericColumns) {
+            print(paste(sd(andFrame[[numCol]], na.rm=T), mean(andFrame[[numCol]], na.rm=T), query[[numCol]]))
+            useIntersection <- useIntersection & (sd(andFrame[[numCol]], na.rm=T) > 0 | mean(andFrame[[numCol]], na.rm=T) == query[[numCol]])
+        }
+    } else useIntersection <- F
+    print(paste("using intersection:", useIntersection))
+    
+    if (useIntersection) dataFrame <- andFrame
+    else dataFrame <- dataFrame[eval(parse(text=orCondition)),validColumns]
+
     dataFrame <- droplevels(dataFrame[complete.cases(dataFrame),])
     validColumns <- Filter(function(x) is.factor(dataFrame[[x]]) && nlevels(dataFrame[[x]]) > 1 || is.numeric(dataFrame[[x]]), validColumns)
     dataFrame <- dataFrame[,validColumns]
@@ -94,6 +111,7 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
 priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, componentIdColumn=NULL, quantityColumn=NULL,  unitCostColumn=NULL, unitSalesPriceColumn, query) {
     sales <- read.csv(salesDataFile)
     sales <- convertTypes(sales, columnNameToTypeMap)
+    query <- convertTypes(query, columnNameToTypeMap)
     trained <- trainLinear(dataFrame=sales,
                     dependentVariable=unitSalesPriceColumn,
                     inverseVariables=quantityColumn,
@@ -101,7 +119,6 @@ priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, compon
     price <- list()
     price$training <- trained
     if (!is.null(trained$model)) {
-        query <- convertTypes(query, columnNameToTypeMap)
         price$value <- max(predict(trained$model, query), 0)
 #        if (!is.null(componentIdColumn) && !is.na(trained$query[[componentIdColumn]]) && !is.null(unitCostColumn)) {
 #            price$value <- max(price$value, min(trained$dataFrame[[unitCostColumn]][trained$dataFrame[[componentIdColumn]] == trained$query[[componentIdColumn]],]))
@@ -136,7 +153,7 @@ priceLinearPericom <- function(salesDataFile, query) {
 }
 
 # sample invocation:
-# priceLinearPericom(salesDataFile="../../../../doc/pricing/FULL/salesOrders_081712.csv", query=list(Internal_Part_number = "FD5000032", quarter_num = "4", shipped_quantity = "4000", ASM_Region = "Europe Distributor", item_cost = ".41926"))
+# priceLinearPericom(salesDataFile="../../../../doc/pricing/FULL/salesOrders_081712.csv", query=list(Internal_Part_number = "FD5000032", shipped_quantity = "4000", ASM_Region = "Europe Distributor", item_cost = ".41926"))
 
 # Omitted for now
 #    sales$Internal_Part_number <- as.factor(sub("(A$|B$|C$|FA$|FAE$|FB$|FC$|FD$|FF$|FG$|GA$|H$|J$|K$|L$|MA$|NA$|NB$|NC$|ND$|NE$|NF$|NH$|NJ$|NK$|NL$|Q$|S$|T$|U$|V$|W$|ZA$|ZB$|ZD$|ZE$|ZE$|ZF$|ZF$|ZG$|ZH$|ZI$|ZJ$|ZK$|ZL$|ZM$|ZN$|ZP$|ZR$|ZT$|ZX$|XA$|AE$|BE$|CE$|FAE$|FAEE$|FBE$|FCE$|FDE$|FFE$|FGE$|GAE$|HE$|JE$|KE$|LE$|MAE$|NAE$|NBE$|NCE$|NDE$|NEE$|NFE$|NHE$|NJE$|NKE$|NLE$|QE$|SE$|TE$|UE$|VE$|WE$|ZAE$|ZBE$|ZDEZEE$|ZFE$|ZGE$|ZHE$|ZIE$|ZJE$|ZKE$|ZLE$|ZME$|ZNE$|ZPE$|ZRE$|ZTE$|ZXE$|XAE$|AEX$|BEX$|CEX$|FAEX$|FAEEX$|FBEX$|FCEX$|FDEX$|FFEX$|FGEX$|GAEX$|HEX$|JEX$|KEX$|LEX$|MAEX$|NAEX$|NBEX$|NCEX$|NDEX$|NEEX$|NFEX$|NHEX$|NJEX$|NKEX$|NLEX$|QEX$|SEX$|TEX$|UEX$|VEX$|WEX$|ZAEX$|ZBEX$|ZDEX$|ZEEX$|ZFEX$|ZGEX$|ZHEX$|ZIEX$|ZJEX$|ZKEX$|ZLEX$|ZMEX$|ZNEX$|ZPEX$|ZREX$|ZTEX$|ZXEX$|EVB$|XAEX$|\\+.*)", "", as.character(sales$Internal_Part_number)))
