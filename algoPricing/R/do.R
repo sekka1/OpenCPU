@@ -55,19 +55,17 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
     if (orCondition == "F") orCondition <- "T"
     if (andCondition == "T") andCondition <- "F"
 
-    andFrame <- dataFrame[eval(parse(text=andCondition)),validColumns]
-    print(paste("andCondition:", andCondition, "orCondition:", orCondition, "numand:", nrow(andFrame)))
-    useIntersection <- T
-    if (nrow(andFrame) >= intersectionThreshold) {
-        for (numCol in numericColumns) {
-            print(paste(sd(andFrame[[numCol]], na.rm=T), mean(andFrame[[numCol]], na.rm=T), query[[numCol]]))
-            useIntersection <- useIntersection & (sd(andFrame[[numCol]], na.rm=T) > 0 | mean(andFrame[[numCol]], na.rm=T) == query[[numCol]])
-        }
-    } else useIntersection <- F
-    print(paste("using intersection:", useIntersection))
-    
-    if (useIntersection) dataFrame <- andFrame
-    else dataFrame <- dataFrame[eval(parse(text=orCondition)),validColumns]
+    frames <- list(dataFrame[eval(parse(text=andCondition)),validColumns], dataFrame[eval(parse(text=orCondition)),validColumns])
+    for (frame in frames) {
+        use <- T
+        if (nrow(frame) >= intersectionThreshold) {
+            for (numCol in numericColumns) {
+                print(paste(sd(frame[[numCol]], na.rm=T), mean(frame[[numCol]], na.rm=T), query[[numCol]]))
+                use <- use & (sd(frame[[numCol]], na.rm=T) > 0 | mean(frame[[numCol]], na.rm=T) == query[[numCol]])
+            }
+        } else use <- F
+        if (use) { dataFrame <- frame; break }
+    }
 
     dataFrame <- droplevels(dataFrame[complete.cases(dataFrame),])
     validColumns <- Filter(function(x) is.factor(dataFrame[[x]]) && nlevels(dataFrame[[x]]) > 1 || is.numeric(dataFrame[[x]]), validColumns)

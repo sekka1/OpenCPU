@@ -1,3 +1,2 @@
 export(priceLinearPericom)
 export(trainLinear)
-export(predictLinear)
