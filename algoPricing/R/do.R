@@ -1,15 +1,17 @@
-#' Convert columns in dataFrame to types specified by columnNameToTypeMap.
+#' Convert columns in dataFrame to types specified by columnNameToTypeMap. Default is convert to factor.
 #'
 #' @param columnNameToTypeMap a list of columnNames to types, which can be numeric, character, or factor
 #' @param dataFrame dataFrame to be modified
+#' @return a new dataFrame with the same contents as dataFrame with types converted as specified in columnNameToTypeMap
 #'
 #' @author Rajiv Subrahmanyam
 #' -- need not be exported @export
 convertTypes <- function(dataFrame, columnNameToTypeMap) {
     tempFrame <- dataFrame
     # TODO: Here validate that "as." + the values of columnNameToTypeMap are indeed allowable functions
-    for(columnName in names(columnNameToTypeMap)) {
-        type <- columnNameToTypeMap[columnName]
+    for(columnName in names(dataFrame)) {
+        if (columnName %in% names(columnNameToTypeMap)) type <- columnNameToTypeMap[columnName]
+        else type <- "factor"
         funcName <- paste("as.", type, sep="")
         if (type == "numeric") { # if numeric, delete commas before parsing
             command <- paste('tempFrame$', columnName,  '<-',  funcName, '(gsub(\',\', \'\', tempFrame$', columnName, '))', sep="")
@@ -21,7 +23,8 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
     tempFrame
 }
 
-#' Create a dynamic model that matches "query" with training set "dataFrame". The model is built dynamically based on what's available in the query
+#' Train and return a model that matches "query" with training set "dataFrame"
+#' Note that the training set is 'intelligently' filtered based on factor variables in the query.
 #'
 #' @param dataFrame data frame for training set
 #' @param dependentVariable the name of the dependent variable (the one we're trying to predict). It should be numeric.
@@ -29,71 +32,104 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
 #' @param excludeVariables (optional) list of fields that can not be used in the model. Default no variables.
 #' @param maxFactorLevels (optional) maximum number of factor levels to be accepted for any variable in the model. Default is 500
 #' @param query list containing name="value" for all the known variables in the query
-#' @return a list containing the trained model and the adjusted query
+#' @return a trained model and modified dataFrame
 #'
 #' @author Rajiv Subrahmanyam
-#' -- need not be exported @export
-trainLinear <- function(dataFrame, dependentVariable, inverseVariables=list(), excludeVariables=list(), maxFactorLevels=100, query) {
-    formula <- paste("lm(", dependentVariable, "~")
-    for (name in names(query)) {
-        if (!any(name %in% excludeVariables))  {
-        # we want to ignore columns which are not in the maximal model
-            if (is.factor(dataFrame[[name]])) {
-            # query factor level exists in training data
-                if (any(query[[name]] == levels(dataFrame[[name]]))) {
-                    if (nlevels(dataFrame[[name]]) > maxFactorLevels) {
-                    # First ensure that all factors in dataFrame have <= maxFactorLevels levels
-                    # The top maxFactorLevels levels by occurrence count will be retained, + the one in the query
-                        newLevels <- names(summary(dataFrame[[name]], maxsum=maxFactorLevels))
-                        if (!(query[[name]] %in% newLevels)) {
-                            newLevels[[maxFactorLevels]] <- query[[name]]
-                        }
-                        dataFrame[[name]] <- factor(dataFrame[[name]], levels=newLevels)
-                    }
-                    query[[name]] <- as.factor(query[[name]])
-                    formula <- paste(formula, name, "+")
-                } else {
-                # else ignore factor
-                    warning(paste("Ignoring factor", name, "as it didn't appear in the top",
-                                   maxFactorLevels, " levels of the training data"))
-                }
-            } else if (is.numeric(dataFrame[[name]])) {
-                query[[name]] <- as.numeric(query[[name]])
-                if (any(inverseVariables == name)) {
-                # If variable has inverse relationship, add 1/x
-                    formula <- paste(formula, "I(1/", name, ") +")
-                } else {
-                    formula <- paste(formula, name, "+")
-                }
-            }
-        } else warning(paste("Ignoring variable", name, "as it is to be excluded"))
+#' @export
+trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=list(), intersectionThreshold=1, maxFactorLevels) {
+    # Extract a minimal set of rows from the dataFrame where all terms in the query are present.
+    validColumns <- c(dependentVariable)
+    numericColumns <- vector()
+    orCondition <- "F"
+    andCondition <- "T"
+    for (queryVar in names(query)) {
+        if (is.factor(dataFrame[[queryVar]]) && query[[queryVar]] %in% levels(dataFrame[[queryVar]])) {
+            orCondition <- paste(orCondition, " | dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
+            andCondition <- paste(andCondition, " & dataFrame$", queryVar, "== '", query[[queryVar]], "'", sep='')
+            validColumns <- c(validColumns, queryVar)
+        } else if(is.numeric(dataFrame[[queryVar]])) {
+            validColumns <- c(validColumns, queryVar)
+            numericColumns <- c(numericColumns, queryVar)
+        }
     }
-    formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=dataFrame)")
-    ## At this point, if we had a braincell, we would first check to see if we have a cached trained model corresponding to these parameters
-    ## Then fall back on actually creating it. But.. sadly, the said braincell is missing at the moment.
-    trained <- list()
-    trained$model <- eval(parse(text=formula))
-    trained$query <- query
-    trained
-}
+    if (orCondition == "F") orCondition <- "T"
+    if (andCondition == "T") andCondition <- "F"
 
-#' Predict value of query using model.
-#'
-#' @param linearModel trained linear model
-#' @param query list containing name="value" for all the known variables in the query
-#' @return predicted value with goodness of fit
-#'
-#' @author Rajiv Subrahmanyam
-#' -- need not be exported @export
-predictLinear <- function(linearModel, query) {
-    prediction <- list()
-    prediction$value <- predict(linearModel, query)
-    prediction$goodnessOfFit <- summary(linearModel)$r.squared
-    prediction
+    frames <- list(dataFrame[eval(parse(text=andCondition)),validColumns], dataFrame[eval(parse(text=orCondition)),validColumns])
+    for (frame in frames) {
+        use <- T
+        if (nrow(frame) >= intersectionThreshold) {
+            for (numCol in numericColumns) {
+                print(paste(sd(frame[[numCol]], na.rm=T), mean(frame[[numCol]], na.rm=T), query[[numCol]]))
+                use <- use & (sd(frame[[numCol]], na.rm=T) > 0 | mean(frame[[numCol]], na.rm=T) == query[[numCol]])
+            }
+        } else use <- F
+        if (use) { dataFrame <- frame; break }
+    }
+
+    dataFrame <- droplevels(dataFrame[complete.cases(dataFrame),])
+    validColumns <- Filter(function(x) is.factor(dataFrame[[x]]) && nlevels(dataFrame[[x]]) > 1 || is.numeric(dataFrame[[x]]), validColumns)
+    dataFrame <- dataFrame[,validColumns]
+
+    terms <- list()
+    for (queryVar in validColumns[validColumns != dependentVariable]) {
+        if (is.factor(dataFrame[[queryVar]])) {
+            terms <- c(terms, queryVar)
+        } else if(is.numeric(dataFrame[[queryVar]])) {
+            if (queryVar %in% inverseVariables) terms <- c(terms, paste("I(1/", queryVar, ")"))
+            else terms <- c(terms, queryVar)
+        } else query[[queryVar]] <- NULL
+    }
+
+    minimal <- list()
+    minimal$dataFrame <- dataFrame
+    minimal$terms <- terms
+    minimal$query <- query
+    if (length(terms) > 0) {
+        formula <- paste("lm(", dependentVariable, "~")
+        for (term in terms) formula <- paste(formula,term,"+")
+        formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=dataFrame, na.action='na.omit')")
+        minimal$formula <- formula
+        minimal$model <- eval(parse(text=formula))
+    }
+    minimal
 }
 
 #' Suggest a price for a query based on training data from sales history.
-#' Robert - can you please hook up this function to OpenCPU. Thanks!
+#'
+#' @param salesDataFile data file containing sales data
+#' @param priceColumn column containing price in training data
+#' @param inverseVariables (optional) list of numerical variables that are known to have an inverse relations (1/x). Default is no variables.
+#' @param excludeVariables (optional) list of variables to exclude from model
+#' @param query list with names and values of known variables in prospective sale (input parameters for pricing)
+#' @return a predicted value
+#'
+#' @author Rajiv Subrahmanyam
+#' @export
+priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, componentIdColumn=NULL, quantityColumn=NULL,  unitCostColumn=NULL, unitSalesPriceColumn, query) {
+    sales <- read.csv(salesDataFile)
+    sales <- convertTypes(sales, columnNameToTypeMap)
+    query <- convertTypes(query, columnNameToTypeMap)
+    trained <- trainLinear(dataFrame=sales,
+                    dependentVariable=unitSalesPriceColumn,
+                    inverseVariables=quantityColumn,
+                    query=query)
+    price <- list()
+    price$training <- trained
+    if (!is.null(trained$model)) {
+        price$value <- max(predict(trained$model, query), 0)
+#        if (!is.null(componentIdColumn) && !is.na(trained$query[[componentIdColumn]]) && !is.null(unitCostColumn)) {
+#            price$value <- max(price$value, min(trained$dataFrame[[unitCostColumn]][trained$dataFrame[[componentIdColumn]] == trained$query[[componentIdColumn]],]))
+#        }
+    } else {
+        warning("No model. Returning mean")
+        price$value <- mean(trained$dataFrame)
+    }
+    price
+
+}
+
+#' Suggest a price for a query based on training data from sales history.
 #'
 #' @param salesDataFile data file containing sales data
 #' @param priceColumn column containing price in training data
@@ -105,19 +141,17 @@ predictLinear <- function(linearModel, query) {
 #' @author Rajiv Subrahmanyam
 #' @export
 priceLinearPericom <- function(salesDataFile, query) {
-    sales <- read.csv(salesDataFile)
-    columnNameToTypeMap <- list("item_cost"="numeric", "shipped_quantity"="numeric", "quarter_num"="factor", "Ordered_Qty_Extended_Price"="numeric", "unit_selling_price"="numeric")
-    sales <- convertTypes(sales, columnNameToTypeMap)
-    trained <- trainLinear(dataFrame=sales,
-                    dependentVariable="unit_selling_price",
-                    inverseVariables="shipped_quantity",
-                    excludeVariables=subset(names(sales), subset=!(names(sales) %in% list("Martket_Segment", "Product_Line", "Product_Family", "Technology",
-                            "Sold_To", "End_Customer", "Final_Customer", "Internal_Part_number", "quarter_num", "Ordered_Qty_Extended_Price",
-                            "shipped_quantity", "ASM_Region", "segment1.Territory", "segment3.Region", "item_cost"))),
+    priceLinearComponent(salesDataFile = salesDataFile,
+                    columnNameToTypeMap = list("item_cost"="numeric", "shipped_quantity"="numeric", "quarter_num"="factor", "Ordered_Qty_Extended_Price"="numeric", "unit_selling_price"="numeric"),
+                    componentIdColumn = "Internal_Part_number",
+                    quantityColumn = "shipped_quantity",
+                    unitCostColumn = "item_cost",
+                    unitSalesPriceColumn="unit_selling_price",
                     query=query)
-    prediction <- predictLinear(linearModel=trained$model, query=trained$query)
-    prediction$value <- max(prediction$value, 0) # negative prices are ridiculous
-    prediction
 }
+
 # sample invocation:
-# priceLinearPericom(salesDataFile="salesOrders_081712.csv", query=list(Martket_Segment = "AUDIO", Product_Line = "Clock n SAW Oscillators", Technology = "CSO SNGL CER CNV", Sold_To = "AVNET EUROPE COMM VA", Internal_Part_number = "FD5000032", quarter_num = "4", Ordered_Qty_Extended_Price = "1960", shipped_quantity = "4000", ASM_Region = "Europe Distributor", item_cost = ".41926"))
+# priceLinearPericom(salesDataFile="../../../../doc/pricing/FULL/salesOrders_081712.csv", query=list(Internal_Part_number = "FD5000032", shipped_quantity = "4000", ASM_Region = "Europe Distributor", item_cost = ".41926"))
+
+# Omitted for now
+#    sales$Internal_Part_number <- as.factor(sub("(A$|B$|C$|FA$|FAE$|FB$|FC$|FD$|FF$|FG$|GA$|H$|J$|K$|L$|MA$|NA$|NB$|NC$|ND$|NE$|NF$|NH$|NJ$|NK$|NL$|Q$|S$|T$|U$|V$|W$|ZA$|ZB$|ZD$|ZE$|ZE$|ZF$|ZF$|ZG$|ZH$|ZI$|ZJ$|ZK$|ZL$|ZM$|ZN$|ZP$|ZR$|ZT$|ZX$|XA$|AE$|BE$|CE$|FAE$|FAEE$|FBE$|FCE$|FDE$|FFE$|FGE$|GAE$|HE$|JE$|KE$|LE$|MAE$|NAE$|NBE$|NCE$|NDE$|NEE$|NFE$|NHE$|NJE$|NKE$|NLE$|QE$|SE$|TE$|UE$|VE$|WE$|ZAE$|ZBE$|ZDEZEE$|ZFE$|ZGE$|ZHE$|ZIE$|ZJE$|ZKE$|ZLE$|ZME$|ZNE$|ZPE$|ZRE$|ZTE$|ZXE$|XAE$|AEX$|BEX$|CEX$|FAEX$|FAEEX$|FBEX$|FCEX$|FDEX$|FFEX$|FGEX$|GAEX$|HEX$|JEX$|KEX$|LEX$|MAEX$|NAEX$|NBEX$|NCEX$|NDEX$|NEEX$|NFEX$|NHEX$|NJEX$|NKEX$|NLEX$|QEX$|SEX$|TEX$|UEX$|VEX$|WEX$|ZAEX$|ZBEX$|ZDEX$|ZEEX$|ZFEX$|ZGEX$|ZHEX$|ZIEX$|ZJEX$|ZKEX$|ZLEX$|ZMEX$|ZNEX$|ZPEX$|ZREX$|ZTEX$|ZXEX$|EVB$|XAEX$|\\+.*)", "", as.character(sales$Internal_Part_number)))
