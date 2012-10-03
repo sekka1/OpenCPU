@@ -14,9 +14,9 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
         else type <- "factor"
         funcName <- paste("as.", type, sep="")
         if (type == "numeric") { # if numeric, delete commas before parsing
-            command <- paste('tempFrame$', columnName,  '<-',  funcName, '(gsub(\',\', \'\', tempFrame$', columnName, '))', sep="")
+            command <- paste('tempFrame[["', columnName,  '"]] <-',  funcName, '(gsub(\',\', \'\', tempFrame[["', columnName, '"]]))', sep="")
         } else {
-            command <- paste('tempFrame$', columnName,  '<-',  funcName, '(tempFrame$', columnName, ')', sep="")
+            command <- paste('tempFrame[["', columnName,  '"]] <-',  funcName, '(tempFrame[["', columnName, '"]])', sep="")
         }
         eval(parse(text=command))
     }
@@ -82,15 +82,13 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
     }
 
     minimal <- list()
-    minimal$dataFrame <- dataFrame
-    minimal$terms <- terms
-    minimal$query <- query
+    minimal[["terms"]] <- terms
     if (length(terms) > 0) {
         formula <- paste("lm(", dependentVariable, "~")
         for (term in terms) formula <- paste(formula,term,"+")
         formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=dataFrame, na.action='na.omit')")
-        minimal$formula <- formula
-        minimal$model <- eval(parse(text=formula))
+        minimal[["formula"]] <- formula
+        minimal[["model"]] <- eval(parse(text=formula))
     }
     minimal
 }
@@ -115,15 +113,15 @@ priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, compon
                     inverseVariables=quantityColumn,
                     query=query)
     price <- list()
-    price$training <- trained
-    if (!is.null(trained$model)) {
-        price$value <- max(predict(trained$model, query), 0)
+    price[["train"]] <- trained
+    if (!is.null(trained[["model"]])) {
+        price[["value"]] <- max(predict(trained[["model"]], query), 0)
 #        if (!is.null(componentIdColumn) && !is.na(trained$query[[componentIdColumn]]) && !is.null(unitCostColumn)) {
 #            price$value <- max(price$value, min(trained$dataFrame[[unitCostColumn]][trained$dataFrame[[componentIdColumn]] == trained$query[[componentIdColumn]],]))
 #        }
     } else {
         warning("No model. Returning mean")
-        price$value <- mean(trained$dataFrame)
+        price[["value"]] <- mean(trained[["dataFrame"]])
     }
     price
 
