@@ -107,6 +107,8 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
 priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, componentIdColumn=NULL, quantityColumn=NULL,  unitCostColumn=NULL, unitSalesPriceColumn, query) {
     sales <- read.csv(salesDataFile)
     sales <- convertTypes(sales, columnNameToTypeMap)
+    # This is required because RJSONIO converts only mixed type collections into list, and the rest to vectors
+    query <- as.list(query) 
     query <- convertTypes(query, columnNameToTypeMap)
     trained <- trainLinear(dataFrame=sales,
                     dependentVariable=unitSalesPriceColumn,
