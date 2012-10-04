@@ -139,13 +139,14 @@ priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, compon
 #' @author Rajiv Subrahmanyam
 #' @export
 priceLinearPericom <- function(salesDataFile, query) {
-    priceLinearComponent(salesDataFile = salesDataFile,
+    price <- priceLinearComponent(salesDataFile = salesDataFile,
                     columnNameToTypeMap = list("item_cost"="numeric", "shipped_quantity"="numeric", "quarter_num"="factor", "Ordered_Qty_Extended_Price"="numeric", "unit_selling_price"="numeric"),
                     componentIdColumn = "Internal_Part_number",
                     quantityColumn = "shipped_quantity",
                     unitCostColumn = "item_cost",
                     unitSalesPriceColumn="unit_selling_price",
                     query=query)
+    price$value
 }
 
 # sample invocation:
