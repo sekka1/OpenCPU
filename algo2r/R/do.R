@@ -107,44 +107,19 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 
 #' Gets a datafile from the Data Warehouse and executes the R function then removes the datafile
 #' 
-#' @param authToken your authorization token linked to your user account
-#' @param type string authToken
-#' @param proxyPackage The name of the package your R function is in, you can use yourpackage to test this
-#' @param type string proxyPackage
-#' @param proxyFunction The name of the function in the package you want to call, you can use yourfunction1 to test this
-#' @param type string proxyFunction
-#' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
-#' @param type string proxyParametersList
-#' @param datasets IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
-#' @param type string datasets
-#' @return The end-results of your proxyFunction that you called 
+#' @param authToken (type=String) your authorization token linked to your user account
+#' @param package (type=String) The name of the package your R function is in, you can use yourpackage to test this
+#' @param fun (type=String) The name of the function in the package you want to call, you can use yourfunction1 to test this
+#' @param datasets (type = named list) The datafiles that your R script requires, eg: list(dictionaryFile="1234", dictionaryFile2="1235" )
+#' @param ... arguments to be passed on to the function
+#' @return The end-results of your function that you called 
 #' @author Robert I.
+#' @author Rajiv Subrahmanyam
 #' @export
-openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, datasets = "{}" )
-{
-	require(RJSONIO);
-	library(proxyPackage,character.only=TRUE);
-	require(plyr);
-	x <- as.list(fromJSON(proxyParametersList)) 
-	
-	y <<- as.list(fromJSON(datasets));
-	if (length(y)!=0) #files to download
-	{	
-		for(i in 1:length(y)) {
-		{
-			y[[i]] <<- lapply(y[[i]], FUN = getFile,authToken,algoServer);
-		}
-	}
-	}
-	else {
-		#no addtional datasets added here
-	}
-
-
-	proxyOutput <- do.call(proxyFunction,append(x,y));
-	print(proxyOutput);
-	
-	print(dataHere)
+openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , package, fun, datasets = list(), ...) {
+	library(package,character.only=TRUE);
+	y <- lapply(as.list(datasets), getFile, authToken, algoServer)
+	proxyOutput <- do.call(fun, append(y, list(...)));
 	
 	#for ( additional_files in y )
 	#{
@@ -160,6 +135,4 @@ openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.i
 	#		}
 	#	}
 	#}
-	
-	
 }
