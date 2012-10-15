@@ -123,7 +123,8 @@ openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.i
 	datasets <- as.list(datasets)
 	y <- list()
 	for (dataSetName in names(datasets)) {
-		y[[dataSetName]] = getFile(datasets[[dataSetName]], authToken, algoServer)
+	    dataSet <- datasets[[dataSetName]]
+            y[[dataSetName]] <- as.character(lapply(dataSet, getFile, authToken, algoServer))
 	}
 	params <- append(y, list(...))
 	library(package,character.only=TRUE);
