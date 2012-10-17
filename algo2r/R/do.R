@@ -124,7 +124,7 @@ openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io
     if (type == "static") {
         library(package,character.only=TRUE);
     } else if (type == "dynamic") {
-        eval(parse(package))
+        eval(parse(text=package))
     } else {
         stop('type must be one of "static", "dynamic"')
     }
