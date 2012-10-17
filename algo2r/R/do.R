@@ -46,7 +46,7 @@ listFiles <- function( authToken )
 getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" )
 {
 	require(RCurl)
-	require(digest)
+	require(RJSONIO)
 	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
 
 	algoServer <- paste(algoServer,"dataset/id/",sep="");
@@ -73,7 +73,7 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 	options(op)
 	
 	
-	destfile = paste("/opt/Data-Sets/Automation/file_",digest(Sys.time(),algo="md5"),sep="");
+	destfile = paste("/opt/Data-Sets/Automation/file_",format(Sys.time(), '%Y%m%d%H%M%S'),sep="");
 	
 	#destfile <- paste("file_",digest(Sys.time(),algo="md5"),sep="");
 	doesFileExist <- file.exists(destfile);
@@ -98,6 +98,9 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 #000000B0                    0D 0A 0D 0A                          ....
 	#
 	textOutput <<- rawToChar(content);
+	a <- fromJSON(textOutput)
+	textOutput <- gsub('\\n', '\n', a[[1]][["data"]])
+	
 	#indexOfHTTPHeader <- regexpr("\r\n\r\n", textOutput)[1]
 	#writeLines(substr(textOutput,indexOfHTTPHeader + 4,nchar(textOutput)), destfile)
 	writeLines(textOutput, destfile)
@@ -117,9 +120,15 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 #' @author Rajiv Subrahmanyam
 #' @export
 openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , package, fun, datasets = list(), ...) {
+	datasets <- as.list(datasets)
+	y <- list()
+	for (dataSetName in names(datasets)) {
+	    dataSet <- datasets[[dataSetName]]
+            y[[dataSetName]] <- as.character(lapply(dataSet, getFile, authToken, algoServer))
+	}
+	params <- append(y, list(...))
 	library(package,character.only=TRUE);
-	y <- lapply(as.list(datasets), getFile, authToken, algoServer)
-	proxyOutput <- do.call(fun, append(y, list(...)));
+	proxyOutput <- do.call(fun, params);
 	
 	#for ( additional_files in y )
 	#{
