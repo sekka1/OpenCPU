@@ -120,11 +120,12 @@ openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io
     parameters <- as.list(parameters)
     realParams <- list()
     for (parameterName in names(parameters)) {
-        parameterDef <- parameters[[parameterName]]
+        parameterDef <- as.list(parameters[[parameterName]])
         parameterType <- parameterDef[["datatype"]]
         parameterValue <- parameterDef[["value"]]
-        realParams[[parameterName]] <- if (parameterType == "datasource") as.character(lapply(parameterValue, getFile, authToken, algoServer))
-                                      else parameterValue
+        realParams[[parameterName]] <- if (!is.null(parameterType) && parameterType == "datasource")
+				           as.character(lapply(parameterValue, getFile, authToken, algoServer))
+                                       else parameterValue
     }
     if (evalType == "static") {
         library(package,character.only=TRUE);
