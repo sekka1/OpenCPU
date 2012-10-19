@@ -104,30 +104,35 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 #' Gets a datafile from the Data Warehouse and executes the R function then removes the datafile
 #' 
 #' @param authToken (type=String) your authorization token linked to your user account
-#' @param type (type=String) one of "static" or "dynamic". If type == static, the next argument package is loaded from disk. If type == dynamic, package is treated as raw program text to be evaluated
+#' @param evalType (type=String) one of "static" or "dynamic". If evalType == static, the next argument package is loaded from disk.
+#'                 If evalType == dynamic, package is treated as raw program text to be evaluated
 #' @param package (type=String) The name of the package your R function is in, you can use yourpackage to test this
 #' @param fun (type=String) The name of the function in the package you want to call, you can use yourfunction1 to test this
-#' @param datasets (type = named list) The datafiles that your R script requires, eg: list(dictionaryFile="1234", dictionaryFile2="1235" )
-#' @param ... arguments to be passed on to the function
+#' @param parameters (type=List) list of metadata + data regarding parameters to be passed to function. The only required attribute of parameter
+#'                   is "value" which contains the value to be passed in. Other attributes are "datatype" and "format". parameters whose datatype
+#'                   is "datasource" will be dereferenced (value will be treated as datasource id and that will be downloaded and the filename
+#'                   passed to the underlying function
 #' @return The end-results of your function that you called 
 #' @author Robert I.
 #' @author Rajiv Subrahmanyam
 #' @export
-openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , type = "static", package, fun, datasets = list(), ...) {
-    datasets <- as.list(datasets)
-    y <- list()
-    for (dataSetName in names(datasets)) {
-        dataSet <- datasets[[dataSetName]]
-        y[[dataSetName]] <- as.character(lapply(dataSet, getFile, authToken, algoServer))
+openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list()) {
+    parameters <- as.list(parameters)
+    realParams <- list()
+    for (parameterName in names(parameters)) {
+        parameterDef <- parameters[[parameterName]]
+        parameterType <- parameterDef[["datatype"]]
+        parameterValue <- parameterDef[["value"]]
+        realParams[[parameterName]] <- if (parameterType == "datasource") as.character(lapply(parameterValue, getFile, authToken, algoServer))
+                                      else parameterValue
     }
-    params <- append(y, list(...))
-    if (type == "static") {
+    if (evalType == "static") {
         library(package,character.only=TRUE);
-    } else if (type == "dynamic") {
+    } else if (evalType == "dynamic") {
         eval(parse(text=package))
     } else {
-        stop('type must be one of "static", "dynamic"')
+        stop('evalType must be one of "static", "dynamic"')
     }
 
-    proxyOutput <- do.call(fun, params);
+    proxyOutput <- do.call(fun, realParams);
 }
