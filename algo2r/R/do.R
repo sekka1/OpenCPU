@@ -42,11 +42,12 @@ listFiles <- function( authToken )
 #' @param type string authToken
 #' @return the full filepath the file is saved locally to THIS server
 #' @author Robert I.
+#' @author Rajiv Subrahmanyam
 #' @export
 getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" )
 {
 	require(RCurl)
-	require(digest)
+	require(RJSONIO)
 	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
 
 	algoServer <- paste(algoServer,"dataset/id/",sep="");
@@ -73,7 +74,7 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 	options(op)
 	
 	
-	destfile = paste("/opt/Data-Sets/Automation/file_",digest(Sys.time(),algo="md5"),sep="");
+	destfile = paste("/opt/Data-Sets/Automation/file_",format(Sys.time(), '%Y%m%d%H%M%S'),sep="");
 	
 	#destfile <- paste("file_",digest(Sys.time(),algo="md5"),sep="");
 	doesFileExist <- file.exists(destfile);
@@ -90,16 +91,11 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 		}
 		else {
 			i <- sample(1:999999999,1,replace=T)
-			#print("increasing");
 		}
 	}
 
-#pre-parse the content to remove the HTTP headers
-#000000B0                    0D 0A 0D 0A                          ....
-	#
-	textOutput <<- rawToChar(content);
-	#indexOfHTTPHeader <- regexpr("\r\n\r\n", textOutput)[1]
-	#writeLines(substr(textOutput,indexOfHTTPHeader + 4,nchar(textOutput)), destfile)
+	textOutput <- gsub('\\n', '\n', fromJSON(rawToChar(content))[[1]][["data"]])
+	
 	writeLines(textOutput, destfile)
 	echoBack <- destfile;
 	return(echoBack);
@@ -107,59 +103,37 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 
 #' Gets a datafile from the Data Warehouse and executes the R function then removes the datafile
 #' 
-#' @param authToken your authorization token linked to your user account
-#' @param type string authToken
-#' @param proxyPackage The name of the package your R function is in, you can use yourpackage to test this
-#' @param type string proxyPackage
-#' @param proxyFunction The name of the function in the package you want to call, you can use yourfunction1 to test this
-#' @param type string proxyFunction
-#' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
-#' @param type string proxyParametersList
-#' @param datasets IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
-#' @param type string datasets
-#' @return The end-results of your proxyFunction that you called 
+#' @param authToken (type=String) your authorization token linked to your user account
+#' @param evalType (type=String) one of "static" or "dynamic". If evalType == static, the next argument package is loaded from disk.
+#'                 If evalType == dynamic, package is treated as raw program text to be evaluated
+#' @param package (type=String) The name of the package your R function is in, you can use yourpackage to test this
+#' @param fun (type=String) The name of the function in the package you want to call, you can use yourfunction1 to test this
+#' @param parameters (type=List) list of metadata + data regarding parameters to be passed to function. The only required attribute of parameter
+#'                   is "value" which contains the value to be passed in. Other attributes are "datatype" and "format". parameters whose datatype
+#'                   is "datasource" will be dereferenced (value will be treated as datasource id and that will be downloaded and the filename
+#'                   passed to the underlying function
+#' @return The end-results of your function that you called 
 #' @author Robert I.
+#' @author Rajiv Subrahmanyam
 #' @export
-openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, datasets = "{}" )
-{
-	require(RJSONIO);
-	library(proxyPackage,character.only=TRUE);
-	require(plyr);
-	x <- as.list(fromJSON(proxyParametersList)) 
-	
-	y <<- as.list(fromJSON(datasets));
-	if (length(y)!=0) #files to download
-	{	
-		for(i in 1:length(y)) {
-		{
-			y[[i]] <<- lapply(y[[i]], FUN = getFile,authToken,algoServer);
-		}
-	}
-	}
-	else {
-		#no addtional datasets added here
-	}
+openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list()) {
+    parameters <- as.list(parameters)
+    realParams <- list()
+    for (parameterName in names(parameters)) {
+        parameterDef <- as.list(parameters[[parameterName]])
+        parameterType <- parameterDef[["datatype"]]
+        parameterValue <- parameterDef[["value"]]
+        realParams[[parameterName]] <- if (!is.null(parameterType) && parameterType == "datasource")
+				           as.character(lapply(parameterValue, getFile, authToken, algoServer))
+                                       else parameterValue
+    }
+    if (evalType == "static") {
+        library(package,character.only=TRUE);
+    } else if (evalType == "dynamic") {
+        eval(parse(text=package))
+    } else {
+        stop('evalType must be one of "static", "dynamic"')
+    }
 
-
-	proxyOutput <- do.call(proxyFunction,append(x,y));
-	print(proxyOutput);
-	
-	print(dataHere)
-	
-	#for ( additional_files in y )
-	#{
-	#	if ( file.exists(additional_files) ){
-	#	file.remove(additional_files)
-	#	}
-	#	else
-	#	{
-	#		if (debug)
-	#		{
-	#			print("odd, the additional file is not found");
-	#			print(additional_files);
-	#		}
-	#	}
-	#}
-	
-	
+    proxyOutput <- do.call(fun, realParams);
 }
