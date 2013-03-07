@@ -40,9 +40,9 @@ createFormula <- function(dataFrame, responseVariable) {
 #' @param columnNameToTypeMap overrides to columnNameToMap
 preProcess <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
     columnNameToTypeMap[responseVariable] <- "factor";
-    if (is.character(train)) { train <- read.csv(train); }
-    if (is.character(test)) { test <- read.csv(test); }
-    if (!(responseVariable %in% names)) { stop(paste('Could not find response variable ',responseVariable)); }
+    if (is.character(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
+    if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(test) }
+    if (!(responseVariable %in% names(train))) { stop(paste('Could not find response variable ',responseVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     test <- convertTypes(test, columnNameToTypeMap);
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
