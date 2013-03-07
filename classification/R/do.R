@@ -54,6 +54,7 @@ preProcess <- function(train, test, responseVariable, columnNameToTypeMap=NULL) 
 #' @param test testing dataset
 #' @param responseVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
+#' @export
 classifyLogisticRegression <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
     preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
@@ -73,6 +74,7 @@ classifyLogisticRegression <- function(train, test, responseVariable, columnName
 #' @param test testing dataset
 #' @param responseVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
+#' @export
 classifyDecisionTree <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
     library(tree)
     preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
@@ -91,6 +93,7 @@ classifyDecisionTree <- function(train, test, responseVariable, columnNameToType
 #' @param test testing dataset
 #' @param responseVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
+#' @export
 classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap=NULL, size=10) {
     library(nnet)
     preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
