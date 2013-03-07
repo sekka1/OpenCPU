@@ -93,6 +93,7 @@ classifyDecisionTree <- function(train, test, responseVariable, columnNameToType
 #' @param test testing dataset
 #' @param responseVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
+#' @param size size of hidden layer
 #' @export
 classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap=NULL, size=10) {
     library(nnet)
