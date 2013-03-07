@@ -1,0 +1,32 @@
+<html>
+	<head> 
+	<style type="text/css">
+	hr {color:sienna;}
+	li {color:sienna;}
+	margin-left:50px;
+	</style>
+		<title>Pricing</title> 
+	</head>
+<body style="margin-left: 180px;">
+<img src="https://launchrock-assets.s3.amazonaws.com/logo-files/NhZETApGM7n3WbE.png" width=10% height=5%></img>
+<h3>Pericom pricing</h3>
+	</br>
+	<ul>
+	<li>REST CALL : /R/call/Pricing/priceLinearPericom/json
+	<li>Has 2 Required parameter : salesDataFile, query
+	</ul>
+	</br>
+</br>
+</br>
+<form enctype="multipart/form-data" action="/R/call/Pricing/priceLinearPericom/json" method="GET">
+<!--notice how the name URL links to the R functions parameter-->
+<label for="salesDataFile">salesDataFile:</label>
+<input type="text" id="salesDataFile" name="salesDataFile" size=100 value='"/tmp/salesOrders_081712.csv"'>
+</br>
+<label for="query">query:</label>
+<input type="text" id="query" name="query" size=1000 value='{"Internal_Part_number":"PI3USB103ZLEX", "shipped_quantity":4000, "Final_Customer":"DELL", "ASM_Region":"South Central"}'>
+</br>
+<input type="submit" value="Price" />
+</form>
+</body>
+</html>
