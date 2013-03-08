@@ -1,3 +1,4 @@
+
 #' Convert columns in dataFrame to types specified by columnNameToTypeMap. Default is convert to factor.
 #'
 #' @param columnNameToTypeMap a list of columnNames to types, which can be numeric, character, or factor
@@ -41,7 +42,7 @@ createFormula <- function(dataFrame, responseVariable) {
 preProcess <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
     columnNameToTypeMap[responseVariable] <- "factor";
     if (is.character(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
-    if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(test) }
+    if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(as.list(test)); }
     if (!(responseVariable %in% names(train))) { stop(paste('Could not find response variable ',responseVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     test <- convertTypes(test, columnNameToTypeMap);
