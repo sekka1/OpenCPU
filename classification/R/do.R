@@ -109,3 +109,22 @@ classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap
     prediction <- levels(train[[responseVariable]])[prediction]
     return(prediction);
 }
+
+#' Classify test set based on labeled training data using a neural network.
+#' @param train training dataset
+#' @param test testing dataset
+#' @param responseVariable the label column (for training/testing)
+#' @param columnNameToTypeMap overrides to columnNameToMap
+#' @param size size of hidden layer
+#' @export
+classifyRandomForest <- function(train, test, responseVariable, columnNameToTypeMap=NULL, size=10) {
+    library(randomForest)
+    preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
+    train <- preProcessed[[1]];
+    test <- preProcessed[[2]];
+    formula <- createFormula(train, responseVariable);
+    formula <- paste('randomForest(',formula,', data=train)'); 
+    model <- eval(parse(text=formula));
+    prediction <- predict(model , newdata=test)
+    return(prediction);
+}
