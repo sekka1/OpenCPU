@@ -27,23 +27,23 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
 
 #' Create a formula from the dataframe column names and the response variable
 #' @param dataFrame the source dataFrame
-#' @param responseVariable the predicted variable
-createFormula <- function(dataFrame, responseVariable) {
+#' @param dependentVariable the predicted variable
+createFormula <- function(dataFrame, dependentVariable) {
     names <- names(dataFrame);
-    predictors <- names[!(names %in% responseVariable)];
-    return(paste(responseVariable,'~',paste(predictors, collapse=' + ')));
+    predictors <- names[!(names %in% dependentVariable)];
+    return(paste(dependentVariable,'~',paste(predictors, collapse=' + ')));
 }
 
 #' Preprocess the input datasets to do some common manipulations.
 #' @param train training dataset
 #' @param test testing dataset
-#' @param responseVariable the predicted variable
+#' @param dependentVariable the predicted variable
 #' @param columnNameToTypeMap overrides to columnNameToMap
-preProcess <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
-    columnNameToTypeMap[responseVariable] <- "factor";
+preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+    columnNameToTypeMap[dependentVariable] <- "factor";
     if (is.character(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
     if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(as.list(test)); }
-    if (!(responseVariable %in% names(train))) { stop(paste('Could not find response variable ',responseVariable)); }
+    if (!(dependentVariable %in% names(train))) { stop(paste('Could not find response variable ',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     test <- convertTypes(test, columnNameToTypeMap);
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
@@ -53,35 +53,35 @@ preProcess <- function(train, test, responseVariable, columnNameToTypeMap=NULL) 
 #' Classify test set based on labeled training data using a logistic regression classifier.
 #' @param train training dataset
 #' @param test testing dataset
-#' @param responseVariable the label column (for training/testing)
+#' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-classifyLogisticRegression <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
-    preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
+classifyLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
-    if (!(nlevels(train[[responseVariable]]) == 2)) { stop(paste('Logistic regression can only handle 2 classes for response variable')); }
-    formula <- createFormula(train, responseVariable);
+    if (!(nlevels(train[[dependentVariable]]) == 2)) { stop(paste('Logistic regression can only handle 2 classes for response variable')); }
+    formula <- createFormula(train, dependentVariable);
     formula <- paste('glm(',formula,', data=train, family="binomial")'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test, type="response")
     prediction <- round(prediction) + 1;
-    prediction <- as.factor(levels(train[[responseVariable]])[prediction])
+    prediction <- as.factor(levels(train[[dependentVariable]])[prediction])
     return(prediction);
 }
 
 #' Classify test set based on labeled training data using a decision tree.
 #' @param train training dataset
 #' @param test testing dataset
-#' @param responseVariable the label column (for training/testing)
+#' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-classifyDecisionTree <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
+classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
     library(tree)
-    preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
-    formula <- createFormula(train, responseVariable);
+    formula <- createFormula(train, dependentVariable);
     formula <- paste('tree(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
@@ -92,16 +92,16 @@ classifyDecisionTree <- function(train, test, responseVariable, columnNameToType
 #' Classify test set based on labeled training data using a neural network.
 #' @param train training dataset
 #' @param test testing dataset
-#' @param responseVariable the label column (for training/testing)
+#' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param size size of hidden layer
 #' @export
-classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap=NULL, size=10) {
+classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, size=10) {
     library(nnet)
-    preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
-    formula <- createFormula(train, responseVariable);
+    formula <- createFormula(train, dependentVariable);
     formula <- paste('nnet(',formula,', data=train, size=', size,')'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
@@ -112,16 +112,16 @@ classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap
 #' Classify test set based on labeled training data using a neural network.
 #' @param train training dataset
 #' @param test testing dataset
-#' @param responseVariable the label column (for training/testing)
+#' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param size size of hidden layer
 #' @export
-classifyRandomForest <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
+classifyRandomForest <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
     library(randomForest)
-    preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
-    formula <- createFormula(train, responseVariable);
+    formula <- createFormula(train, dependentVariable);
     formula <- paste('randomForest(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
