@@ -94,7 +94,7 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 		}
 	}
 
-	textOutput <- gsub('\\n', '\n', fromJSON(rawToChar(content))[[1]][["data"]])
+	textOutput <- rawToChar(content); # gsub('\\n', '\n', fromJSON(rawToChar(content))[[1]][["data"]])
 	
 	writeLines(textOutput, destfile)
 	echoBack <- destfile;

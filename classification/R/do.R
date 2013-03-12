@@ -66,7 +66,7 @@ classifyLogisticRegression <- function(train, test, responseVariable, columnName
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test, type="response")
     prediction <- round(prediction) + 1;
-    prediction <- levels(train[[responseVariable]])[prediction]
+    prediction <- as.factor(levels(train[[responseVariable]])[prediction])
     return(prediction);
 }
 
@@ -85,7 +85,7 @@ classifyDecisionTree <- function(train, test, responseVariable, columnNameToType
     formula <- paste('tree(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
-    prediction <- colnames(prediction)[(apply(prediction, 1, which.max))]
+    prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))])
     return(prediction);
 }
 
@@ -105,8 +105,7 @@ classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap
     formula <- paste('nnet(',formula,', data=train, size=', size,')'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
-    prediction <- round(prediction) + 1;
-    prediction <- levels(train[[responseVariable]])[prediction]
+    prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))])
     return(prediction);
 }
 
@@ -117,7 +116,7 @@ classifyNeuralNet <- function(train, test, responseVariable, columnNameToTypeMap
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param size size of hidden layer
 #' @export
-classifyRandomForest <- function(train, test, responseVariable, columnNameToTypeMap=NULL, size=10) {
+classifyRandomForest <- function(train, test, responseVariable, columnNameToTypeMap=NULL) {
     library(randomForest)
     preProcessed <- preProcess(train, test, responseVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
