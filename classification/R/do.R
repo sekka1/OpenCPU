@@ -72,6 +72,26 @@ classifyLogisticRegression <- function(train, test, dependentVariable, columnNam
     return(prediction);
 }
 
+#' Classify test set based on labeled training data using multinomial logistic regression.
+#' @param train training dataset
+#' @param test testing dataset
+#' @param dependentVariable the label column (for training/testing)
+#' @param columnNameToTypeMap overrides to columnNameToMap
+#' @param size size of hidden layer
+#' @export
+classifyMultinomialLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+    library(nnet)
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
+    train <- preProcessed[[1]];
+    test <- preProcessed[[2]];
+    formula <- createFormula(train, dependentVariable);
+    formula <- paste('multinom(',formula,', data=train)'); 
+    model <- eval(parse(text=formula));
+    prediction <- predict(model , newdata=test)
+    prediction <- as.character(prediction);
+    return(prediction);
+}
+
 #' Classify test set based on labeled training data using a decision tree.
 #' @param train training dataset
 #' @param test testing dataset
