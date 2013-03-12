@@ -1,27 +1,34 @@
-## Logistic Regression Classifier
+## Random Forest classifier
 ### Overview
 
 Per Wikipedia: Classification is the problem of identifying to which of a set
 of categories a new observation belongs, on the basis of a training set of data
 containing observations whose category membership is known.
 
-Logistic regression is a simple classification algorithm. It works by
-identifying an n-1 dimensional hyperplane that separates an n dimensional space
-into two classes (which are on either side of the plane).
+Random forest is an ensemble classifier that consists of many decision trees
+and outputs the class that is the mode of the classes output by individual
+trees.
 
 It compares as follows with other classification algorithms
 
 #### Advantages:
-* Fast and efficient.
-* Easy to interpret. The output can be thought of as the probability of an
-  observation beloging in a particular class.
+* It is one of the most accurate learning algorithms available. For many data sets, it produces a highly accurate classifier.
+* It runs efficiently on large databases.
+* It can handle thousands of input variables without variable deletion.
+* It gives estimates of what variables are important in the classification.
+* It generates an internal unbiased estimate of the generalization error as the forest building progresses.
+* It has an effective method for estimating missing data and maintains accuracy when a large proportion of the data are missing.
+* It has methods for balancing error in class population unbalanced data sets.
+* Prototypes are computed that give information about the relation between the variables and the classification.
+* It computes proximities between pairs of cases that can be used in clustering, locating outliers, or (by scaling) give interesting views of the data.
+* The capabilities of the above can be extended to unlabeled data, leading to unsupervised clustering, data views and outlier detection.
+* It offers an experimental method for detecting variable interactions.
 
 #### Disadvantages:
-* Only works for 2 classes. Multi-class problems (with k classes) need to be
-  modeled as k separate models each of which can differenciate between one
-  class and everything else.
-* Only works if the classes are linearly separable. Real world problems tend to
-  be non-linear.
+* Random forests have been observed to overfit for some datasets with noisy classification/regression tasks.
+* Unlike decision trees, the classifications made by random forests are difficult for humans to interpret.
+* For data including categorical variables with different number of levels, random forests are biased in favor of those attributes with more levels. Therefore, the variable importance scores from random forest are not reliable for this type of data. Methods such as partial permutations were used to solve the problem.
+* If the data contain groups of correlated features of similar relevance for the output, then smaller groups are favored over larger groups.
 
 ### Customer Churn Example
 
@@ -44,10 +51,6 @@ Usage (MB)", "Support Calls" and "Payment Delay (Months)".  The data is
 labelled into two categories "FALSE" and "TRUE" indicating whether it was
 closed.
 
-Logistic regression will now calculate the optimal three dimensional plane
-through this four dimensional space, such that the plane separates the data as
-cleanly as possible between those labelled "FALSE" and those lablelled "TRUE".
-
 Now let us see how this can be implemented on the Algorithms.io platform.
 
 1. Download the [training
@@ -61,11 +64,10 @@ like this
 >   { "api": { "Authentication": "Success" }, "data": 3324 } # For training
 >   { "api": { "Authentication": "Success" }, "data": 3325 } # For testing
 
-3. Run classification using [Logistic
-Regression](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Logistic-Regression)
+3. Run classification using [Random Forest](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Random-Forest)
 or do that using a this curl command
 
->		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/42' \
+>		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/<whatever>' \
 >		--header 'X-Mashape-Authorization: <your Mashape header here>' \
 >		-d 'method=sync' \
 >		-d 'ouputType=json' \

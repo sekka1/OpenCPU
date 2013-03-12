@@ -1,27 +1,30 @@
-## Logistic Regression Classifier
+## Decision Tree Classifier
 ### Overview
 
 Per Wikipedia: Classification is the problem of identifying to which of a set
 of categories a new observation belongs, on the basis of a training set of data
 containing observations whose category membership is known.
 
-Logistic regression is a simple classification algorithm. It works by
-identifying an n-1 dimensional hyperplane that separates an n dimensional space
-into two classes (which are on either side of the plane).
+Decision tree learningi uses a decision tree as a predictive model which maps
+observations about an item to conclusions about the item's target value. In
+these tree structures, leaves represent class labels and branches represent
+conjunctions of features that lead to those class labels.
 
 It compares as follows with other classification algorithms
 
 #### Advantages:
-* Fast and efficient.
-* Easy to interpret. The output can be thought of as the probability of an
-  observation beloging in a particular class.
+* Simple to understand and interpret.
+* Requires little data preparation.
+* Able to handle both numerical and categorical data.
+* Possible to validate a model using statistical tests.
+* Robust. Performs well even if its assumptions are somewhat violated by the true model from which the data were generated.
+* Performs well with large data in a short time. Large amounts of data can be analysed using standard computing resources.
 
 #### Disadvantages:
-* Only works for 2 classes. Multi-class problems (with k classes) need to be
-  modeled as k separate models each of which can differenciate between one
-  class and everything else.
-* Only works if the classes are linearly separable. Real world problems tend to
-  be non-linear.
+* Optimal Trees are difficult to calculate
+* Prone to overfitting to the training data.
+* For data including categorical variables with different numbers of levels, information gain in decision trees is biased in favor of those attributes with more levels.
+
 
 ### Customer Churn Example
 
@@ -40,13 +43,8 @@ not. The data looks like:
 
 To paraphrase this example in the terms that we introduced earlier: We have 4
 dimensional training data. The dimensions are "Voice Usage (Minutes)", "Data
-Usage (MB)", "Support Calls" and "Payment Delay (Months)".  The data is
-labelled into two categories "FALSE" and "TRUE" indicating whether it was
-closed.
-
-Logistic regression will now calculate the optimal three dimensional plane
-through this four dimensional space, such that the plane separates the data as
-cleanly as possible between those labelled "FALSE" and those lablelled "TRUE".
+Usage (MB)", "Support Calls" and "Payment Delay (Months)".  The target class
+labels are "FALSE" and "TRUE" indicating whether it was closed.
 
 Now let us see how this can be implemented on the Algorithms.io platform.
 
@@ -61,11 +59,10 @@ like this
 >   { "api": { "Authentication": "Success" }, "data": 3324 } # For training
 >   { "api": { "Authentication": "Success" }, "data": 3325 } # For testing
 
-3. Run classification using [Logistic
-Regression](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Logistic-Regression)
+3. Run classification using [Decision Tree](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Decision-Tree)
 or do that using a this curl command
 
->		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/42' \
+>		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/<whatever>' \
 >		--header 'X-Mashape-Authorization: <your Mashape header here>' \
 >		-d 'method=sync' \
 >		-d 'ouputType=json' \

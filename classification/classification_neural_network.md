@@ -1,27 +1,31 @@
-## Logistic Regression Classifier
+## Neural Network Classifier
 ### Overview
 
 Per Wikipedia: Classification is the problem of identifying to which of a set
 of categories a new observation belongs, on the basis of a training set of data
 containing observations whose category membership is known.
 
-Logistic regression is a simple classification algorithm. It works by
-identifying an n-1 dimensional hyperplane that separates an n dimensional space
-into two classes (which are on either side of the plane).
+A neural network is a mathematical model inspired by biological neural
+networks, which changes its structure during a learning phase. Neural networks
+are used to model complex relationships between inputs and outputs or to find
+patterns in data.
+
+This particular implmentation allows for the creation of networks with three
+layers. One input layer has as many nodes as input features, One output layer
+which has as many nodes as output classes, and one hidden node whose size is
+configurable. Larger values for hidden layer size will provide the ability to
+model more complex functions, at the expense of making the computation more CPU
+intensive, and making the network more prone to overfitting.
 
 It compares as follows with other classification algorithms
 
 #### Advantages:
-* Fast and efficient.
-* Easy to interpret. The output can be thought of as the probability of an
-  observation beloging in a particular class.
+* Can model highly non linear classification problems
+* Overfitting can be adjusted via tuning the size of the hidden layer
 
 #### Disadvantages:
-* Only works for 2 classes. Multi-class problems (with k classes) need to be
-  modeled as k separate models each of which can differenciate between one
-  class and everything else.
-* Only works if the classes are linearly separable. Real world problems tend to
-  be non-linear.
+* Computationally intensive
+* Results are difficult to interpret as a neural network is a 'black box' model.
 
 ### Customer Churn Example
 
@@ -44,10 +48,6 @@ Usage (MB)", "Support Calls" and "Payment Delay (Months)".  The data is
 labelled into two categories "FALSE" and "TRUE" indicating whether it was
 closed.
 
-Logistic regression will now calculate the optimal three dimensional plane
-through this four dimensional space, such that the plane separates the data as
-cleanly as possible between those labelled "FALSE" and those lablelled "TRUE".
-
 Now let us see how this can be implemented on the Algorithms.io platform.
 
 1. Download the [training
@@ -61,14 +61,14 @@ like this
 >   { "api": { "Authentication": "Success" }, "data": 3324 } # For training
 >   { "api": { "Authentication": "Success" }, "data": 3325 } # For testing
 
-3. Run classification using [Logistic
-Regression](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Logistic-Regression)
+3. Run classification using [Neural Network](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Neural Network)
 or do that using a this curl command
 
->		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/42' \
+>		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/<whatever>' \
 >		--header 'X-Mashape-Authorization: <your Mashape header here>' \
 >		-d 'method=sync' \
 >		-d 'ouputType=json' \
+>		-d 'size=10' \
 >		-d 'train=3324' \
 >		-d 'test=3325'
 

@@ -65,7 +65,7 @@ like this
 Regression](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Logistic-Regression)
 or do that using a this curl command
 
->		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/42' \
+>		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/<whatever>' \
 >		--header 'X-Mashape-Authorization: <your Mashape header here>' \
 >		-d 'method=sync' \
 >		-d 'ouputType=json' \
