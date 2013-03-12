@@ -45,7 +45,9 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL)
     if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(as.list(test)); }
     if (!(dependentVariable %in% names(train))) { stop(paste('Could not find response variable ',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
+    train <- train[complete.cases(train),];
     test <- convertTypes(test, columnNameToTypeMap);
+    test <- test[complete.cases(test),];
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
     return(list(train, test));
 }
@@ -66,7 +68,7 @@ classifyLogisticRegression <- function(train, test, dependentVariable, columnNam
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test, type="response")
     prediction <- round(prediction) + 1;
-    prediction <- as.factor(levels(train[[dependentVariable]])[prediction])
+    prediction <- as.character(levels(train[[dependentVariable]])[prediction])
     return(prediction);
 }
 
@@ -85,7 +87,7 @@ classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTyp
     formula <- paste('tree(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
-    prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))])
+    prediction <- as.character(colnames(prediction)[(apply(prediction, 1, which.max))])
     return(prediction);
 }
 
@@ -107,8 +109,8 @@ classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMa
     prediction <- predict(model , newdata=test)
     if (nlevels(train[[dependentVariable]]) == 2) { 
         prediction <- round(prediction) + 1;
-        prediction <- as.factor(levels(train[[dependentVariable]])[prediction])
-    } else { prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))]); }
+        prediction <- as.character(levels(train[[dependentVariable]])[prediction])
+    } else { prediction <- as.character(colnames(prediction)[(apply(prediction, 1, which.max))]); }
     return(prediction);
 }
 
@@ -127,6 +129,6 @@ classifyRandomForest <- function(train, test, dependentVariable, columnNameToTyp
     formula <- createFormula(train, dependentVariable);
     formula <- paste('randomForest(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
-    prediction <- as.factor(predict(model , newdata=test));
+    prediction <- as.character(predict(model , newdata=test));
     return(prediction);
 }
