@@ -105,7 +105,10 @@ classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMa
     formula <- paste('nnet(',formula,', data=train, size=', size,')'); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
-    prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))])
+    if (nlevels(train[[dependentVariable]]) == 2) { 
+        prediction <- round(prediction) + 1;
+        prediction <- as.factor(levels(train[[dependentVariable]])[prediction])
+    } else { prediction <- as.factor(colnames(prediction)[(apply(prediction, 1, which.max))]); }
     return(prediction);
 }
 
@@ -124,6 +127,6 @@ classifyRandomForest <- function(train, test, dependentVariable, columnNameToTyp
     formula <- createFormula(train, dependentVariable);
     formula <- paste('randomForest(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
-    prediction <- predict(model , newdata=test)
+    prediction <- as.factor(predict(model , newdata=test));
     return(prediction);
 }
