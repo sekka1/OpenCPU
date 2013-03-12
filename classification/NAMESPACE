@@ -1,3 +1,4 @@
 export(classifyLogisticRegression)
 export(classifyNeuralNet)
 export(classifyDecisionTree)
+export(classifyRandomForest)
