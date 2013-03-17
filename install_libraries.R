@@ -4,4 +4,4 @@ install.packages(c("ada", "arules", "bitops", "cba",
        "MASS", "network", "randomForest", "rggobi", "RODBC",
        "ROCR", "rpart", "XML", "RCurl", "digest", "plotrix",
        "plyr", "ggplot2", "gsubfn", "RJSONIO", "conf.design",
-        "tm", "tree"))
+        "tm", "tree", "e1071"))
