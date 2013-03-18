@@ -178,7 +178,7 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
 #' @param algos List of algorithms to compare
 #' @return a list whose names are the supplied algorithms and values are the classification %
 #' @export
-compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeMap,
+compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
        algos=c('MultinomialLogisticRegression', 'DecisionTree', 'NeuralNet', 'RandomForest', 'SVM'), ...) {
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
