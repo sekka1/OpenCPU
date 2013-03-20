@@ -12,6 +12,6 @@ data <- data.frame(usage_minutes, usage_data, support_calls, payment_delay, clos
 
 trainSelect <- sample(c(T,F), size=numUsers, prob=c(0.7, 1-0.7), replace=T);
 train <- data[trainSelect,];
-test <- data[!trainSelect,!(names(train) %in% 'closed')];
+test <- data[!trainSelect,]; # !(names(train) %in% 'closed')];
 write.csv(train, 'customer_data_train.csv');
 write.csv(test, 'customer_data_test.csv');

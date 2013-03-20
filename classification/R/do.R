@@ -43,7 +43,7 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL)
     columnNameToTypeMap[dependentVariable] <- "factor";
     if (is.character(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
     if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(as.list(test)); }
-    if (!(dependentVariable %in% names(train))) { stop(paste('Could not find response variable ',dependentVariable)); }
+    if (!(dependentVariable %in% names(train))) { stop(paste('Could not find dependent variable ',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     train <- train[complete.cases(train),];
     test <- convertTypes(test, columnNameToTypeMap);
@@ -58,11 +58,11 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL)
 #' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-classifyLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+classifyLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
-    if (!(nlevels(train[[dependentVariable]]) == 2)) { stop(paste('Logistic regression can only handle 2 classes for response variable')); }
+    if (!(nlevels(train[[dependentVariable]]) == 2)) { stop(paste('Logistic regression can only handle 2 classes for dependent variable')); }
     formula <- createFormula(train, dependentVariable);
     formula <- paste('glm(',formula,', data=train, family="binomial")'); 
     model <- eval(parse(text=formula));
@@ -79,7 +79,7 @@ classifyLogisticRegression <- function(train, test, dependentVariable, columnNam
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param size size of hidden layer
 #' @export
-classifyMultinomialLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+classifyMultinomialLogisticRegression <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
     library(nnet)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
@@ -98,7 +98,7 @@ classifyMultinomialLogisticRegression <- function(train, test, dependentVariable
 #' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
     library(tree)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
@@ -118,7 +118,7 @@ classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTyp
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param size size of hidden layer
 #' @export
-classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, size=10) {
+classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, size=10, ...) {
     library(nnet)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
@@ -139,9 +139,8 @@ classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMa
 #' @param test testing dataset
 #' @param dependentVariable the label column (for training/testing)
 #' @param columnNameToTypeMap overrides to columnNameToMap
-#' @param size size of hidden layer
 #' @export
-classifyRandomForest <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
+classifyRandomForest <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
     library(randomForest)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
     train <- preProcessed[[1]];
@@ -151,4 +150,49 @@ classifyRandomForest <- function(train, test, dependentVariable, columnNameToTyp
     model <- eval(parse(text=formula));
     prediction <- as.character(predict(model , newdata=test));
     return(prediction);
+}
+
+#' Classify test set based on labeled training data using a support vector machine. 
+#' @param train training dataset
+#' @param test testing dataset
+#' @param dependentVariable the label column (for training/testing)
+#' @param columnNameToTypeMap overrides to columnNameToMap
+#' @export
+classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
+    library(e1071)
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
+    train <- preProcessed[[1]];
+    test <- preProcessed[[2]];
+    formula <- createFormula(train, dependentVariable);
+    formula <- paste('svm(',formula,', data=train)'); 
+    model <- eval(parse(text=formula));
+    prediction <- as.character(predict(model , newdata=test));
+    return(prediction);
+}
+
+#' Compare the performance of various available classifiers.
+#' @param train training dataset
+#' @param test testing dataset
+#' @param dependentVariable the label column (for training/testing)
+#' @param columnNameToTypeMap overrides to columnNameToMap
+#' @param algos List of algorithms to compare
+#' @return a list whose names are the supplied algorithms and values are the classification %
+#' @export
+compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
+       algos=c('MultinomialLogisticRegression', 'DecisionTree', 'NeuralNet', 'RandomForest', 'SVM'), ...) {
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
+    train <- preProcessed[[1]];
+    test <- preProcessed[[2]];
+    if (!(dependentVariable %in% names(test))) { stop(paste('Could not find dependent variable',dependentVariable,'in test set')); }
+    success <- timePerRecord <- vector();
+    for (algo in algos) {
+        print(paste('Trying ',algo));
+        command <- paste('classify',algo,'(train, test, dependentVariable, columnNameToTypeMap, ...)',sep='');
+        start <- proc.time()[['elapsed']];
+        result <- eval(parse(text=command));
+        end <- proc.time()[['elapsed']];
+        success[[algo]] <- sum(result == test[[dependentVariable]]) / nrow(test);
+        timePerRecord[[algo]] <- (end-start) / nrow(test);
+    }
+    return(data.frame(algos, success, timePerRecord));
 }
