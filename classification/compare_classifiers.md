@@ -1,35 +1,27 @@
-## Neural Network Classifier
+## Compare Classifiers
 ### Overview
 
-A [neural network](http://en.wikipedia.org/wiki/Artificial_neural_network) is
-a mathematical model inspired by biological neural networks, which changes its
-structure during a learning phase. Neural networks are used to model complex
-relationships between inputs and outputs or to find patterns in data.
+This "algorithm" compares the accuracy and performance of 5 different
+classification algorithms. The algorithms that will be compared are
 
-This particular implmentation allows for the creation of networks with three
-layers. One input layer has as many nodes as input features, One output layer
-which has as many nodes as output classes, and one hidden node whose size is
-configurable. Larger values for hidden layer size will provide the ability to
-model more complex functions, at the expense of making the computation more CPU
-intensive, and making the network more prone to overfitting.
+* Multinomial Logistic Regression
+* Neural Network with 1 hidden layer
+* Decision Tree
+* Random Forest
+* Support Vector Machine
 
-It compares as follows with other classification algorithms
-
-#### Advantages:
-* Can model highly non linear classification problems
-* Overfitting can be adjusted via tuning the size of the hidden layer
-
-#### Disadvantages:
-* Computationally intensive
-* Results are difficult to interpret as a neural network is a 'black box' model.
+The idea is that you start out with a common training and test set that will be
+used to train each of these algorithms. Predictions are generated using each of
+these algorithms and the results are compared with the *pre-labelled* test set.
+Note that unlike the individual algorithms, the test set needs to be labelled.
 
 ### Customer Churn Example
 
-Let us say that we are a mobile service provider and we wish to predict whether
-a customer will close their account in the next 6 months based on their usage
-patterns. Assume that we have historical (training) data about how they used
-our service, and they are labeled based on whether the account was closed or
-not. The data looks like:
+Let us say that we are a mobile service provider and we wish to determine which
+algorithm performs the best to predict whether a customer will close their
+account in the next 6 months based on their usage patterns. Assume that we have
+historical (training) data about how they used our service, and they are
+labeled based on whether the account was closed or not. The data looks like:
 
 <table>
 <tr><td>Voice Usage (Minutes)</td><td>Data Usage (MB)</td><td>Support Calls</td><td>Payment Delay (Months)</td><td>Closed</td></tr>
@@ -89,14 +81,35 @@ indicating that the training data was uploaded to dataset 3482.
 > -d 'test={"datatype":"datasource","value":"3482"}' \
 > -d 'dependentVariable={"datatype":"string","value":"closed"}' \
 > -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
-> http://pod3.staging.v1.api.algorithms.io/jobs/swagger/44
+> http://pod3.staging.v1.api.algorithms.io/jobs/swagger/50
 
 4. Interpreting the results
 
-The output will be a json list of the predicted categories for each record in
-the test data. In this case, it will look like
+The output will be a json object with three 'parallel' arrays. The first has
+the algorithms that were compared. The second shows the success rate for
+predictions as compared with the labelled values in the test set. The third has
+the time it took per record for each algorithm.
 
-> [ "TRUE", "TRUE", "FALSE", ... ]
-
-This indicates that the algorithm predicts that the first two accounts in the
-test set will close, whereas the third one will not.
+> {
+>   "algos" : [
+>       "MultinomialLogisticRegression",
+>       "DecisionTree",
+>       "NeuralNet",
+>       "RandomForest",
+>       "SVM"
+>   ],
+>   "success" : [
+>       0.9403974,
+>       0.9635762,
+>       0.9403974,
+>       0.9735099,
+>       0.9503311
+>   ],
+>   "timePerRecord" : [
+>       0.0005463576,
+>       0.0002218543,
+>       0.0006854305,
+>       0.003135762,
+>       0.000513245
+>   ]
+> }

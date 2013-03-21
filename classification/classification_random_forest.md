@@ -1,13 +1,9 @@
 ## Random Forest classifier
 ### Overview
 
-Per Wikipedia: Classification is the problem of identifying to which of a set
-of categories a new observation belongs, on the basis of a training set of data
-containing observations whose category membership is known.
-
-Random forest is an ensemble classifier that consists of many decision trees
-and outputs the class that is the mode of the classes output by individual
-trees.
+[Random forest](http://en.wikipedia.org/wiki/Random_forest) is an ensemble
+classifier that consists of many decision trees and outputs the class that is
+the mode of the classes output by individual trees.
 
 It compares as follows with other classification algorithms
 
@@ -45,34 +41,65 @@ not. The data looks like:
 <tr><td>5.44</td><td>148.13</td><td>1</td><td>0</td><td>FALSE</td></tr>
 </table>
 
-To paraphrase this example in the terms that we introduced earlier: We have 4
-dimensional training data. The dimensions are "Voice Usage (Minutes)", "Data
-Usage (MB)", "Support Calls" and "Payment Delay (Months)".  The data is
-labelled into two categories "FALSE" and "TRUE" indicating whether it was
-closed.
+This is 4 dimensional training data, the dimensions being "Voice Usage
+(Minutes)", "Data Usage (MB)", "Support Calls" and "Payment Delay (Months)").
+The variable we're interested in (the dependent variable) is "Closed", which
+indicates whether the account was closed or not. It takes the values "FALSE"
+and "TRUE".
 
-Now let us see how this can be implemented on the Algorithms.io platform.
+Now let us say that we have a test set. These are records for which we have
+access to the 4 dimensions mentioned above and want to predict the dependent
+variable (whether or not the account will close).
+
+Here is a step by step tutorial on how to 
 
 1. Download the [training
 data](https://s3.amazonaws.com/sample_dataset.algorithms.io/customer_data_train.csv)
 and the [testing
 data](https://s3.amazonaws.com/sample_dataset.algorithms.io/customer_data_test.csv)
 
-2.  [Upload](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Upload)
-the files to algorithms.io.  Once uploaded, you will see a responses that look
-like this
->   { "api": { "Authentication": "Success" }, "data": 3324 } # For training
->   { "api": { "Authentication": "Success" }, "data": 3325 } # For testing
+2.  Upload the training file to to algorithms.io. You can do this using curl as follows:
 
-3. Run classification using [Random Forest](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Random-Forest)
-or do that using a this curl command
+> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+>      -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
+>      -F theFile=@customer_data_train.csv
 
->		curl --include --request POST 'https://algorithms.p.mashape.com/jobs/swagger/<whatever>' \
->		--header 'X-Mashape-Authorization: <your Mashape header here>' \
->		-d 'method=sync' \
->		-d 'ouputType=json' \
->		-d 'train=3324' \
->		-d 'test=3325'
+The response will look like
 
-The output will be a json list of the predicted categories for each row in the
-test data.
+>   { "api": { "Authentication": "Success" }, "data": 3481 }
+
+indicating that the training data was uploaded to dataset 3481.
+
+Next upload the test file.
+
+> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+>      -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
+>      -F theFile=@customer_data_test.csv
+
+The response will look like
+
+>   { "api": { "Authentication": "Success" }, "data": 3482 }
+
+indicating that the training data was uploaded to dataset 3482.
+
+3. Run classifier aganist the two uploaded datasets.
+
+> curl -X POST \
+> -d 'method=sync' \
+> -d 'outputType=json' \
+> -d 'datasources=[]' \
+> -d 'train={"datatype":"datasource","value":"3481"}' \
+> -d 'test={"datatype":"datasource","value":"3482"}' \
+> -d 'dependentVariable={"datatype":"string","value":"closed"}' \
+> -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
+> http://pod3.staging.v1.api.algorithms.io/jobs/swagger/46
+
+4. Interpreting the results
+
+The output will be a json list of the predicted categories for each record in
+the test data. In this case, it will look like
+
+> [ "TRUE", "TRUE", "FALSE", ... ]
+
+This indicates that the algorithm predicts that the first two accounts in the
+test set will close, whereas the third one will not.
