@@ -64,7 +64,7 @@ The data can now be uploaded to the algorithms.io system.
 Upload the training data to to algorithms.io. You can do this using curl as follows:
 
 > curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
+>      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
 >      -F theFile=@customer\_data\_train.csv
 
 The response will look like
@@ -76,7 +76,7 @@ indicating that the training data was uploaded to dataset 3481.
 Next upload the test data.
 
 > curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
+>      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
 >      -F theFile=@customer\_data\_test.csv
 
 The response will look like
@@ -88,15 +88,15 @@ indicating that the test data was uploaded to dataset 3482.
 #### Execution
 Run classifier aganist the two uploaded datasets.
 
-> curl -X POST \
-> -d 'method=sync' \
-> -d 'outputType=json' \
-> -d 'datasources=[]' \
-> -d 'train={"datatype":"datasource","value":"3481"}' \
-> -d 'test={"datatype":"datasource","value":"3482"}' \
-> -d 'dependentVariable={"datatype":"string","value":"closed"}' \
-> -H 'authToken: <YOUR AUTHORIZATION TOKEN>'  
-> http://pod3.staging.v1.api.algorithms.io/jobs/swagger/47
+> curl -X POST 
+> -d 'method=sync' 
+> -d 'outputType=json' 
+> -d 'datasources=[]' 
+> -d 'train={"datatype":"datasource","value":"3481"}' 
+> -d 'test={"datatype":"datasource","value":"3482"}' 
+> -d 'dependentVariable={"datatype":"string","value":"closed"}' 
+> -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+> http://v1.api.algorithms.io/jobs/swagger/47
 
 #### Output
 
