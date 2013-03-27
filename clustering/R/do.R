@@ -38,10 +38,10 @@ preProcess <- function(dataset, columnNameToTypeMap=NULL) {
 #' @param points
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-clusterKMeans <- function(dataset, columnNameToTypeMap=NULL, ...) {
+clusterKMeans <- function(dataset, centers=3, iter.max=10, algorithm="H", columnNameToTypeMap=NULL, ...) {
     library(RJSONIO)
     preprocessed = preProcess(dataset, columnNameToTypeMap);
-    clusters = kmeans(preprocessed, 3)
+    clusters = kmeans(preprocessed, centers=centers, iter.max=iter.max, algorithm=algorithm)
     return(toJSON(clusters[c(1,2,7)]))
 }
 
