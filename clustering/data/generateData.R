@@ -5,4 +5,4 @@ income = rlnorm(numCustomers, 4, .5) * 1000
 voice.minutes <- as.integer(rlnorm(numCustomers,4,1.5))
 data.usage <- as.integer(rlnorm(numCustomers,4,1.5))
 data <- data.frame(age, income, voice.minutes, data.usage);
-write.csv('customer_data.csv')
+write.csv(data, file='customer_data.csv')

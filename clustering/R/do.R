@@ -43,6 +43,6 @@ clusterKMeans <- function(dataset, centers=3, iter.max=10, method="euclidean", c
     library(amap)
     preprocessed = preProcess(dataset, columnNameToTypeMap);
     clusters = Kmeans(preprocessed, centers=centers, iter.max=iter.max, method=method)
-    return(cat(toJSON(clusters[c(4,2,1)])))
+    return(clusters[c(4,2,1)])
 }
 
