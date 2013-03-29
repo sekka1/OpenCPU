@@ -20,9 +20,6 @@ Anomaly detection refers to detecting patterns in a given data set that do not c
 ## <a id="Tutorial">Tutorial</a>
 In this tutorial, we will demonstrate how to use Algorithms.io's platform to do this
 ## Suspicious Purchases
-	
-Here we will demonstrate how to use proximity analysis to identify suspicious entries out of a large set of purchase records, with the great help from Pranab Gnosh.
-For design details of this algorithm, you can visit his blog [post](http://pkghosh.wordpress.com/2012/06/18/its-a-lonely-life-for-outliers/).
 
 Let's get started.
 
@@ -40,20 +37,21 @@ First let's take a look at the purchase records
 		..
 		..
 	
-To save some time, let's download a sample .  Each file in this archive is the entire script for one episode of Seinfeld.
+Each row represent a purchase with an record id, the time of day it's made as minutes paste midnight, amount and category.  You can get a copy of this [sample dataset](https://s3.amazonaws.com/sample_dataset.algorithms.io/anomaly-sample.csv), and then [upload](http://catalog.algorithms.io/dashboard) this to algorithms.io.  
 
-Download this [sample dataset](https://s3.amazonaws.com/sample_dataset.algorithms.io/outlier-sample), [configuration file](https://s3.amazonaws.com/sample_dataset.algorithms.io/outlier/cct.properties) and [purchase schema](https://s3.amazonaws.com/sample_dataset.algorithms.io/outlier/prod.json) and then [upload](https://www.mashape.com/algorithms-io/algorithms-io#endpoint-Upload) this to algorithms.io.  Once uploaded, you will see a response that looks like this.  Note down the data set references from response messages.
-
-		{
-			"api": {
-    		"Authentication": "Success"
-    		},
-    		"data": <input>
-		}
-	
 You can also use curl calls for these uploading like this:
 
 	curl -i -H "authToken: YOUR_TOKEN" -H "friendly_name:anomaly-sample" -H "friendly_description:Sample data for anomaly detection" -H "version:1" -F theFile=@purchase-samples.csv http://v1.api.algorithms.io/dataset
+	
+Once uploaded, you will see a response that looks like this.  Note down the data set reference from response messages.
+
+	{
+		"api": {
+    		"Authentication": "Success"
+    	},
+    	"data": <input>
+	}
+	
 	
 #### <a id="Execution">Execution</a>	
 Now you are ready to rock!  Start the anomaly detection either by submitting [here](http://www.algorithms.io/dashboard/algodoc/id/52) or use a curl command like this 
@@ -68,7 +66,7 @@ Finally the output data will look like this.  Every purchase will be given an ou
 In this example, you can see that the most anomalous transaction with a score 246868.9 is a clothing purchase of amount $980.50 made at 9:30am
 
 transaction | score | mins after midnight | amount | category
------------- | ------------- | ------------
+------ | ------------- | ------------ | --------- | ---------
 XKTVEQAX | 246868.9 |  570 | 980.50 | clothing store
 TLB6M1RP | 211073.3 | 1372 | 337.90 |       air fare
 9MIAFTY3 | 206267.6 | 1412 |  19.20 |        grocery
