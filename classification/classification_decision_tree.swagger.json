@@ -1,0 +1,67 @@
+{
+    "apiVersion": "1.0",
+    "apis": [
+        {
+            "description": "Perform Decision Tree classification on a dataset",
+            "operations": [
+                {
+                    "errorResponses": [
+                        {
+                            "code": "500",
+                            "reason": "Internal Server Error"
+                        }
+                    ],
+                    "httpMethod": "POST",
+                    "nickname": "run",
+                    "parameters": [
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "sync",
+                            "name": "method",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "sync"
+                        },
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "json",
+                            "name": "outputType",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "json"
+                        },
+                        {
+                            "name": "train",
+                            "allowMultiple": "false",
+                            "dataType": "datasource",
+                            "description": "Dataset ID of the training set. The dataset must be in CSV format with a header row contianing the column names. It should be pre-labelled via the dependentVariable column.",
+                            "paramType": "query",
+                            "required": "true",
+                        },
+                        {
+                            "name": "test",
+                            "allowMultiple": "false",
+                            "dataType": "datasource",
+                            "description": "Dataset ID of the test/query set. The dataset must be in CSV format with a header row contianing the column names. The data in the dependentVariable columnis ignored if it exists.",
+                            "paramType": "query",
+                            "required": "true",
+                        },
+                        {
+                            "name": "dependentVariable",
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "The column name of the dependent variable. This is the 'label' that is available for each record in the training set, and this is what we are trying to predict for the test/query set",
+                            "paramType": "query",
+                            "required": "true",
+                        }
+            ],
+            "path": "/jobs/swagger/45"
+        }
+    ],
+    "basePath": "http://v1.api.algorithms.io/",
+    "models": null,
+    "resourcePath": "/45",
+    "swaggerVersion": "1.1"
+}
