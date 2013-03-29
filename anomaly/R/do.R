@@ -1,3 +1,4 @@
+
 #' Convert columns in dataFrame to types specified by columnNameToTypeMap. Default is convert to factor.
 #'
 #' @param columnNameToTypeMap a list of columnNames to types, which can be numeric, character, or factor
@@ -34,18 +35,18 @@ preProcess <- function(dataset, columnNameToTypeMap=NULL) {
     return(dataset);
 }
 
-#' Cluster dataset using k-means.
+#' Find anomalies in dataset
 #' @param dataset
-#' @param centers number of clusters
-#' @param iter.max max number of iterations allowed
+#' @param top at most number of outliers returned 
+#' @param num.sd number of standard deviations 
 #' @param method distance measure used
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-clusterKMeans <- function(dataset, centers=3, iter.max=10, method="euclidean", columnNameToTypeMap=NULL, ...) {
-    library(RJSONIO)
-    library(amap)
-    preprocessed = preProcess(dataset, columnNameToTypeMap);
-    clusters = Kmeans(preprocessed, centers=centers, iter.max=iter.max, method=method)
-    return(clusters[c(4,2,1)])
+findAnomaliesBruteForce <- function(dataset, top=10, num.sd=10, columnNameToTypeMap=NULL, ...) {
+    dataset = preProcess(dataset, columnNameToTypeMap);
+    m = as.matrix(dist(dataset))
+    score = head(sort(rowSums(m),decreasing=TRUE),top)
+    results = merge(score, dataset[rownames(dataset) %in% names(score),], by=0, all=TRUE)
+    return(results)
 }
 
