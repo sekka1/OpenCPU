@@ -55,21 +55,7 @@ Input the data reference for dataset parameter.  To get started, you can leave t
 
 The cluster analysis can also be run with this curl command
 
-	curl --include --request POST 'http://v1.api.algorithms.io/jobs/swagger/42' \
-		--header 'authToken: <your auth token here>' \
-		-d 'method=sync' \
-		-d 'ouputType=json' \
-		-d 'datasources=[3324]' \
-		-d 'analyzerName=io.algorithms.clustering.SeinfeldScriptAnalyzer' \
-		-d 'maxNGramSize=2' \
-		-d 'maxDF=75' \
-		-d 'minDF=4' \
-		-d 'weight=TFIDF' \
-		-d 'norm=2' \
-		-d 'numWords=10' \
-		-d 'maxIter=30' \
-		-d 'numClusters=15' \
-		-d 'distanceMeasure=org.apache.mahout.common.distance.SquaredEuclideanDistanceMeasure'
+	curl -X POST -d 'method=sync' -d 'outputType=json' -d 'dataset=3797' -d 'centers=10' -d "maxiter=100" -d 'measure=euclidean' -H 'authToken: YOUR_TOKEN' http://v1.api.algorithms.io/jobs/swagger/51
 
 #### <a id="Output_Parameters">Output and Analysis</a>
 
