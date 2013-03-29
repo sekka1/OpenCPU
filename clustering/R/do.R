@@ -37,15 +37,15 @@ preProcess <- function(dataset, columnNameToTypeMap=NULL) {
 #' Cluster dataset using k-means.
 #' @param dataset
 #' @param centers number of clusters
-#' @param iter.max max number of iterations allowed
+#' @param maxiter max number of iterations allowed
 #' @param measure distance measure used
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
-clusterKMeans <- function(dataset, centers=3, iter.max=10, measure="euclidean", columnNameToTypeMap=NULL, ...) {
+clusterKMeans <- function(dataset, centers=3, maxiter=10, measure="euclidean", columnNameToTypeMap=NULL, ...) {
     library(RJSONIO)
     library(amap)
     preprocessed = preProcess(dataset, columnNameToTypeMap);
-    clusters = Kmeans(preprocessed, centers=centers, iter.max=iter.max, measure=measure)
+    clusters = Kmeans(preprocessed, centers=centers, iter.max=maxiter, method=measure)
     return(clusters[c(4,2,1)])
 }
 
