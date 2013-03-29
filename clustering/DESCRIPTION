@@ -1,0 +1,15 @@
+Package: Clustering
+Maintainer: Anthony Yee <anthony@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO clustering algorithms
+Type: Package
+Author: Anthony Yee
+Description: Algorithms IO clustering algorithm
+Version: 0.1
+Date: 03/05/2013
+URL: http://algorithms.io
+Suggests:
+Collate:
+	'do.R'
+Depends:
