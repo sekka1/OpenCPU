@@ -64,19 +64,20 @@ In this example, a request is made to find top 10 anomalies in the dataset 3802
 			
 #### <a id="Output_Parameters">Output and Analysis</a>
 
-Finally the output data will look like this.  Every purchase will be given an outlier score.  The higher it is, the more so it's identified as an outlier.   Use the purchase reference in the first column to 
+Finally the output data will look like this.  Every purchase will be given an outlier score (as shown in the second column).  The higher it is, the more so transaction is identified as an outlier.   
+In this example, you can see that the most anomalous transaction with a score 246868.9 is a clothing purchase of amount $980.50 made at 9:30am
 
-Row.names | score | mins after midnight | amount | category
+transaction | score | mins after midnight | amount | category
 ------------ | ------------- | ------------
-2H1WLHS1 | 190440.8 |  1346 | 105.60 |     car rental
-74H47IQ7 | 204239.0 |  1407 |  72.80 |        grocery
-7NFT06SA | 199549.6 |  1386 |  47.00 |        grocery
-9KLANP8Q | 180514.2 |  1298 |  21.85 |     drug store
-9MIAFTY3 | 206267.6 |  1412 |  19.20 |        grocery
-G1LLSBWA | 187814.1 |  1335 |  55.50 |        grocery
-RYZXT0MK | 205615.8 |  1412 |  47.40 |   super market
-TLB6M1RP | 211073.3 |  1372 | 337.90 |       air fare
-XKTVEQAX | 246868.9 |   570 | 980.50 | clothing store
-Z24S9BZ5 | 182469.4 |   471 | 666.00 |       air fare
+XKTVEQAX | 246868.9 |  570 | 980.50 | clothing store
+TLB6M1RP | 211073.3 | 1372 | 337.90 |       air fare
+9MIAFTY3 | 206267.6 | 1412 |  19.20 |        grocery
+RYZXT0MK | 205615.8 | 1412 |  47.40 |   super market
+74H47IQ7 | 204239.0 | 1407 |  72.80 |        grocery
+7NFT06SA | 199549.6 | 1386 |  47.00 |        grocery
+2H1WLHS1 | 190440.8 | 1346 | 105.60 |     car rental
+G1LLSBWA | 187814.1 | 1335 |  55.50 |        grocery
+Z24S9BZ5 | 182469.4 |  471 | 666.00 |       air fare
+9KLANP8Q | 180514.2 | 1298 |  21.85 |     drug store
 
 
