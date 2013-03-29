@@ -1,6 +1,14 @@
 # Logistic Regression Classifier
-## Overview
-### Description
+- **[Overview](#Overview)**
+  - **[Description](#Description)**
+  - **[Use Cases](#UseCases)**
+- **[Tutorial](#Tutorial)**
+  - **[Input](#Input)**
+  - **[Execution](#Execution)**
+  - **[Output](#Output)**
+
+## <a id="Overview">Overview</a>
+#### <a id="Description">Description</a>
 [Logistic regression](http://en.wikipedia.org/wiki/Logistic_regression) is a
 simple classification algorithm. It works by identifying an n-1 dimensional
 hyperplane that separates an n dimensional space into two classes (which are on
@@ -8,25 +16,25 @@ either side of the plane).
 
 It compares as follows with other classification algorithms
 
-#### Advantages:
+##### Advantages:
 * Fast and efficient.
 * Easy to interpret. The output can be thought of as the probability of an
   observation beloging in a particular class.
 
-#### Disadvantages:
+##### Disadvantages:
 * Only works for 2 classes. Multi-class problems (with k classes) need to be
   modeled as k separate models each of which can differenciate between one
   class and everything else.
 * Only works if the classes are linearly separable. Real world problems tend to
   be non-linear.
 
-### Use Cases
-General purpose classification
+#### <a id="UseCases">Use Cases</a>
+Logistic Regression is a generic classification algorithm that be used to solve any classification problem that has two output classes. Examples include:
+* Classifying a tumor as malignant or benign
+* Classifying an email as spam or ham
 
-## Tags
-supervised learning, classification, logistic regression, high performance, binary classifier
+## <a id="Tutorial">Tutorial</a>
 
-## Tutorial
 ### Customer Churn Example
 
 Let us say that we are a mobile service provider and we wish to predict whether
@@ -35,7 +43,7 @@ patterns. Assume that we have historical (training) data about how they used
 our service, and they are labeled based on whether the account was closed or
 not.
 
-#### Input
+#### <a id="Input">Input</a>
 
 Sample data for this example can be download here: [training
 data](https://s3.amazonaws.com/sample_dataset.algorithms.io/customer_data_train.csv)
@@ -66,47 +74,47 @@ The data can now be uploaded to the algorithms.io system.
 
 Upload the training data to to algorithms.io. You can do this using curl as follows:
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_train.csv
+	curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+	     -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+	     -F theFile=@customer\_data\_train.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3481 }
+	  { "api": { "Authentication": "Success" }, "data": 3481 }
 
 indicating that the training data was uploaded to dataset 3481.
 
 Next upload the test data.
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_test.csv
+	curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+	     -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+	     -F theFile=@customer\_data\_test.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3482 }
+	  { "api": { "Authentication": "Success" }, "data": 3482 }
 
 indicating that the test data was uploaded to dataset 3482.
 
-#### Execution
+#### <a id="Execution">Execution</a>
 Run classifier aganist the two uploaded datasets.
 
-> curl -X POST 
-> -d 'method=sync' 
-> -d 'outputType=json' 
-> -d 'datasources=[]' 
-> -d 'train={"datatype":"datasource","value":"3481"}' 
-> -d 'test={"datatype":"datasource","value":"3482"}' 
-> -d 'dependentVariable={"datatype":"string","value":"closed"}' 
-> -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
-> http://v1.api.algorithms.io/jobs/swagger/43
+	curl -X POST 
+		-d 'method=sync' 
+		-d 'outputType=json' 
+		-d 'datasources=[]' 
+		-d 'train="3481"' 
+		-d 'test="3482"' 
+		-d 'dependentVariable="closed"' 
+		-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+		http://v1.api.algorithms.io/jobs/swagger/43
 
-#### Output
+#### <a id="Output">Output</a>
 
 The output will be a json list of the predicted categories for each record in
 the test data. In this case, it will look like
 
-> [ "TRUE", "TRUE", "FALSE", ... ]
+	[ "TRUE", "TRUE", "FALSE", ... ]
 
 This indicates that the algorithm predicts that the first two accounts in the
 test set will close, whereas the third one will not.

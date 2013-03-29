@@ -1,6 +1,14 @@
 # Decision Tree Classifier
-## Overview
-### Description
+- **[Overview](#Overview)**
+  - **[Description](#Description)**
+  - **[Use Cases](#UseCases)**
+- **[Tutorial](#Tutorial)**
+  - **[Input](#Input)**
+  - **[Execution](#Execution)**
+  - **[Output](#Output)**
+
+## <a id="Overview">Overview</a>
+#### <a id="Description">Description</a>
 [Decision tree classifier](http://en.wikipedia.org/wiki/Decision_tree_learning)
 uses a decision tree as a predictive model which maps observations about an
 item to conclusions about the item's target value. In these tree structures,
@@ -9,7 +17,7 @@ that lead to those class labels.
 
 It compares as follows with other classification algorithms
 
-#### Advantages:
+##### Advantages:
 * Simple to understand and interpret.
 * Requires little data preparation.
 * Able to handle both numerical and categorical data.
@@ -17,18 +25,20 @@ It compares as follows with other classification algorithms
 * Robust. Performs well even if its assumptions are somewhat violated by the true model from which the data were generated.
 * Performs well with large data in a short time. Large amounts of data can be analysed using standard computing resources.
 
-#### Disadvantages:
+##### Disadvantages:
 * Optimal Trees are difficult to calculate
 * Prone to overfitting to the training data.
 * For data including categorical variables with different numbers of levels, information gain in decision trees is biased in favor of those attributes with more levels.
 
-### Use Cases
-General purpose classification
+#### <a id="UseCases">Use Cases</a>
+Decision tree is a generic classification algorithm that be used to solve pretty much any classification problem. Some examples include:
+* Classifying a tumor as malignant or benign
+* Classifying an email as spam or ham
+* Handwriting / Object / Face recognition
+* Part of speech recognition
 
-## Tags
-supervised learning, classification, decision tree, multi-class
+## <a id="Tutorial">Tutorial</a>
 
-## Tutorial
 ### Customer Churn Example
 
 Let us say that we are a mobile service provider and we wish to predict whether
@@ -37,7 +47,7 @@ patterns. Assume that we have historical (training) data about how they used
 our service, and they are labeled based on whether the account was closed or
 not.
 
-#### Input
+#### <a id="Input">Input</a>
 
 Sample data for this example can be download here: [training
 data](https://s3.amazonaws.com/sample_dataset.algorithms.io/customer_data_train.csv)
@@ -68,47 +78,47 @@ The data can now be uploaded to the algorithms.io system.
 
 Upload the training data to to algorithms.io. You can do this using curl as follows:
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_train.csv
+		curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				-F theFile=@customer\_data\_train.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3481 }
+		{ "api": { "Authentication": "Success" }, "data": 3481 }
 
 indicating that the training data was uploaded to dataset 3481.
 
 Next upload the test data.
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_test.csv
+		curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				-F theFile=@customer\_data\_test.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3482 }
+		{ "api": { "Authentication": "Success" }, "data": 3482 }
 
 indicating that the test data was uploaded to dataset 3482.
 
-#### Execution
+#### <a id="Execution">Execution</a>
 Run classifier aganist the two uploaded datasets.
 
-> curl -X POST 
-> -d 'method=sync' 
-> -d 'outputType=json' 
-> -d 'datasources=[]' 
-> -d 'train={"datatype":"datasource","value":"3481"}' 
-> -d 'test={"datatype":"datasource","value":"3482"}' 
-> -d 'dependentVariable={"datatype":"string","value":"closed"}' 
-> -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
-> http://v1.api.algorithms.io/jobs/swagger/45
+		curl -X POST 
+				-d 'method=sync' 
+				-d 'outputType=json' 
+				-d 'datasources=[]' 
+				-d 'train="3481"' 
+				-d 'test="3482"' 
+				-d 'dependentVariable="closed"' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				http://v1.api.algorithms.io/jobs/swagger/45
 
-#### Output
+#### <a id="Output">Output</a>
 
 The output will be a json list of the predicted categories for each record in
 the test data. In this case, it will look like
 
-> [ "TRUE", "TRUE", "FALSE", ... ]
+		[ "TRUE", "TRUE", "FALSE", ... ]
 
 This indicates that the algorithm predicts that the first two accounts in the
 test set will close, whereas the third one will not.

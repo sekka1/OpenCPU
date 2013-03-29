@@ -1,6 +1,14 @@
 # Compare Classifiers
-## Overview
-### Description
+- **[Overview](#Overview)**
+  - **[Description](#Description)**
+  - **[Use Cases](#UseCases)**
+- **[Tutorial](#Tutorial)**
+  - **[Input](#Input)**
+  - **[Execution](#Execution)**
+  - **[Output](#Output)**
+
+## <a id="Overview">Overview</a>
+#### <a id="Description">Description</a>
 This "algorithm" compares the accuracy and performance of 5 different
 classification algorithms. The algorithms that will be compared are
 
@@ -15,13 +23,11 @@ used to train each of these algorithms. Predictions are generated using each of
 these algorithms and the results are compared with the *pre-labelled* test set.
 Note that unlike the individual algorithms, the test set needs to be labelled.
 
-### Use Cases
+#### <a id="UseCases">Use Cases</a>
 Comparing classifiers with sample data prior to using one in production
 
-## Tags
-supervised learning, classification, comparison
+## <a id="Tutorial">Tutorial</a>
 
-## Tutorial
 ### Customer Churn Example
 
 Let us say that we are a mobile service provider and we wish to predict whether
@@ -32,7 +38,7 @@ not. Before we decide on which classification algorithm to use, we might want
 to compare the accuracy and processing time for the various available
 classification algorithms with a small sample set.
 
-#### Input
+#### <a id="Input">Input</a>
 
 Sample data for this example can be download here: [training
 data](https://s3.amazonaws.com/sample_dataset.algorithms.io/customer_data_train.csv)
@@ -63,68 +69,47 @@ The data can now be uploaded to the algorithms.io system.
 
 Upload the training data to to algorithms.io. You can do this using curl as follows:
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_train.csv
+		curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				-F theFile=@customer\_data\_train.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3481 }
+		{ "api": { "Authentication": "Success" }, "data": 3481 }
 
 indicating that the training data was uploaded to dataset 3481.
 
 Next upload the test data.
 
-> curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
->      -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
->      -F theFile=@customer\_data\_test.csv
+		curl -i -X POST 'http://v1.api.algorithms.io/dataset' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				-F theFile=@customer\_data\_test.csv
 
 The response will look like
 
->   { "api": { "Authentication": "Success" }, "data": 3482 }
+		{ "api": { "Authentication": "Success" }, "data": 3482 }
 
 indicating that the test data was uploaded to dataset 3482.
 
-#### Execution
+#### <a id="Execution">Execution</a>
 Run classifier aganist the two uploaded datasets.
 
-> curl -X POST 
-> -d 'method=sync' 
-> -d 'outputType=json' 
-> -d 'datasources=[]' 
-> -d 'train={"datatype":"datasource","value":"3481"}' 
-> -d 'test={"datatype":"datasource","value":"3482"}' 
-> -d 'dependentVariable={"datatype":"string","value":"closed"}' 
-> -H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
-> http://v1.api.algorithms.io/jobs/swagger/50
+		curl -X POST 
+				-d 'method=sync' 
+				-d 'outputType=json' 
+				-d 'datasources=[]' 
+				-d 'train="3481"' 
+				-d 'test="3482"' 
+				-d 'dependentVariable="closed"' 
+				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
+				http://v1.api.algorithms.io/jobs/swagger/50
 
-#### Output
+#### <a id="Output">Output</a>
 
-The output will be a json object with three 'parallel' arrays. The first has
-the algorithms that were compared. The second shows the success rate for
-predictions as compared with the labelled values in the test set. The third has
-the time it took per record for each algorithm.
+The output will be a json list of the predicted categories for each record in
+the test data. In this case, it will look like
 
-> {
->   "algos" : [
->       "MultinomialLogisticRegression",
->       "DecisionTree",
->       "NeuralNet",
->       "RandomForest",
->       "SVM"
->   ],
->   "success" : [
->       0.9403974,
->       0.9635762,
->       0.9403974,
->       0.9735099,
->       0.9503311
->   ],
->   "timePerRecord" : [
->       0.0005463576,
->       0.0002218543,
->       0.0006854305,
->       0.003135762,
->       0.000513245
->   ]
-> }
+		[ "TRUE", "TRUE", "FALSE", ... ]
+
+This indicates that the algorithm predicts that the first two accounts in the
+test set will close, whereas the third one will not.
