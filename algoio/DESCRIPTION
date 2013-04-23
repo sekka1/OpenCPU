@@ -1,0 +1,24 @@
+Package: algoio
+Maintainer: Anthony Yee <anthony@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO upload package
+Type: Package
+Author: Anthony Yee
+Description: User can upload R package to the algorithms.io system using
+    R-native tool set.  Common server API to accept algorithm uploads from
+    different toolbelt
+Version: 0.1
+Date: 4/7/2013
+URL: http://algorithms.io
+Suggests:
+    RJSONIO,
+Collate:
+    'do.R'
+Depends:
+    RJSONIO,
+    stringr
+Imports:
+    stringr (>= 0.5),
+    RJSONIO,
+    roxygen2

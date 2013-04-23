@@ -46,7 +46,7 @@ findAnomaliesBruteForce <- function(dataset, top=10, num.sd=10, columnNameToType
     dataset = preProcess(dataset, columnNameToTypeMap);
     m = as.matrix(dist(dataset))
     score = head(sort(rowSums(m),decreasing=TRUE),top)
-    results = merge(score, dataset[rownames(dataset) %in% names(score),], by=0, all=TRUE)
-    return(results)
+    results = data.frame(merge(data.frame(score), dataset[rownames(dataset) %in% names(score),], by=0, all=TRUE),row.names=1)
+    return (results[with(results, order(-score)),])
 }
 
