@@ -1,0 +1,64 @@
+{
+    "apiVersion": "1.0",
+    "apis": [
+        {
+            "description": "Find anomalies in CSV format dataset by identifying rows that have the most distance from the rest of entries",
+            "operations": [
+                {
+                    "errorResponses": [
+                        {
+                            "code": "500",
+                            "reason": "Internal Server Error"
+                        }
+                    ],
+                    "httpMethod": "POST",
+                    "nickname": "run",
+                    "parameters": [
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "sync",
+                            "name": "method",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "sync"
+                        },
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "json",
+                            "name": "outputType",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "json"
+                        },
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "datasource",
+                            "description": "Dataset in CSV format",
+                            "name": "dataset",
+                            "paramType": "query",
+                            "required": "true"
+                        },
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "How many anomalities to return",
+                            "name": "top",
+                            "paramType": "query",
+                            "required": "false",
+			    "defaultValue": "5"
+                        }
+                    ],
+                    "responseClass": "void",
+                    "summary": "Find anomalies from a dataset in the CSV format"
+                }
+            ],
+            "path": "/jobs/swagger/52"
+        }
+    ],
+    "basePath": "http://pod3.staging.v1.api.algorithms.io/",
+    "models": null,
+    "resourcePath": "/52",
+    "swaggerVersion": "1.1"
+}

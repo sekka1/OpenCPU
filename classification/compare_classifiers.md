@@ -1,4 +1,4 @@
-# Support Vector Machine Classifier
+# Compare Classifiers
 - **[Overview](#Overview)**
   - **[Description](#Description)**
   - **[Use Cases](#UseCases)**
@@ -9,20 +9,22 @@
 
 ## <a id="Overview">Overview</a>
 #### <a id="Description">Description</a>
-[Support Vector Machines](http://en.wikipedia.org/wiki/Support_vector_machine)
-are supervised learning models with associated learning algorithms that analyze
-data and recognize patterns, used for classification and regression analysis. A
-SVM model is a representation of the examples as points in space, mapped so
-that the examples of the separate categories are divided by a clear gap that is
-as wide as possible. New examples are then mapped into that same space and
-predicted to belong to a category based on which side of the gap they fall on.
+This "algorithm" compares the accuracy and performance of 5 different
+classification algorithms. The algorithms that will be compared are
+
+* Multinomial Logistic Regression
+* Neural Network with 1 hidden layer
+* Decision Tree
+* Random Forest
+* Support Vector Machine
+
+The idea is that you start out with a common training and test set that will be
+used to train each of these algorithms. Predictions are generated using each of
+these algorithms and the results are compared with the *pre-labelled* test set.
+Note that unlike the individual algorithms, the test set needs to be labelled.
 
 #### <a id="UseCases">Use Cases</a>
-Support Vector Machine is a generic classification algorithm that be used to solve pretty much any classification problem. Some examples include:
-* Classifying a tumor as malignant or benign
-* Classifying an email as spam or ham
-* Handwriting / Object / Face recognition
-* Part of speech recognition
+Comparing classifiers with sample data prior to using one in production
 
 ## <a id="Tutorial">Tutorial</a>
 
@@ -32,7 +34,9 @@ Let us say that we are a mobile service provider and we wish to predict whether
 a customer will close their account in the next 6 months based on their usage
 patterns. Assume that we have historical (training) data about how they used
 our service, and they are labeled based on whether the account was closed or
-not.
+not. Before we decide on which classification algorithm to use, we might want
+to compare the accuracy and processing time for the various available
+classification algorithms with a small sample set.
 
 #### <a id="Input">Input</a>
 
@@ -98,14 +102,12 @@ Run classifier aganist the two uploaded datasets.
 				-d 'test="3482"' 
 				-d 'dependentVariable="closed"' 
 				-H 'authToken: YOUR\_AUTHORIZATION\_TOKEN'  
-				http://v1.api.algorithms.io/jobs/swagger/49
+				http://v1.api.algorithms.io/jobs/swagger/50
 
 #### <a id="Output">Output</a>
 
-The output will be a json list of the predicted categories for each record in
-the test data. In this case, it will look like
-
-		[ "TRUE", "TRUE", "FALSE", ... ]
-
-This indicates that the algorithm predicts that the first two accounts in the
-test set will close, whereas the third one will not.
+The output of the Compare Classifiers algorithm is a json object that contains
+three parallel arrays. The first, "algos" is the list of algorithms that were
+compared. The second, "success" is the fraction of the labels in the test
+dataset that was correctly predicted by the corresponding algorithm, and the
+third "timePerRecord" is a measure of how fast the algorithm is.
