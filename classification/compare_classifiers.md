@@ -106,10 +106,8 @@ Run classifier aganist the two uploaded datasets.
 
 #### <a id="Output">Output</a>
 
-The output will be a json list of the predicted categories for each record in
-the test data. In this case, it will look like
-
-		[ "TRUE", "TRUE", "FALSE", ... ]
-
-This indicates that the algorithm predicts that the first two accounts in the
-test set will close, whereas the third one will not.
+The output of the Compare Classifiers algorithm is a json object that contains
+three parallel arrays. The first, "algos" is the list of algorithms that were
+compared. The second, "success" is the fraction of the labels in the test
+dataset that was correctly predicted by the corresponding algorithm, and the
+third "timePerRecord" is a measure of how fast the algorithm is.
