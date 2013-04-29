@@ -202,7 +202,7 @@ compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeM
 #' @param fraction fraction that goes into the first file The remaining will go into the second file. 0 <= fraction <= 1.
 #' @return a vector of size 2 containing the filenames of the first and second file.
 #' @export
-splitDataset <- function(data, fraction) {
+splitDataSet <- function(data, fraction) {
     if (is.character(data)) {
         dataFileName <- data;
         data <- read.csv(data);
@@ -210,6 +210,7 @@ splitDataset <- function(data, fraction) {
         data <- data.frame(data);
         dataFileName <- "data"
     }
+    fraction <- as.numeric(fraction);
     trainFileName <- paste(dataFileName, '.train.csv', sep='');
     testFileName <- paste(dataFileName, '.test.csv', sep='');
     if (fraction < 0 || fraction > 1) stop('fraction must be in the range 0 <= fraction <= 1');
