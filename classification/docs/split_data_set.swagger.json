@@ -1,0 +1,62 @@
+{
+    "apiVersion": "1.0",
+    "apis": [
+            {
+            "description": "Split one dataset into 2 datasets by random selection. The fraction of data that must go into the first dataset can be specified.",
+            "operations": [
+                {
+                    "errorResponses": [
+                        {
+                            "code": "500",
+                            "reason": "Internal Server Error"
+                        }
+                    ],
+                    "httpMethod": "POST",
+                    "nickname": "run",
+                    "parameters": [
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "sync",
+                            "name": "method",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "sync"
+                        },
+                        {
+                            "allowMultiple": "false",
+                            "dataType": "string",
+                            "description": "json",
+                            "name": "outputType",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "json"
+                        },
+                        {
+                            "name": "data",
+                            "allowMultiple": "false",
+                            "dataType": "datasource",
+                            "description": "Dataset ID of the data that is to be split into two portions. The dataset is assumed to be in CSV format.",
+                            "paramType": "query",
+                            "required": "true"
+                        },
+                        {
+                            "name": "fraction",
+                            "allowMultiple": "false",
+                            "dataType": "numeric",
+                            "description": "Fraction of the data that goes into the first output file. The remaining goes into the second output file.",
+                            "paramType": "query",
+                            "required": "true",
+                            "defaultValue": "0.5"
+                        }
+                    ],
+                    "path": "/jobs/swagger/50"
+                }
+            ],
+            "basePath": "http://v1.api.algorithms.io/",
+            "models": null,
+            "resourcePath": "/50",
+            "swaggerVersion": "1.1"
+            }
+    ]
+}
