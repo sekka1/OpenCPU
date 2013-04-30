@@ -38,9 +38,49 @@ algoio.publish <- function(package.dir) {
   tarball <- list.files(pattern=paste(basename(package.dir),'.*gz'))
 }
 
-#' Upload dataset to algorithms.io 
-algoio.upload <- function(file.path) {
+#' Upload R data.frame to algorithms.io 
+#' @description
+#' @param x @@type=data.frame
+algoio.upload.dataframe <- function(x) {
+  stopifnot(is.data.frame(x))
   
+  if (!exists('authToken')) 
+    authToken <- getinput("Authentication Token")
+  if (!exists('algoServer'))
+    algoServer <- getinput('Algorithms.io Server', defvalue='https://v1.api.algorithms.io/')
+  
+  # 
+  dir.create(path='~/.algoio', showWarnings=FALSE, recursive=TRUE)
+  file.create('~/.algoio/dataset')
+  write.table(x, '~/.algoio/dataset')
+
+  content <- executeAPICall(authToken, algoServer, 'dataset', action=postForm, theFile=fileUpload('~/.algoio/dataset'))
+  json <- fromJSON(content)[[1]]
+  if (json$api[['Authentication']] == 'Success')
+    print(paste('Uploaded data frame with returned reference', json$data))
+}
+
+algoio.delete.dataset <- function(id) {
+  if (!exists('authToken')) 
+    authToken <- getinput("Authentication Token")
+  if (!exists('algoServer'))
+    algoServer <- getinput('Algorithms.io Server', defvalue='https://v1.api.algorithms.io/')
+  content <- executeAPICall(authToken, algoServer, "/dataset");
+  dataset <- fromJSON(str_extract(content, "\\{.*\\}"))$data
+  if (id %in% sapply(dataset,'[[','id'))
+    response <- executeAPICall(authToken, algoServer, paste0('dataset/',id), action=httpDELETE)
+  return(response)
+}
+
+algoio.get.dataframe
+
+makeCache <- function() {
+  cache <- new.env(parent=emptyenv())
+  list(get = function(key) cache[[key]],
+       set = function(key, value) cache[[key]] <- value,
+       ## next two added in response to @sunpyg
+       load = function(rdaFile) load(rdaFile, cache),
+       ls = function() ls(cache))
 }
 
 #' Get package level data from DESCRIPTION file
@@ -104,6 +144,11 @@ generate_swagger <- function(package.dir) {
     swagger$package <- get_package_data(package.dir)
     
     return(swagger)
+}
+
+#'  
+algoio.upload <- function() {
+  
 }
 
 #' Sample function used for testing publish
