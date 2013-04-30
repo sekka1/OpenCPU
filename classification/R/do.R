@@ -1,12 +1,8 @@
-
 #' Convert columns in dataFrame to types specified by columnNameToTypeMap. Default is convert to factor.
 #'
 #' @param columnNameToTypeMap a list of columnNames to types, which can be numeric, character, or factor
 #' @param dataFrame dataFrame to be modified
 #' @return a new dataFrame with the same contents as dataFrame with types converted as specified in columnNameToTypeMap
-#'
-#' @author Rajiv Subrahmanyam
-#' -- need not be exported @export
 convertTypes <- function(dataFrame, columnNameToTypeMap) {
     tempFrame <- dataFrame
     # TODO: Here validate that "as." + the values of columnNameToTypeMap are indeed allowable functions
@@ -41,15 +37,32 @@ createFormula <- function(dataFrame, dependentVariable) {
 #' @param columnNameToTypeMap overrides to columnNameToMap
 preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL) {
     columnNameToTypeMap[dependentVariable] <- "factor";
-    if (is.character(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
-    if (is.character(test)) { test <- read.csv(test); } else { test <- data.frame(as.list(test)); }
-    if (!(dependentVariable %in% names(train))) { stop(paste('Could not find dependent variable ',dependentVariable)); }
+    outputCSV <- F;
+    outputFileName <- "data";
+    if (is.character(train) && file.exists(train)) { train <- read.csv(train); } else { train <- data.frame(train) }
+    if (is.character(test) && file.exists(test)) {
+        outputFileName <- paste(test,'.output.csv',sep='');
+        test <- read.csv(test);
+        outputCSV <- T;
+    } else { test <- data.frame(as.list(test)); }
+    if (!(dependentVariable %in% names(train))) { stop(paste('Could not find dependent variable',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     train <- train[complete.cases(train),];
     test <- convertTypes(test, columnNameToTypeMap);
     test <- test[complete.cases(test),];
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
-    return(list(train, test));
+    return(list(train, test, outputCSV, outputFileName));
+}
+
+output <- function(test, prediction, dependentVariable, outputCSV, outputFileName) {
+    if (outputCSV) {
+        test <- cbind(test, prediction);
+        names(test)[[length(names(test))]] <- dependentVariable;
+        write.csv(test, outputFileName);
+        return(outputFileName);
+    } else {
+        return prediction;
+    }
 }
 
 #' Classify test set based on labeled training data using a logistic regression classifier.
@@ -69,7 +82,7 @@ classifyLogisticRegression <- function(train, test, dependentVariable, columnNam
     prediction <- predict(model , newdata=test, type="response")
     prediction <- round(prediction) + 1;
     prediction <- as.character(levels(train[[dependentVariable]])[prediction])
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Classify test set based on labeled training data using multinomial logistic regression.
@@ -89,7 +102,7 @@ classifyMultinomialLogisticRegression <- function(train, test, dependentVariable
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
     prediction <- as.character(prediction);
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Classify test set based on labeled training data using a decision tree.
@@ -108,7 +121,7 @@ classifyDecisionTree <- function(train, test, dependentVariable, columnNameToTyp
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test)
     prediction <- as.character(colnames(prediction)[(apply(prediction, 1, which.max))])
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Classify test set based on labeled training data using a neural network.
@@ -131,7 +144,7 @@ classifyNeuralNet <- function(train, test, dependentVariable, columnNameToTypeMa
         prediction <- round(prediction) + 1;
         prediction <- as.character(levels(train[[dependentVariable]])[prediction])
     } else { prediction <- as.character(colnames(prediction)[(apply(prediction, 1, which.max))]); }
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Classify test set based on labeled training data using a neural network.
@@ -149,7 +162,7 @@ classifyRandomForest <- function(train, test, dependentVariable, columnNameToTyp
     formula <- paste('randomForest(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- as.character(predict(model , newdata=test));
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Classify test set based on labeled training data using a support vector machine. 
@@ -167,7 +180,7 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
     formula <- paste('svm(',formula,', data=train)'); 
     model <- eval(parse(text=formula));
     prediction <- as.character(predict(model , newdata=test));
-    return(prediction);
+    return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
 
 #' Compare the performance of various available classifiers.
@@ -184,7 +197,7 @@ compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeM
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
     if (!(dependentVariable %in% names(test))) { stop(paste('Could not find dependent variable',dependentVariable,'in test set')); }
-    success <- timePerRecord <- vector();
+    success <- timeElapsed <- vector();
     for (algo in algos) {
         print(paste('Trying ',algo));
         command <- paste('classify',algo,'(train, test, dependentVariable, columnNameToTypeMap, ...)',sep='');
@@ -192,9 +205,9 @@ compareClassifiers <- function(train, test, dependentVariable, columnNameToTypeM
         result <- eval(parse(text=command));
         end <- proc.time()[['elapsed']];
         success[[algo]] <- sum(result == test[[dependentVariable]]) / nrow(test);
-        timePerRecord[[algo]] <- (end-start) / nrow(test);
+        timeElapsed[[algo]] <- (end-start);
     }
-    return(data.frame(algos, success, timePerRecord));
+    return(data.frame(algos, success, timeElapsed));
 }
 
 #' Split a single dataset into multiple datasets for training and testing by random sampling.
