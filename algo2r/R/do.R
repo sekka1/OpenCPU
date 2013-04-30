@@ -1,6 +1,5 @@
 #' Calls a URL on the API site with the given relative path and action
-executeAPICall <- function(authToken, algoServer="https://v1.api.algorithms.io/", relativePath, action=getURL, ...) {
-	require(RCurl)
+executeAPICall <- function(authToken, algoServer="https://v1.api.algorithms.io/", relativePath, action=getURLContent, ...) {
 	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
 
 	url <- paste(algoServer,relativePath,sep="");
@@ -10,9 +9,9 @@ executeAPICall <- function(authToken, algoServer="https://v1.api.algorithms.io/"
 	curlH <- getCurlHandle(
 	    cookiefile = cookie,
 	    useragent =  "Mozilla/5.0 (Windows; U; Windows NT 5.1; en - US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6",
-	    header = TRUE,
-	    verbose = TRUE,
-	    netrc = TRUE,
+#	    header = TRUE,
+#	    verbose = TRUE,
+#	    netrc = TRUE,
 	    maxredirs = as.integer(20),
 	    followlocation = TRUE,
 	    ssl.verifypeer = FALSE,
@@ -44,12 +43,12 @@ listFiles <- function( authToken, algoServer="https://v1.api.algorithms.io/" ) {
 #' @author Robert I.
 #' @author Rajiv Subrahmanyam
 getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" ) {
-	destfile = paste("/opt/Data-Sets/Automation/file_",datasetID,sep="");
-	if (! file.exists(destfile)) { # if file exists, don't re-download it. Datasets never change (atleast for now)
-	    content <- executeAPICall(authToken, algoServer, paste("dataset/id/",datasetID), getBinaryURL);
+	destfile = paste("/opt/Data-Sets/Automation/",authToken,datasetID,sep="");
+	# if (! file.exists(destfile)) { # if file exists, don't re-download it. Datasets never change (atleast for now)
+	    content <- executeAPICall(authToken, algoServer, paste("dataset/id/",datasetID,sep=''));
 	    textOutput <- rawToChar(content);
 	    writeLines(textOutput, destfile)
-    }
+    # }
 	return(destfile);
 }
 
@@ -60,7 +59,10 @@ getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorit
 #' @return the dataset id
 #' @author Rajiv Subrahmanyam
 putFile <- function(file, authToken, algoServer = "https://v1.api.algorithms.io/" ) {
-	content <- executeAPICall(authToken, algoServer, paste("dataset/id/",datasetID), action=postForm, theFile = fileUpload(file));
+	content <- executeAPICall(authToken, algoServer, paste("dataset/",sep=''), action=postForm, theFile = fileUpload(file));
+	contentJson <- fromJSON(content);
+	print(contentJson[[1]]$data)
+	return(contentJson[[1]]$data)
 }
 
 #' Gets a datafile from the Data Warehouse and executes the R function then removes the datafile
@@ -80,36 +82,42 @@ putFile <- function(file, authToken, algoServer = "https://v1.api.algorithms.io/
 #' @export
 openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list()) {
     require(RJSONIO);
-    parameters <- as.list(parameters)
-    realParams <- list()
-
-    # Any parameters that are datasources need to be downloaded first
-    for (parameterName in names(parameters)) {
-        parameterDef <- as.list(parameters[[parameterName]])
-        parameterType <- parameterDef[["datatype"]]
-        parameterValue <- parameterDef[["value"]]
-        realParams[[parameterName]] <- if (!is.null(parameterType) && parameterType == "datasource")
-				           as.character(lapply(parameterValue, getFile, authToken, algoServer))
-                                       else parameterValue
-    }
-
-    # If static, load the library, else eval the code
-    if (evalType == "static") {
-        library(package,character.only=TRUE);
-    } else if (evalType == "dynamic") {
-        eval(parse(text=package))
-    } else {
-        stop('evalType must be one of "static", "dynamic"')
-    }
-
-    # Execute the function
-    proxyOutput <- do.call(fun, realParams);
-
-    # If output is a vector of valid filenames, upload them and return the list of dataset ids
-    if (is.character(proxyOutput)
-        && sum(proxyOutput[file.exists(proxyOutput)]) == length(proxyOutput)) {
-        uploadOutput <- lapply(proxyOutput, putFile,  authToken, algoServer);
-    }
-
+    require(RCurl);
+    proxyOutput <- NULL;
+#    tryCatch({
+    	parameters <- as.list(parameters)
+    	realParams <- list()
+	
+    	# Any parameters that are datasources need to be downloaded first
+    	for (parameterName in names(parameters)) {
+        	parameterDef <- as.list(parameters[[parameterName]])
+        	parameterType <- parameterDef[["datatype"]]
+        	parameterValue <- parameterDef[["value"]]
+        	realParams[[parameterName]] <- if (!is.null(parameterType) && parameterType == "datasource")
+				           	as.character(lapply(parameterValue, getFile, authToken, algoServer))
+                                       	else parameterValue
+    	}
+	
+    	# If static, load the library, else eval the code
+    	if (evalType == "static") {
+        	library(package,character.only=TRUE);
+    	} else if (evalType == "dynamic") {
+        	eval(parse(text=package))
+    	} else {
+        	stop('evalType must be one of "static", "dynamic"')
+    	}
+	
+    	# Execute the function
+    	proxyOutput <- do.call(fun, realParams);
+	
+    	# If output is a vector of valid filenames, upload them and return the list of dataset ids
+    	if (is.character(proxyOutput)
+        	&& sum(file.exists(proxyOutput)) == length(proxyOutput)) {
+        	proxyOutput <- sapply(proxyOutput, putFile,  authToken, algoServer);
+    	}
+	
+#    },
+#    warning = function(w) { print(w); },
+#    error = function(e) { proxyOutput <- e; print(e) });
     return(proxyOutput);
 }
