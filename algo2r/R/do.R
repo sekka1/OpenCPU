@@ -44,12 +44,31 @@ listFiles <- function( authToken, algoServer="https://v1.api.algorithms.io/" ) {
 #' @author Rajiv Subrahmanyam
 getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" ) {
 	destfile = paste("/opt/Data-Sets/Automation/",authToken,datasetID,sep="");
-	# if (! file.exists(destfile)) { # if file exists, don't re-download it. Datasets never change (atleast for now)
+	if (! file.exists(destfile)) { # if file exists, don't re-download it. Datasets never change (atleast for now)
 	    content <- executeAPICall(authToken, algoServer, paste("dataset/id/",datasetID,sep=''));
 	    textOutput <- rawToChar(content);
 	    writeLines(textOutput, destfile)
-    # }
+    }
 	return(destfile);
+}
+
+#' Download and install a package
+#' 
+#' @param datasetID The datasetID like rec_1908
+#' @param type string datasetID
+#' @param authToken your authorization token linked to your user account
+#' @param type string authToken
+#' @return the full filepath the file is saved locally to THIS server
+#' @author Robert I.
+#' @author Rajiv Subrahmanyam
+installPackage <- function(algorithmId, package, authToken , algoServer = "https://v1.api.algorithms.io/" ) {
+    if (package %in% rownames(installed.packages())) return();
+	destfile = paste("/opt/Data-Sets/Automation/",package,'.tar.gz',sep="");
+	if (! file.exists(destfile)) { # if package exists, don't re-download it.
+	    content <- executeAPICall(authToken, algoServer, paste("package/id/",algorithmId,"/worker/secretcode/package",sep=''));
+	    writeLines(content, destfile)
+    }
+    install.packages(destfile);
 }
 
 #' Puts a datafile
@@ -80,7 +99,7 @@ putFile <- function(file, authToken, algoServer = "https://v1.api.algorithms.io/
 #' @author Robert I.
 #' @author Rajiv Subrahmanyam
 #' @export
-openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list()) {
+openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list(), algorithmId=NULL) {
     require(RJSONIO);
     require(RCurl);
     proxyOutput <- NULL;
@@ -99,13 +118,10 @@ openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io
     	}
 	
     	# If static, load the library, else eval the code
-    	if (evalType == "static") {
-        	library(package,character.only=TRUE);
-    	} else if (evalType == "dynamic") {
-        	eval(parse(text=package))
-    	} else {
-        	stop('evalType must be one of "static", "dynamic"')
-    	}
+    	if (evalType == "dynamic") {
+        	installPackage(algorithmId, package, authToken, algoServer);
+        } # else assume static
+        library(package,character.only=TRUE);
 	
     	# Execute the function
     	proxyOutput <- do.call(fun, realParams);
