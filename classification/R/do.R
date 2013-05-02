@@ -57,11 +57,11 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL)
 output <- function(test, prediction, dependentVariable, outputCSV, outputFileName) {
     if (outputCSV) {
         test <- cbind(test, prediction);
-        names(test)[[length(names(test))]] <- dependentVariable;
-        write.csv(test, outputFileName);
+        names(test)[[length(names(test))]] <- paste(dependentVariable,'.predicted',sep='');
+        write.csv(test, outputFileName, row.names=F);
         return(outputFileName);
     } else {
-        return prediction;
+        return(prediction);
     }
 }
 
