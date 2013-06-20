@@ -275,7 +275,6 @@ compareRegression <- function(train, test, dependentVariable, columnNameToTypeMa
         start <- proc.time()[['elapsed']];
         result <- eval(parse(text=command));
         end <- proc.time()[['elapsed']];
-        print(data.frame(test[[dependentVariable]], result));
         error[[algo]] <- sum((result - test[[dependentVariable]])^2)
         timeElapsed[[algo]] <- (end-start);
     }
