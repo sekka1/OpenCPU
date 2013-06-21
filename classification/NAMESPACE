@@ -1,0 +1,8 @@
+export(classifyLogisticRegression)
+export(classifyMultinomialLogisticRegression)
+export(classifyNeuralNet)
+export(classifyDecisionTree)
+export(classifyRandomForest)
+export(classifySVM)
+export(compareClassifiers)
+export(splitDataSet)

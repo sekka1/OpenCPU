@@ -1,38 +1,37 @@
+#' Calls a URL on the API site with the given relative path and action
+executeAPICall <- function(authToken, algoServer="https://v1.api.algorithms.io/", relativePath, action=getURLContent, ...) {
+	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
+
+	url <- paste(algoServer,relativePath,sep="");
+	theheader <- c('authToken' = authToken);
+	#note the cookie might cause some trouble with apparmor
+	cookie <- 'cookiefile.txt'
+	curlH <- getCurlHandle(
+	    cookiefile = cookie,
+	    useragent =  "Mozilla/5.0 (Windows; U; Windows NT 5.1; en - US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6",
+#	    header = TRUE,
+#	    verbose = TRUE,
+#	    netrc = TRUE,
+	    maxredirs = as.integer(20),
+	    followlocation = TRUE,
+	    ssl.verifypeer = FALSE,
+	    httpheader = theheader
+	);
+	return(action(url, curl = curlH, cainfo = CAINFO, ...));
+}
+
 #' Lists all your datafiles from the Data Warehouse
 #' 
 #' @param authToken your authorization token linked to your user account
 #' @param type string authToken
 #' @return A list of files you have on our servers
 #' @author Robert I.
-#' @export
-listFiles <- function( authToken )
-{
-	require(RCurl)
-	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
-
-	url <- "https://v1.api.algorithms.io/dataset";
-
-	theheader <- c('authToken' = authToken);
-
-	#note the cookie might cause some trouble with apparmor
-	cookie = 'cookiefile.txt'
-	curlH = getCurlHandle(
-	cookiefile = cookie,
-	useragent =  "Mozilla/5.0 (Windows; U; Windows NT 5.1; en - US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6",
-	header = TRUE,
-	verbose = TRUE,
-	netrc = TRUE,
-	maxredirs = as.integer(20),
-	followlocation = TRUE,
-	ssl.verifypeer = FALSE,
-	httpheader = theheader
-	)
-
-	content = getURL(url, curl = curlH, cainfo = CAINFO);
+#' @author Rajiv Subrahmanyam
+listFiles <- function( authToken, algoServer="https://v1.api.algorithms.io/" ) {
+	content <- executeAPICall(authToken, algoServer, "/dataset");
 	print(content);
 
 }
-
 
 #' Gets a datafile from the Data Warehouse
 #' 
@@ -42,124 +41,99 @@ listFiles <- function( authToken )
 #' @param type string authToken
 #' @return the full filepath the file is saved locally to THIS server
 #' @author Robert I.
-#' @export
-getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" )
-{
-	require(RCurl)
-	require(digest)
-	CAINFO = paste(system.file(package="RCurl"), "/CurlSSL/ca-bundle.crt", sep = "")
+#' @author Rajiv Subrahmanyam
+getFile <- function( datasetID, authToken , algoServer = "https://v1.api.algorithms.io/" ) {
+	destfile = paste("/opt/Data-Sets/Automation/",authToken,datasetID,sep="");
+	if (! file.exists(destfile)) { # if file exists, don't re-download it. Datasets never change (atleast for now)
+	    content <- executeAPICall(authToken, algoServer, paste("dataset/id/",datasetID,sep=''));
+	    textOutput <- rawToChar(content);
+	    writeLines(textOutput, destfile)
+    }
+	return(destfile);
+}
 
-	algoServer <- paste(algoServer,"dataset/id/",sep="");
-	url <- paste(algoServer,datasetID,sep="");
-	theheader <- c('authToken' = authToken);
+#' Download and install a package
+#' 
+#' @param datasetID The datasetID like rec_1908
+#' @param type string datasetID
+#' @param authToken your authorization token linked to your user account
+#' @param type string authToken
+#' @return the full filepath the file is saved locally to THIS server
+#' @author Robert I.
+#' @author Rajiv Subrahmanyam
+installPackage <- function(algorithmId, package, authToken , algoServer = "https://v1.api.algorithms.io/" ) {
+    if (package %in% rownames(installed.packages())) return();
+	destfile = paste("/opt/Data-Sets/Automation/",package,'.tar.gz',sep="");
+	if (! file.exists(destfile)) { # if package exists, don't re-download it.
+	    content <- executeAPICall(authToken, algoServer, paste("package/id/",algorithmId,"/worker/secretcode/package",sep=''));
+	    writeLines(content, destfile)
+    }
+    install.packages(destfile);
+}
 
-	#note the cookie might cause some trouble with apparmor
-	cookie = 'cookiefile.txt'
-	curlH = getCurlHandle(
-	cookiefile = cookie,
-	useragent =  "Mozilla/5.0 (Windows; U; Windows NT 5.1; en - US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6",
-	header = FALSE,
-	verbose = TRUE,
-	netrc = TRUE,
-	maxredirs = as.integer(20),
-	followlocation = TRUE,
-	ssl.verifypeer = FALSE,
-	httpheader = theheader
-	)
-
-	
-	content <<- getBinaryURL(url, curl = curlH, cainfo = CAINFO);
-	op <- options(digits.secs=6)
-	options(op)
-	
-	
-	destfile = paste("/opt/Data-Sets/Automation/file_",digest(Sys.time(),algo="md5"),sep="");
-	
-	#destfile <- paste("file_",digest(Sys.time(),algo="md5"),sep="");
-	doesFileExist <- file.exists(destfile);
-	destfileBase <- destfile;
-	i <- sample(1:9000,1,replace=T);
-	repeat
-	{
-		
-		destfile <- paste(destfileBase,i,sep="_");
-		
-		doesFileExist <- file.exists(destfile);
-		if (doesFileExist==FALSE) {
-			break;
-		}
-		else {
-			i <- sample(1:999999999,1,replace=T)
-			#print("increasing");
-		}
-	}
-
-#pre-parse the content to remove the HTTP headers
-#000000B0                    0D 0A 0D 0A                          ....
-	#
-	textOutput <<- rawToChar(content);
-	#indexOfHTTPHeader <- regexpr("\r\n\r\n", textOutput)[1]
-	#writeLines(substr(textOutput,indexOfHTTPHeader + 4,nchar(textOutput)), destfile)
-	writeLines(textOutput, destfile)
-	echoBack <- destfile;
-	return(echoBack);
+#' Puts a datafile
+#' @param file filename to be uploaded
+#' @param authToken your authorization token linked to your user account
+#' @param algoServer the algo server
+#' @return the dataset id
+#' @author Rajiv Subrahmanyam
+putFile <- function(file, authToken, algoServer = "https://v1.api.algorithms.io/" ) {
+	content <- executeAPICall(authToken, algoServer, paste("dataset/",sep=''), action=postForm, theFile = fileUpload(file));
+	contentJson <- fromJSON(content);
+	print(contentJson[[1]]$data)
+	return(contentJson[[1]]$data)
 }
 
 #' Gets a datafile from the Data Warehouse and executes the R function then removes the datafile
 #' 
-#' @param authToken your authorization token linked to your user account
-#' @param type string authToken
-#' @param proxyPackage The name of the package your R function is in, you can use yourpackage to test this
-#' @param type string proxyPackage
-#' @param proxyFunction The name of the function in the package you want to call, you can use yourfunction1 to test this
-#' @param type string proxyFunction
-#' @param proxyParametersList IN JSON, The parameters that your function takes in, you can use { "foo": "hello world", "bar": 10 } to test this,
-#' @param type string proxyParametersList
-#' @param datasets IN JSON, The additional datafiles that your R script requires { "dictionaryFile": "1234", "dictionaryFile2": "1235" } to test this,
-#' @param type string datasets
-#' @return The end-results of your proxyFunction that you called 
+#' @param authToken (type=String) your authorization token linked to your user account
+#' @param evalType (type=String) one of "static" or "dynamic". If evalType == static, the next argument package is loaded from disk.
+#'                 If evalType == dynamic, package is treated as raw program text to be evaluated
+#' @param package (type=String) The name of the package your R function is in, you can use yourpackage to test this
+#' @param fun (type=String) The name of the function in the package you want to call, you can use yourfunction1 to test this
+#' @param parameters (type=List) list of metadata + data regarding parameters to be passed to function. The only required attribute of parameter
+#'                   is "value" which contains the value to be passed in. Other attributes are "datatype" and "format". parameters whose datatype
+#'                   is "datasource" will be dereferenced (value will be treated as datasource id and that will be downloaded and the filename
+#'                   passed to the underlying function
+#' @return The end-results of your function that you called 
 #' @author Robert I.
+#' @author Rajiv Subrahmanyam
 #' @export
-openCPUExecute <- function( authToken, algoServer = "https://v1.api.algorithms.io/" , proxyPackage, proxyFunction, proxyParametersList, debug = 0, datasets = "{}" )
-{
-	require(RJSONIO);
-	library(proxyPackage,character.only=TRUE);
-	require(plyr);
-	x <- as.list(fromJSON(proxyParametersList)) 
+openCPUExecute <- function(authToken, algoServer = "https://v1.api.algorithms.io/" , evalType = "static", package, fun, parameters = list(), algorithmId=NULL) {
+    require(RJSONIO);
+    require(RCurl);
+    proxyOutput <- NULL;
+#    tryCatch({
+    	parameters <- as.list(parameters)
+    	realParams <- list()
 	
-	y <<- as.list(fromJSON(datasets));
-	if (length(y)!=0) #files to download
-	{	
-		for(i in 1:length(y)) {
-		{
-			y[[i]] <<- lapply(y[[i]], FUN = getFile,authToken,algoServer);
-		}
-	}
-	}
-	else {
-		#no addtional datasets added here
-	}
-
-
-	proxyOutput <- do.call(proxyFunction,append(x,y));
-	print(proxyOutput);
+    	# Any parameters that are datasources need to be downloaded first
+    	for (parameterName in names(parameters)) {
+        	parameterDef <- as.list(parameters[[parameterName]])
+        	parameterType <- parameterDef[["datatype"]]
+        	parameterValue <- parameterDef[["value"]]
+        	realParams[[parameterName]] <- if (!is.null(parameterType) && parameterType == "datasource")
+				           	as.character(lapply(parameterValue, getFile, authToken, algoServer))
+                                       	else parameterValue
+    	}
 	
-	print(dataHere)
+    	# If static, load the library, else eval the code
+    	if (evalType == "dynamic") {
+        	installPackage(algorithmId, package, authToken, algoServer);
+        } # else assume static
+        library(package,character.only=TRUE);
 	
-	#for ( additional_files in y )
-	#{
-	#	if ( file.exists(additional_files) ){
-	#	file.remove(additional_files)
-	#	}
-	#	else
-	#	{
-	#		if (debug)
-	#		{
-	#			print("odd, the additional file is not found");
-	#			print(additional_files);
-	#		}
-	#	}
-	#}
+    	# Execute the function
+    	proxyOutput <- do.call(fun, realParams);
 	
+    	# If output is a vector of valid filenames, upload them and return the list of dataset ids
+    	if (is.character(proxyOutput)
+        	&& sum(file.exists(proxyOutput)) == length(proxyOutput)) {
+        	proxyOutput <- sapply(proxyOutput, putFile,  authToken, algoServer);
+    	}
 	
+#    },
+#    warning = function(w) { print(w); },
+#    error = function(e) { proxyOutput <- e; print(e) });
+    return(proxyOutput);
 }

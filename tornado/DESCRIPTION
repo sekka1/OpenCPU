@@ -1,0 +1,15 @@
+Package: Tornado Shelter locator
+Maintainer: Rajiv Subrahmanyam <rajiv@algorithms.io>
+License: AGPL
+Encoding: UTF-8
+Title: Algorithms IO Tornado shelter locator
+Type: Package
+Author: Rajiv Subrahmanyam
+Description: Algorithms IO Tornado shelter locator
+Version: 0.1
+Date: 11/19/2012
+URL: http://algorithms.io
+Suggests:
+Collate:
+	'do.R'
+Depends:

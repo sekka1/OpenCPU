@@ -30,13 +30,12 @@ convertTypes <- function(dataFrame, columnNameToTypeMap) {
 #' @param dependentVariable the name of the dependent variable (the one we're trying to predict). It should be numeric.
 #' @param inverseVariables (optional) list of numerical variables that are known to have an inverse relations (1/x). Default is no variables.
 #' @param excludeVariables (optional) list of fields that can not be used in the model. Default no variables.
-#' @param maxFactorLevels (optional) maximum number of factor levels to be accepted for any variable in the model. Default is 500
 #' @param query list containing name="value" for all the known variables in the query
 #' @return a trained model and modified dataFrame
 #'
 #' @author Rajiv Subrahmanyam
 #' @export
-trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=list(), intersectionThreshold=1, maxFactorLevels) {
+trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=list(), intersectionThreshold=1) {
     # Extract a minimal set of rows from the dataFrame where all terms in the query are present.
     validColumns <- c(dependentVariable)
     numericColumns <- vector()
@@ -60,7 +59,6 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
         use <- T
         if (nrow(frame) >= intersectionThreshold) {
             for (numCol in numericColumns) {
-                print(paste(sd(frame[[numCol]], na.rm=T), mean(frame[[numCol]], na.rm=T), query[[numCol]]))
                 use <- use & (sd(frame[[numCol]], na.rm=T) > 0 | mean(frame[[numCol]], na.rm=T) == query[[numCol]])
             }
         } else use <- F
@@ -82,13 +80,15 @@ trainLinear <- function(dataFrame, query, dependentVariable, inverseVariables=li
     }
 
     minimal <- list()
-    minimal[["terms"]] <- terms
+    minimal$terms <- terms
+    minimal$query <- query
+    minimal$dataFrame <- dataFrame
     if (length(terms) > 0) {
         formula <- paste("lm(", dependentVariable, "~")
         for (term in terms) formula <- paste(formula,term,"+")
         formula <- paste(substr(formula, 0, nchar(formula) - 1), ", data=dataFrame, na.action='na.omit')")
-        minimal[["formula"]] <- formula
-        minimal[["model"]] <- eval(parse(text=formula))
+        minimal$formula <- formula
+        minimal$model <- eval(parse(text=formula))
     }
     minimal
 }
@@ -110,23 +110,27 @@ priceLinearComponent <- function(salesDataFile, columnNameToTypeMap=NULL, compon
     # This is required because RJSONIO converts only mixed type collections into list, and the rest to vectors
     query <- as.list(query) 
     query <- convertTypes(query, columnNameToTypeMap)
+
     trained <- trainLinear(dataFrame=sales,
                     dependentVariable=unitSalesPriceColumn,
                     inverseVariables=quantityColumn,
                     query=query)
+    model <- trained$model
+    query <- trained$query
+    dataFrame <- trained$dataFrame
+
     price <- list()
-    price[["train"]] <- trained
-    if (!is.null(trained[["model"]])) {
-        price[["value"]] <- max(predict(trained[["model"]], query), 0)
-#        if (!is.null(componentIdColumn) && !is.na(trained$query[[componentIdColumn]]) && !is.null(unitCostColumn)) {
-#            price$value <- max(price$value, min(trained$dataFrame[[unitCostColumn]][trained$dataFrame[[componentIdColumn]] == trained$query[[componentIdColumn]],]))
-#        }
+    if (!is.null(model)) {
+        minValue <- 0
+        if (!is.null(componentIdColumn) && !is.null(query$componentIdColumn) && !is.null(unitCostColumn)) {
+            minValue <- max(minValue, min(dataFrame$unitCostColumn[dataFrame$componentIdColumn == query$componentIdColumn,]))
+        }
+        price$value <- max(predict(model, query), minValue)
     } else {
         warning("No model. Returning mean")
-        price[["value"]] <- mean(trained[["dataFrame"]])
+        price$value <- mean(dataFrame)
     }
     price
-
 }
 
 #' Suggest a price for a query based on training data from sales history.
