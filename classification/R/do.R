@@ -49,12 +49,19 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
     train <- convertTypes(train, columnNameToTypeMap);
     train <- train[complete.cases(train),];
     test <- convertTypes(test, columnNameToTypeMap);
+    for (columnName in names(test)) {
+        if (is.factor(test[[columnName]])) {
+            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- NA;
+        }
+    }
+
     # This is weird: if test has just one column, the names go away during subsetting.
     # So we have to remember the name and put them back in.
-    testNames <- names(test);
-    test <- data.frame(test[complete.cases(test),]);
-    names(test) <- testNames;
+#    testNames <- names(test);
+#    test <- data.frame(test[complete.cases(test),]);
+#    names(test) <- testNames;
 #    if (text && (ncol(train) > 2 || ncol(test) > 2)) { stop('Text classification allows 2 columns, text and class'); }
+
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
     return(list(train, test, outputCSV, outputFileName));
 }
@@ -79,7 +86,7 @@ output <- function(test, prediction, dependentVariable, outputCSV, outputFileNam
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
 regressionLinear <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
-    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression=T);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
     formula <- createFormula(train, dependentVariable);
@@ -227,7 +234,7 @@ SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regres
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
     formula <- createFormula(train, dependentVariable);
-    formula <- paste('svm(',formula,', data=train, kernel=',kernel,')'); 
+    formula <- paste('svm(',formula,', data=train, kernel="',kernel,'")',sep=''); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test);
     if (!regression) prediction <- as.character(prediction);
