@@ -327,7 +327,7 @@ splitDataSet <- function(data, fraction) {
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @param algo Algorithm to use. One of 'SVM', 'MAXENT', 'GLMNET', 'SLDA', 'NNET', 'RF'
 #' @export
-classifyText <- function(train, test, dependentVariable, textVariable, algos=c('GLMNET', 'SLDA', 'SVM', 'RF'), ...) {
+classifyText <- function(train, test, dependentVariable, textVariable, algos=c('SVM'), ...) {
     library(RTextTools);
     trainFromFile <- is.character(train) && file.exists(train);
     models <- NULL;
