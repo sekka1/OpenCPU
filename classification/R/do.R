@@ -57,9 +57,9 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
 
     # This is weird: if test has just one column, the names go away during subsetting.
     # So we have to remember the name and put them back in.
-#    testNames <- names(test);
-#    test <- data.frame(test[complete.cases(test),]);
-#    names(test) <- testNames;
+    testNames <- names(test);
+    test <- data.frame(test[complete.cases(test),]);
+    names(test) <- testNames;
 #    if (text && (ncol(train) > 2 || ncol(test) > 2)) { stop('Text classification allows 2 columns, text and class'); }
 
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
