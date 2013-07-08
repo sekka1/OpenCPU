@@ -35,7 +35,7 @@ createFormula <- function(dataFrame, dependentVariable) {
 #' @param test testing dataset
 #' @param dependentVariable the predicted variable
 #' @param columnNameToTypeMap overrides to columnNameToMap
-preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F) {
+preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F) {
     if (!regression) columnNameToTypeMap[dependentVariable] <- "factor";
     outputCSV <- F;
     outputFileName <- "data";
@@ -49,7 +49,19 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
     train <- convertTypes(train, columnNameToTypeMap);
     train <- train[complete.cases(train),];
     test <- convertTypes(test, columnNameToTypeMap);
-    test <- test[complete.cases(test),];
+    for (columnName in names(test)) {
+        if (is.factor(test[[columnName]])) {
+            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- NA;
+        }
+    }
+
+    # This is weird: if test has just one column, the names go away during subsetting.
+    # So we have to remember the name and put them back in.
+#    testNames <- names(test);
+#    test <- data.frame(test[complete.cases(test),]);
+#    names(test) <- testNames;
+#    if (text && (ncol(train) > 2 || ncol(test) > 2)) { stop('Text classification allows 2 columns, text and class'); }
+
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
     return(list(train, test, outputCSV, outputFileName));
 }
@@ -57,7 +69,9 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
 output <- function(test, prediction, dependentVariable, outputCSV, outputFileName) {
     if (outputCSV) {
         test <- cbind(test, prediction);
-        names(test)[[length(names(test))]] <- paste(dependentVariable,'.predicted',sep='');
+        if (is.null(names(prediction))) {
+            names(test)[[length(names(test))]] <- paste(dependentVariable,'.predicted',sep='');
+        }
         write.csv(test, outputFileName, row.names=F);
         return(outputFileName);
     } else {
@@ -72,7 +86,7 @@ output <- function(test, prediction, dependentVariable, outputCSV, outputFileNam
 #' @param columnNameToTypeMap overrides to columnNameToMap
 #' @export
 regressionLinear <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, ...) {
-    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap);
+    preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression=T);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
     formula <- createFormula(train, dependentVariable);
@@ -214,13 +228,13 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
     return(SVM(train, test, dependentVariable, columnNameToTypeMap=NULL, ...));
 }
 
-SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, ...) {
+SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="linear", ...) {
     library(e1071)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression);
     train <- preProcessed[[1]];
     test <- preProcessed[[2]];
     formula <- createFormula(train, dependentVariable);
-    formula <- paste('svm(',formula,', data=train)'); 
+    formula <- paste('svm(',formula,', data=train, kernel="',kernel,'")',sep=''); 
     model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test);
     if (!regression) prediction <- as.character(prediction);
@@ -287,9 +301,9 @@ compareRegression <- function(train, test, dependentVariable, columnNameToTypeMa
 #' @return a vector of size 2 containing the filenames of the first and second file.
 #' @export
 splitDataSet <- function(data, fraction) {
-    if (is.character(data)) {
+    if (is.character(data) && file.exists(data)) {
         dataFileName <- data;
-        data <- read.csv(data);
+        data <- read.csv(data, row.names=NULL);
     } else {
         data <- data.frame(data);
         dataFileName <- "data"
@@ -304,4 +318,36 @@ splitDataSet <- function(data, fraction) {
     write.csv(train, trainFileName, row.names=F);
     write.csv(test, testFileName, row.names=F);
     return(c(trainFileName, testFileName));
+}
+
+#' Classify test set based on labeled training data using a support vector machine. 
+#' @param train training dataset. Should contain two columns, one of which is the text to be classified and the the other is the dependentVariable
+#' @param test testing dataset
+#' @param dependentVariable the label column (for training/testing)
+#' @param columnNameToTypeMap overrides to columnNameToMap
+#' @param algo Algorithm to use. One of 'SVM', 'MAXENT', 'GLMNET', 'SLDA', 'NNET', 'RF'
+#' @export
+classifyText <- function(train, test, dependentVariable, textVariable, algos=c('SVM'), ...) {
+    library(RTextTools);
+    trainFromFile <- is.character(train) && file.exists(train);
+    models <- NULL;
+    if (trainFromFile) { 
+        modelFile <- paste(train, dependentVariable, textVariable, paste(algos, collapse=''), ".model.RData", sep='');
+        if (file.exists(modelFile)) { load(modelFile); }
+    }
+    preProcessed <- preProcess(train, test, dependentVariable, NULL, text=T);
+    if (is.null(models)) {
+        train <- preProcessed[[1]];
+        trainText <- train[[textVariable]]
+        trainMatrix <- create_matrix(trainText, language="english", removeSparseTerms=0.998, removeStopwords=T, stemWords=T, toLower=T)
+        trainContainer <- create_container(trainMatrix, labels=train[[dependentVariable]], trainSize=1:nrow(train), virgin=T)
+        models <- train_models(trainContainer, algorithms=algos)
+        if (trainFromFile) { save(trainMatrix, models, file=modelFile); }
+    }
+    test <- preProcessed[[2]];
+    testText <- test[[textVariable]]
+    testMatrix <- create_matrix(testText, language="english", removeSparseTerms=0.998, removeStopwords=T, stemWords=T, toLower=T, originalMatrix=trainMatrix)
+    testContainer <- create_container(testMatrix, labels=test[[dependentVariable]], testSize=1:nrow(test), virgin=T)
+    result <- classify_models(testContainer, models)
+    return(output(test, result, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
