@@ -1,6 +1,6 @@
 \name{scoreAllPersons}
 \alias{scoreAllPersons}
-\title{Creates data frame with these columns}
+\title{Score persons}
 \usage{
   scoreAllPersons()
 }

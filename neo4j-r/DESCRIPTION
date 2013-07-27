@@ -8,5 +8,8 @@ Depends:
 License: # getOptions('devtools.desc.license')
 LazyData: true
 Collate:
+    'RCurl,
+    RJSONIO,
+    bitops'
     'do.R'
     'neo4j-r-package.r'
