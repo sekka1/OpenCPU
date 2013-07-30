@@ -35,7 +35,7 @@ createFormula <- function(dataFrame, dependentVariable) {
 #' @param test testing dataset
 #' @param dependentVariable the predicted variable
 #' @param columnNameToTypeMap overrides to columnNameToMap
-preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F) {
+preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F, maxFactorLevels=31) {
     if (!regression) columnNameToTypeMap[dependentVariable] <- "factor";
     outputCSV <- F;
     outputFileName <- "data";
@@ -48,10 +48,25 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
     if (!(dependentVariable %in% names(train))) { stop(paste('Could not find dependent variable',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
     train <- train[complete.cases(train),];
+    # Remove factor values which are not in the top maxFactorLevels levels by occurrence frequency in the test set
+    for (columnName in names(train)) {
+        if (is.factor(train[[columnName]])) {
+            d <- data.frame(table(train[[columnName]]));
+            if (nlevels(train[[columnName]]) > maxFactorLevels) {
+                if (!('Other' %in% levels(train[[columnName]]))) { levels(train[[columnName]]) <- c(levels(train[[columnName]]), 'Other'); }
+                train[[columnName]][!(train[[columnName]] %in% head(d[order(d$Freq, decreasing=T),],n=maxFactorLevels)$Var1)] <- as.factor('Other')
+                train <- droplevels(train)
+            }
+        }
+    }
+    
     test <- convertTypes(test, columnNameToTypeMap);
     for (columnName in names(test)) {
         if (is.factor(test[[columnName]])) {
-            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- NA;
+            if (!('Other' %in% levels(test[[columnName]]))) { levels(test[[columnName]]) <- c(levels(test[[columnName]]), 'Other'); }
+            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- as.factor('Other');
+            test <- droplevels(test)
+            levels(test[[columnName]]) <- levels(train[[columnName]])
         }
     }
 
@@ -228,7 +243,7 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
     return(SVM(train, test, dependentVariable, columnNameToTypeMap=NULL, ...));
 }
 
-SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="linear", ...) {
+SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="radial", ...) {
     library(e1071)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression);
     train <- preProcessed[[1]];
