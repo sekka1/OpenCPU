@@ -166,8 +166,8 @@ createGraph <- function(relations) {
     return
   }
    
-  g <- graph.edgelist(as.matrix(persons[,c("person", "coworker")]))
-  E(g)$weight <- persons[,"score"]
+  g <- graph.edgelist(as.matrix(relations[,c("person", "coworker")]))
+  E(g)$weight <- relations[,"score"]
   
   plot.igraph(g)
   g
