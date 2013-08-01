@@ -35,7 +35,7 @@ createFormula <- function(dataFrame, dependentVariable) {
 #' @param test testing dataset
 #' @param dependentVariable the predicted variable
 #' @param columnNameToTypeMap overrides to columnNameToMap
-preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F) {
+preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F, maxFactorLevels=31) {
     if (!regression) columnNameToTypeMap[dependentVariable] <- "factor";
     outputCSV <- F;
     outputFileName <- "data";
@@ -47,20 +47,33 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
     } else { test <- data.frame(as.list(test)); }
     if (!(dependentVariable %in% names(train))) { stop(paste('Could not find dependent variable',dependentVariable)); }
     train <- convertTypes(train, columnNameToTypeMap);
-    train <- train[complete.cases(train),];
+    # Remove factor values which are not in the top maxFactorLevels levels by occurrence frequency in the test set
+    for (columnName in names(train)) {
+        if (is.factor(train[[columnName]])) {
+            if (!('Other' %in% levels(train[[columnName]]))) { levels(train[[columnName]]) <- c(levels(train[[columnName]]), 'Other'); }
+            train[[columnName]][is.na(train[[columnName]])] <- as.factor('Other')
+            if (nlevels(train[[columnName]]) > maxFactorLevels) {
+                d <- data.frame(table(train[[columnName]]));
+                train[[columnName]][!(train[[columnName]] %in% head(d[order(d$Freq, decreasing=T),],n=maxFactorLevels)$Var1)] <- as.factor('Other')
+                train <- droplevels(train)
+            }
+        } else if (is.numeric(train[[columnName]])) {
+            train[[columnName]][is.na(train[[columnName]])] <- mean(train[[columnName]], na.rm=T)
+        }
+    }
+    
     test <- convertTypes(test, columnNameToTypeMap);
     for (columnName in names(test)) {
         if (is.factor(test[[columnName]])) {
-            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- NA;
+            if (!('Other' %in% levels(test[[columnName]]))) { levels(test[[columnName]]) <- c(levels(test[[columnName]]), 'Other'); }
+            test[[columnName]][is.na(test[[columnName]])] <- as.factor('Other')
+            test[[columnName]][!(test[[columnName]] %in% levels(train[[columnName]]))] <- as.factor('Other');
+            test <- droplevels(test)
+            levels(test[[columnName]]) <- levels(train[[columnName]])
+        } else if (is.numeric(test[[columnName]])) {
+            test[[columnName]][is.na(test[[columnName]])] <- mean(train[[columnName]], na.rm=T)
         }
     }
-
-    # This is weird: if test has just one column, the names go away during subsetting.
-    # So we have to remember the name and put them back in.
-#    testNames <- names(test);
-#    test <- data.frame(test[complete.cases(test),]);
-#    names(test) <- testNames;
-#    if (text && (ncol(train) > 2 || ncol(test) > 2)) { stop('Text classification allows 2 columns, text and class'); }
 
     if (!(sum(names(test) %in% names(train)) == ncol(test))) { stop(paste('Test set has different columns than training set')); }
     return(list(train, test, outputCSV, outputFileName));
@@ -228,7 +241,7 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
     return(SVM(train, test, dependentVariable, columnNameToTypeMap=NULL, ...));
 }
 
-SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="linear", ...) {
+SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="radial", ...) {
     library(e1071)
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression);
     train <- preProcessed[[1]];
