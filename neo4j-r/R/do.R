@@ -167,9 +167,9 @@ createGraph <- function(relations) {
   }
    
   g <- graph.edgelist(as.matrix(relations[,c("person", "coworker")]))
-  E(g)$weight <- relations[,"score"]
+  #E(g)$weight <- relations[,"score"]
   
-  plot.igraph(g)
+  #plot.igraph(g)
   g
 }
 
@@ -179,13 +179,16 @@ createGraph <- function(relations) {
 #' @export
 #' 
 runPageRank <- function(top=20) {
-  graph <- createGraph(scoreCrunchBase())
-  vector <- page.rank(graph)$vector
+  persons <- scoreCrunchBase()
+  graph <- createGraph(persons)
+
+  # aggregate to get a person's total scores
+  personCompanyScore <- aggregate(persons$score, by=list(persons$person, persons$company), FUN=mean)
+  personScore <- aggregate(personCompanyScore$x, by=list(personCompanyScore$Group.1), FUN=sum)
+  names <- V(graph)$name
+  personScoreRightOrder <- merge(data.frame(names), personScore, by.x='names', by.y='Group.1', all.x=T)
+  vector <- page.rank(graph, personalized=personScoreRightOrder$x)$vector
+#  vector <- page.rank(graph)$vector
   head(sort(vector, decreasing=T),n=top)
   vector
 }
-
-
-
-
-
