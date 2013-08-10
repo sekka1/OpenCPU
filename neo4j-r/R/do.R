@@ -176,7 +176,7 @@ scoreCrunchBase <- function(count=10000) {
                 # TODO(anthony): Fix 
                 "WHERE f.total_money_raised! <> \"$0\" AND HAS(j.title) AND HAS(e.type)",
                 "RETURN p.source_uid, f.value, j.title, e.institution, e.type, c.source_uid, f.total_money_raised",
-                (if (count<0) "" else paste("LIMIT",count)));
+                (if (count<0) "" else paste("LIMIT",as.integer(count))));
   
   results <- queryCypher2(query);
   names(results) <- c("person", "company", "title", "school", "degree", "coworker", "total_money_raised")
