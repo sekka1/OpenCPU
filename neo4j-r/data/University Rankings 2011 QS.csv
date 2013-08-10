@@ -1,0 +1,643 @@
+Rank,School Name,Country,Size,Research,Focus,Score
+1,University of Cambridge,United Kingdom,L,VH,FC,100
+2,Harvard University,United States,L,VH,FC,99.18
+3,Yale University,United States,M,VH,FC,98.68
+4,UCL (University College London),United Kingdom,L,VH,FC,98.54
+5,Massachusetts Institute of Technology (MIT),United States,M,VH,CO,98.19
+6,University of Oxford,United Kingdom,L,VH,FC,98.16
+7,Imperial College London,United Kingdom,L,VH,FC,97.78
+8,University of Chicago,United States,M,VH,FC,97.52
+9,California Institute of Technology (Caltech),United States,S,VH,CO,96.46
+10,Princeton University,United States,M,VH,CO,96.03
+11,Columbia University,United States,L,VH,FC,95.99
+12,University of Pennsylvania,United States,L,VH,FC,95.97
+13,Stanford University,United States,L,VH,FC,93.62
+14,Duke University,United States,L,VH,FC,92.29
+15,University of Michigan,United States,XL,VH,FC,92.2
+16,Cornell University,United States,L,VH,FC,90.44
+17,Johns Hopkins University,United States,L,VH,FC,89.67
+18,ETH Zurich (Swiss Federal Institute of Technology),Switzerland,L,VH,FO,89.28
+19,McGill University,Canada,L,VH,FC,89.25
+20,Australian National University,Australia,M,VH,CO,88.58
+21,Kings College London (University of London),United Kingdom,L,VH,FC,88.45
+22,University of Edinburgh,United Kingdom,L,VH,FC,88.01
+23,University of Hong Kong,Hong Kong,L,VH,FC,87.28
+24,The University of Tokyo,Japan,L,VH,FC,86.74
+25,Kyoto University,Japan,L,VH,FC,85.89
+26,Northwestern University,United States,L,VH,FC,85.4
+27,University of Bristol,United Kingdom,L,VH,FC,85.22
+28,"University of California, Berkeley (UCB)",United States,XL,VH,FC,85.18
+29,University of Toronto,Canada,XL,VH,FC,84.29
+30,The University of Manchester,United Kingdom,XL,VH,FC,83.33
+31,National University of Singapore (NUS),Singapore,XL,VH,FC,82.78
+32,Ecole Polytechnique Fédérale de Lausanne,Switzerland,M,VH,FO,82.27
+33,"École Normale Supérieure, Paris",France,S,VH,SP,82.09
+34,Carnegie Mellon University,United States,M,VH,FC,81.8
+35,"University of California, Los Angeles (UCLA)",United States,XL,VH,FC,81.49
+36,École Polytechnique,France,S,VH,CO,81.33
+37,The University of Sydney,Australia,XL,VH,FC,81.31
+38,The University of Melbourne,Australia,XL,VH,FC,80.64
+39,Brown University,United States,M,VH,FC,80.54
+40,The Hong Kong University of Science and Technology,Hong Kong,M,VH,CO,78.67
+41,New York University (NYU),United States,XL,VH,FC,78.41
+42,The Chinese University of Hong Kong,Hong Kong,L,VH,FC,77.94
+43,The University of Queensland,Australia,XL,VH,FC,77.56
+44,University of British Columbia,Canada,XL,VH,FC,77.41
+45,University of Copenhagen,Denmark,L,VH,FC,76.71
+46,The University of New South Wales,Australia,XL,VH,FC,76.66
+47,Peking University,China,L,VH,FC,76.35
+48,University of Wisconsin-Madison,United States,XL,VH,FC,76.28
+49,Osaka University,Japan,L,VH,FC,76.21
+50,Seoul National University,"Korea, South",L,VH,FC,76.06
+51,Ruprecht-Karls-Universität Heidelberg,Germany,L,VH,FC,75.89
+52,Trinity College Dublin,Ireland,L,HI,FC,75.04
+53,The University of Warwick,United Kingdom,L,HI,FC,74.28
+54,Tsinghua University,China,L,VH,FC,74.18
+55,University of Washington,United States,XL,VH,FC,73.75
+56,University of Amsterdam,Netherlands,XL,VH,FC,73.45
+57,"University of North Carolina, Chapel Hill",United States,L,VH,FC,73.22
+58,Technische Universität München,Germany,L,VH,FO,72.99
+59,University of Birmingham,United Kingdom,L,VH,FC,72.68
+60,Tokyo Institute of Technology,Japan,M,VH,FO,72.59
+61,Monash University,Australia,XL,VH,FC,72.54
+62,Uppsala University,Sweden,L,VH,FC,72.16
+63,University of Illinois at Urbana-Champaign,United States,XL,VH,FC,71.75
+64,Boston University,United States,L,VH,FC,71.73
+65,"University of California, San Diego (UCSD)",United States,L,VH,FC,71.55
+66,Ludwig-Maximilians-Universität München,Germany,XL,VH,FC,71.25
+67,University of Texas at Austin,United States,XL,VH,FC,71.24
+68,The University of Auckland,New Zealand,L,VH,FC,71.13
+69,The University of Sheffield,United Kingdom,L,VH,FC,70.76
+70,Freie Universität Berlin,Germany,XL,VH,FC,70.55
+71,University of Geneva,Switzerland,L,VH,FC,70.53
+72,Lund University,Sweden,L,VH,FC,70.38
+73,The University of Nottingham,United Kingdom,L,VH,FC,69.95
+74,Nanyang Technological University (NTU),Singapore,L,VH,CO,69.77
+75=,University of Helsinki,Finland,L,VH,CO,69.64
+75=,Washington University in St. Louis,United States,L,VH,FC,69.64
+77,University of Glasgow,United Kingdom,L,VH,FC,69.54
+78,University of Alberta,Canada,XL,VH,FC,69.3
+79,KAIST - Korea Advanced Institute of Science & Technology,"Korea, South",M,VH,CO,69.05
+80,London School of Economics and Political Science (LSE),United Kingdom,M,VH,SP,68.86
+81,University of Southampton,United Kingdom,L,VH,FC,68.85
+82,Leiden University,Netherlands,L,VH,FC,68.81
+83,Utrecht University,Netherlands,L,VH,FC,68.77
+84,Aarhus University,Denmark,L,VH,FC,68.55
+85,University of Leeds,United Kingdom,L,VH,FC,68.08
+86,Katholieke Universiteit Leuven,Belgium,XL,VH,FC,67.56
+87,Purdue University,United States,XL,VH,FC,67.54
+88,University of York,United Kingdom,M,VH,FC,67.37
+89,The University of Western Australia,Australia,L,VH,FC,66.95
+90,Dartmouth College,United States,M,VH,FC,66.86
+91,Nagoya University,Japan,L,VH,FC,66.41
+92,Durham University,United Kingdom,L,HI,FC,66.29
+93,Lomonosov Moscow State University,Russia,XL,VH,FC,66.12
+94,National Taiwan University (NTU),,XL,VH,FC,66.03
+95,University of St Andrews,United Kingdom,M,VH,FC,65.69
+96,University of Minnesota,United States,XL,VH,FC,65.58
+97,Universität Freiburg,Germany,L,VH,FC,65.11
+98,Pennsylvania State University,United States,XL,VH,FC,64.91
+99,Erasmus University Rotterdam,Netherlands,L,VH,FO,64.48
+100,University of Oslo,Norway,L,VH,FC,64.21
+101,University of Zurich,Switzerland,L,VH,FC,64.04
+102,Tohoku University,Japan,L,VH,FC,63.96
+103,The University of Adelaide,Australia,L,VH,FC,63.87
+104,"University of Maryland, College Park",United States,XL,VH,FC,63.72
+105,Fudan University,China,L,VH,FC,63.44
+106,Georgia Institute of Technology,United States,L,VH,CO,63.34
+107,Emory University,United States,L,VH,FC,63.15
+108,Delft University of Technology,Netherlands,L,VH,FO,63.14
+109,Hebrew University of Jerusalem,Israel,L,VH,FC,63.11
+110,"University of California, Davis",United States,L,VH,FC,62.85
+111,Maastricht University,Netherlands,L,VH,FO,62.77
+112,Pohang University of Science And Technology (POSTECH),"Korea, South",S,VH,FO,62.75
+113,University of Southern California,United States,XL,VH,FC,62.66
+114,University College Dublin,Ireland,L,HI,FC,62.42
+115,Rice University,United States,M,VH,FC,61.52
+116,"University of California, Santa Barbara (UCSB)",United States,L,VH,CO,61.37
+117,University of Aberdeen,United Kingdom,L,HI,FC,61.3
+118,Université Pierre et Marie Curie (UPMC),France,XL,VH,FO,60.5
+119,University of Pittsburgh,United States,L,VH,FC,60.37
+120,University of Groningen,Netherlands,L,VH,FC,60.34
+121,University of Liverpool,United Kingdom,L,VH,FC,59.5
+122,Cardiff University,United Kingdom,L,VH,FC,59.47
+123,Humboldt-Universität zu Berlin,Germany,L,HI,FC,59.3
+124,Université Catholique de Louvain (UCL),Belgium,L,HI,FC,59.08
+125,Ohio State University,United States,XL,VH,FC,59.05
+126,Eindhoven University of Technology,Netherlands,M,VH,FO,58.52
+127=,Case Western Reserve University,United States,M,VH,FC,58.42
+127=,University of Rochester,United States,M,VH,FC,58.42
+129,City University of Hong Kong,Hong Kong,M,VH,CO,58.38
+130,University of Virginia,United States,L,VH,FC,58.3
+131,Eberhard Karls Universität Tübingen,Germany,L,VH,FC,58.19
+132,Queen's University,Canada,L,VH,FC,58.17
+133,University of Bergen,Norway,M,VH,FC,57.92
+134,Vanderbilt University,United States,M,VH,FC,57.24
+135,University of Otago,New Zealand,L,VH,FC,57.08
+136,Universite de Montreal,Canada,XL,VH,FC,56.87
+137,University of Basel,Switzerland,M,VH,FC,56.68
+138,Tel Aviv University,Israel,L,VH,FC,56.44
+139,École Normale Supérieure de Lyon,France,S,VH,CO,56.2
+140,Newcastle University,United Kingdom,L,VH,FC,56.06
+141,Technical University of Denmark,Denmark,M,VH,FO,55.63
+142,Yonsei University,"Korea, South",XL,VH,FC,55.51
+143,University of Vienna,Austria,XL,HI,FC,55.27
+144,University of Bath,United Kingdom,L,VH,CO,55.25
+145,University of Waterloo,Canada,L,VH,CO,54.73
+146,"University of California, Irvine",United States,L,VH,FC,54.68
+147,"Queen Mary, University of London (QMUL)",United Kingdom,L,HI,FC,54.47
+148,University of Barcelona,Spain,XL,VH,FC,54.28
+149,Radboud University Nijmegen,Netherlands,L,VH,FC,54.2
+150,"KTH, Royal Institute of Technology",Sweden,L,VH,CO,53.73
+151,Shanghai Jiao Tong University,China,L,VH,FC,53.68
+152,University of Lausanne,Switzerland,M,VH,FO,53.37
+153,Kyushu University,Japan,L,VH,FC,53.32
+154,University of Science and Technology of China,China,L,VH,CO,53.25
+155,Georgetown University,United States,L,HI,FC,53.11
+156,University of Sussex,United Kingdom,M,VH,FC,53.08
+157,Tufts University,United States,M,VH,FC,52.69
+158,Rheinisch-Westfälische Technische Hochschule Aachen,Germany,XL,HI,FC,52.58
+159,Technion - Israel Institute of Technology,Israel,M,VH,FC,52.38
+160,University of Arizona,United States,XL,VH,FC,52.35
+161,University of Cape Town,South Africa,L,HI,FC,51.98
+162=,University of Bern,Switzerland,L,VH,FO,51.85
+162=,McMaster University,Canada,L,VH,FC,51.85
+164,The University of Western Ontario,Canada,L,VH,FC,51.83
+165,University of Calgary,Canada,L,VH,FC,51.74
+166=,The Hong Kong Polytechnic University,Hong Kong,L,VH,CO,51.67
+166=,Universität Karlsruhe,Germany,L,VH,CO,51.67
+168,Stockholm University,Sweden,L,VH,CO,51.51
+169,University of Leicester,United Kingdom,L,HI,FC,51.5
+170,University of Colorado at Boulder,United States,L,VH,CO,51.47
+171,VU University Amsterdam,Netherlands,L,VH,FC,51.43
+172,University of Tsukuba,Japan,L,VH,FC,51.42
+173,Universitat Autònoma de Barcelona,Spain,L,VH,FC,51.26
+174,Georg-August-Universität Göttingen,Germany,L,VH,FC,51.23
+175,Hokkaido University,Japan,L,VH,FC,51.06
+176,University of Bologna,Italy,XL,VH,FC,50.85
+177,Nanjing University,China,L,VH,FC,50.63
+178,Wageningen University,Netherlands,M,VH,FO,50.35
+179,University of Antwerp,Belgium,M,VH,FC,50.26
+180,Chulalongkorn University,Thailand,XL,HI,FC,50.21
+181,Lancaster University,United Kingdom,M,VH,FC,50.2
+182,Waseda University,Japan,XL,VH,CO,50.12
+183,University of Gothenburg,Sweden,L,VH,FC,50.1
+184,University College Cork,Ireland,L,HI,FC,50.07
+185,University of Reading,United Kingdom,L,VH,CO,50
+186,"Université Paris Sorbonne, Paris IV",France,L,VH,SP,49.03
+187,Indian Institute of Technology Bombay (IITB),India,M,VH,CO,48.79
+188,University of Iowa,United States,L,VH,FC,48.74
+189,University of Canterbury,New Zealand,L,VH,CO,48.51
+190,Sapienza University of Rome,Italy,XL,VH,FC,48.41
+191,Korea University,"Korea, South",XL,VH,FC,48.4
+192,University of Ghent,Belgium,L,VH,FC,48.38
+193,University of Florida,United States,XL,VH,FC,48.25
+194,Stony Brook University,United States,L,VH,FC,48.19
+195,Universität Frankfurt am Main,Germany,XL,VH,FC,48.15
+196,National Tsing Hua University,Taiwan,M,VH,CO,47.94
+197,Queen's University of Belfast,United Kingdom,L,HI,FC,47.9
+198,Texas A&M University,United States,XL,VH,FC,47.87
+199,University of Twente,Netherlands,M,VH,FO,47.66
+200,Rheinische Friedrich-Wilhelms-Universität Bonn,Germany,L,VH,FC,47.51
+201,University of Dundee,United Kingdom,M,VH,FC,47.46
+202,Indian Institute of Technology Delhi (IITD),India,M,VH,CO,47.39
+203,Sciences Po Paris,France,M,VH,SP,47.38
+204,Chalmers University of Technology,Sweden,M,VH,CO,47.34
+205,Universität Stuttgart,Germany,L,VH,CO,47.23
+206,Keio University,Japan,XL,VH,FC,47.22
+207,Universiti Malaya (UM),Malaysia,L,HI,FC,47.09
+208,Michigan State University,United States,XL,VH,FC,47.05
+209,Universite Libre de Bruxelles (ULB),Belgium,L,HI,FC,46.73
+210,Saint-Petersburg State University,Russia,L,HI,FC,46.68
+211,University of Turku,Finland,M,VH,FC,46.43
+212,Dalhousie University,Canada,L,VH,FC,46.4
+213,Universidad Autónoma de Madrid,Spain,L,VH,FC,46.05
+214,Simon Fraser University,Canada,L,VH,CO,45.88
+215,Julius-Maximilians-Universität Würzburg,Germany,M,VH,FC,45.87
+216,"Rutgers, The State University of New Jersey, New Brunswick",United States,XL,VH,CO,45.6
+217,Technische Universität Berlin,Germany,L,VH,CO,45.53
+218,Zhejiang University,China,XL,VH,FC,45.51
+219,University of Notre Dame,United States,M,VH,CO,45.03
+220,Macquarie University,Australia,L,HI,FC,45
+221,King Saud University,Saudi Arabia,XL,LO,FC,44.89
+222,Universidad Nacional Autónoma de México (UNAM),Mexico,XL,VH,FC,44.86
+223,Rensselaer Polytechnic Institute,United States,M,VH,CO,44.81
+224,RMIT University,Australia,XL,VH,CO,44.77
+225,Victoria University of Wellington,New Zealand,L,VH,CO,44.37
+226,Université Paris-Sud 11,France,L,VH,FO,44.22
+227,Indiana University Bloomington,United States,XL,VH,FC,44.09
+228,Mahidol University,Thailand,L,HI,FC,43.74
+229,"Université Paris 1, Panthéon-Sorbonne",France,XL,VH,FO,43.69
+230,"University of Massachusetts, Amherst",United States,L,VH,CO,43.57
+231,University of Ottawa,Canada,XL,VH,FC,43.54
+232,"National University of Ireland, Galway",Ireland,M,HI,FC,43.46
+233,Wake Forest University,United States,M,VH,FC,43.21
+234,Kobe University,Japan,L,VH,FC,43.04
+235,University of Miami,United States,L,VH,FC,42.97
+236,University of Indonesia,Indonesia,XL,LO,FC,42.9
+237,Norwegian University of Science And Technology,Norway,L,VH,FC,42.79
+238,Vrije Universiteit Brussel (VUB),Belgium,M,VH,FC,42.77
+239,Tulane University,United States,M,VH,FC,42.71
+240,Vienna University of Technology,Austria,M,VH,FO,42.68
+241,University of Victoria,Canada,L,VH,CO,42.64
+242,Universität Hamburg,Germany,XL,HI,FC,42.56
+243,University of Surrey,United Kingdom,M,VH,CO,42.42
+244,Universität Mannheim,Germany,M,VH,FO,42.36
+245,Universität Köln,Germany,XL,HI,FC,42.29
+246,Université de Strasbourg,France,XL,MD,FC,42.13
+247,Universität Ulm,Germany,M,VH,FO,42.12
+248,University of Liege,Belgium,L,VH,FC,41.98
+249,Indian Institute of Technology Kanpur (IITK),India,S,VH,CO,41.95
+250,Aalto University,Finland,L,VH,SP,41.9
+251,Flinders University,Australia,L,MD,FC,41.87
+252,"University of Illinois, Chicago (UIC)",United States,L,VH,FC,41.86
+253,Universidade de São Paulo,Brazil,XL,VH,FC,41.67
+254,Hiroshima University,Japan,L,VH,FC,41.66
+255,King Fahd University of Petroleum & Minerals,Saudi Arabia,M,VH,FO,41.51
+256,University of Newcastle,Australia,L,HI,FC,41.45
+257,"University of Technology, Sydney",Australia,L,VH,CO,41.43
+258,"SOAS - School of Oriental and African Studies, University of London",United Kingdom,S,VH,SP,41.27
+259,University of Exeter,United Kingdom,L,HI,FC,41.13
+260,Universität Erlangen-Nürnberg,Germany,L,VH,FC,41.01
+261,University of Padua,Italy,XL,VH,FC,40.91
+262,Indian Institute of Technology Madras (IITM),India,S,VH,CO,40.87
+263,Universiti Kebangsaan Malaysia (UKM),Malaysia,L,MD,FC,40.84
+264,George Washington University,United States,L,HI,FC,40.76
+265,University of Strathclyde,United Kingdom,L,VH,CO,40.74
+266,Technische Universität Darmstadt,Germany,L,VH,FO,40.71
+267=,Charles University,Czech Republic,XL,VH,FC,40.66
+267=,University of Wollongong,Australia,L,HI,FC,40.66
+269,University Complutense Madrid,Spain,XL,HI,FC,40.61
+270,Loughborough University,United Kingdom,L,VH,FO,40.28
+271,Laval University,Canada,L,VH,FC,39.77
+272,North Carolina State University,United States,L,VH,CO,39.52
+273,"Université Grenoble, Joseph Fourier",France,L,VH,FO,39.24
+274,Curtin University of Technology,Australia,L,VH,CO,39.23
+275=,University of Cincinnati,United States,L,VH,FC,39.13
+275=,Iowa State University,United States,L,VH,CO,39.13
+277,University of Hawaii at Manoa,United States,L,VH,FC,39.06
+278,Universität Innsbruck,Austria,L,MD,FC,38.95
+279,"École des Ponts, ParisTech",France,S,VH,FO,38.8
+280,Brandeis University,United States,M,VH,CO,38.78
+281,University of South Australia,Australia,L,VH,CO,38.75
+282,Université Paris Diderot - Paris 7,France,L,HI,FC,38.52
+283,National Cheng Kung University,Taiwan,L,VH,FC,38.47
+284,"University of California, Santa Cruz",United States,L,VH,CO,38.46
+285,"University of California, Riverside",United States,L,HI,FC,38.35
+286=,University of Athens,Greece,XL,VH,FC,38.25
+286=,La Trobe University,Australia,L,VH,CO,38.25
+288,"Université Montpellier 2, Sciences et Techniques",France,M,VH,FO,38.21
+289,Queensland University of Technology,Australia,L,VH,CO,38.12
+290,National Yang Ming University,Taiwan,S,VH,FC,38.04
+291,Royal Holloway University of London,United Kingdom,M,VH,CO,37.97
+292,Universidade Estadual de Campinas (Unicamp),Brazil,L,VH,FC,37.89
+293,University of Tromso,Norway,S,VH,FC,37.83
+294,Universität Leipzig,Germany,L,VH,FC,37.78
+295,Politecnico di Milano,Italy,L,VH,SP,37.73
+296,Aston University,United Kingdom,M,VH,CO,37.66
+297,Umeå University,Sweden,L,HI,FC,37.45
+298,University of Southern Denmark,Denmark,M,VH,FO,37.43
+299,University of East Anglia (UEA),United Kingdom,L,HI,FC,37.27
+300=,University of Pisa,Italy,XL,VH,FC,37.16
+300=,University of Pisa,Italy,XL,VH,FC,37.16
+302,Massey University,New Zealand,L,VH,CO,37.02
+303,University of Jyväskylä,Finland,M,VH,CO,37.01
+304,Jagiellonian University,Poland,XL,VH,CO,36.87
+305,University of Essex,United Kingdom,M,VH,CO,36.7
+306,University of Utah,United States,L,VH,FC,36.52
+307,Ateneo de Manila University,Philippines,M,LO,FC,36.38
+308,University of Eastern Finland,Finland,M,VH,CO,36.32
+309,Universiti Sains Malaysia (USM),Malaysia,L,HI,FC,36.16
+310,Ruhr-Universität Bochum,Germany,XL,HI,FC,36.14
+311,Indian Institute of Technology Kharagpur (IITKGP),India,M,VH,FO,36.13
+312,Universität Konstanz,Germany,S,VH,CO,36.12
+313,University of Oulu,Finland,M,VH,FC,35.93
+314,University of the Philippines,Philippines,XL,LO,FC,35.9
+315,Universität des Saarlandes,Germany,L,HI,FC,35.82
+316=,Universität Bielefeld,Germany,L,VH,CO,35.66
+316=,University of Waikato,New Zealand,M,VH,CO,35.66
+318,Chiba University,Japan,L,VH,FC,35.62
+319,Universiti Putra Malaysia (UPM),,L,HI,FC,35.49
+320,University of Tasmania,Australia,L,VH,CO,35.48
+321,Universitas Gadjah Mada,Indonesia,XL,LO,FC,35.25
+322,Technische Universität Dresden,Germany,XL,HI,FC,35.22
+323,Griffith University,Australia,L,HI,FC,35.03
+324,Universität Düsseldorf,Germany,L,VH,FC,34.97
+325,Westfälische Wilhelms-Universitat Münster,Germany,L,VH,FC,34.94
+326,Universidad de Buenos Aires,Argentina,XL,HI,FC,34.67
+327,National Chiao Tung University,Taiwan,M,VH,CO,34.46
+328,University of Florence,Italy,XL,VH,FC,34.45
+329,Université Paris Descartes,France,L,VH,FC,34.39
+330,Dublin City University,Ireland,M,VH,FO,34.38
+331,Pontificia Universidad Católica de Chile,Chile,L,HI,FC,34.23
+332,Bilkent University,Turkey,M,VH,CO,34.2
+333,York University,Canada,XL,VH,CO,34.17
+334,Colorado State University,United States,L,VH,CO,34.08
+335,Arizona State University,United States,XL,VH,CO,34
+336,Universitat Pompeu Fabra,Spain,M,VH,FO,33.97
+337,Ben Gurion University of The Negev,Israel,L,VH,FC,33.91
+338,University of Connecticut,United States,L,VH,FC,33.88
+339,Universität Bremen,Germany,L,VH,CO,33.75
+340,Virginia Polytechnic Institute (Virginia Tech),United States,XL,VH,FC,33.63
+341,American University of Beirut (AUB),Lebanon,M,HI,FC,33.4
+342,Hong Kong Baptist University,Hong Kong,M,VH,CO,33.36
+343,Sungkyunkwan University,"Korea, South",L,VH,FC,33.35
+344,Johannes Gutenberg Universität Mainz,Germany,XL,HI,FC,33.33
+345,Kyung Hee University,"Korea, South",L,HI,FC,33.12
+346,"Université Lille 1, Sciences et Technologie",France,L,VH,FO,33.1
+347,The University of Georgia,United States,XL,VH,FC,33.06
+348,Ewha Womans University,"Korea, South",L,MD,FC,32.77
+349,Karl-Franzens-Universitaet Graz,Austria,L,VH,FO,32.74
+350,University of Kentucky,United States,L,VH,FC,32.69
+,University of Alabama,United States,L,VH,CO,32.61
+351=,Washington State University,United States,L,HI,FC,32.61
+353,University of Navarra,Spain,M,VH,FC,32.39
+354=,Hanyang University,"Korea, South",L,VH,FC,32.29
+354=,James Cook University,Australia,M,VH,FC,32.29
+356,Heriot-watt University,United Kingdom,M,VH,CO,32.13
+357,University of Manitoba,Canada,L,VH,FC,32.1
+358,Universidad Austral,Argentina,S,VH,FO,32.06
+359,Boston College,United States,L,VH,CO,31.94
+360,University of the Witwatersrand,South Africa,L,HI,FC,31.9
+361,Brunel University,United Kingdom,L,VH,CO,31.89
+362,Deakin University,Australia,L,MD,FC,31.87
+363,Università degli Studi di Pavia,Italy,L,HI,FC,31.82
+364,Warsaw University,Poland,XL,VH,CO,31.64
+365,Universiti Teknologi Malaysia (UTM),Malaysia,L,HI,CO,31.58
+366,National University of Sciences And Technology (NUST) Islamabad,Pakistan,M,LO,FC,31.56
+367,Universidad de Chile,Chile,XL,HI,FC,31.54
+368,Bangor University,United Kingdom,M,HI,FC,31.52
+369,University of Tampere,Finland,M,VH,FO,31.5
+370,National Taiwan University of Science And Technology (formerly National Taiwan Institute of Technology),Taiwan,M,VH,FO,31.46
+371,University of Delhi,India,XL,MD,FC,31.21
+372,United Arab Emirates University,United Arab Emirates,L,MD,FC,31.18
+373,Universität Bayreuth,Germany,M,VH,CO,31.12
+374,Illinois Institute of Technology,United States,M,VH,CO,31.08
+375,Novosibirsk State University,Russia,M,MD,FC,30.93
+376,Swansea University,United Kingdom,M,HI,FC,30.72
+377,University of Kansas,United States,L,VH,FC,30.7
+378,Philipps-Universität Marburg,Germany,L,HI,FC,30.67
+379,Universität Regensburg,Germany,L,VH,FO,30.58
+380,Aberystwyth University,United Kingdom,M,VH,CO,30.55
+381,Universidade Federal do Rio de Janeiro,Brazil,XL,VH,FC,30.49
+382,"Université Toulouse III, Paul Sabatier",France,L,VH,FO,30.31
+383,University of St Gallen (HSG),Switzerland,M,VH,SP,30.25
+384,Universidade Nova de Lisboa,Portugal,L,MD,FC,30.23
+385,University of Tennessee,United States,XL,VH,FC,29.95
+386,"Goldsmiths, University of London",United Kingdom,M,VH,FO,29.92
+387,Tecnológico de Monterrey (ITESM),Mexico,L,LO,FC,29.68
+388,Tongji University,China,XL,VH,FC,29.65
+389,Linköping University,Sweden,L,VH,CO,29.56
+390,Université Claude Bernard Lyon 1,France,L,VH,FC,29.54
+391,Howard University,United States,M,HI,FC,29.45
+392,Pusan National University,"Korea, South",L,HI,FC,29.41
+393,University at Buffalo SUNY,United States,L,VH,FC,29.31
+394,University of Bradford,United Kingdom,M,VH,CO,29.11
+395,Dublin Institute of Technology,Ireland,M,HI,CO,29.04
+396,University of Coimbra,Portugal,L,HI,FC,29.03
+397,Sogang University,"Korea, South",M,VH,CO,29
+398,National Central University,Taiwan,M,VH,CO,28.95
+399,Universität Jena,Germany,L,VH,FC,28.86
+400,Christian-Albrechts-Universität zu Kiel,Germany,L,VH,FC,28.76
+401-450,"University of Missouri, Columbia",United States,L,VH,FC,28.71
+401-450,Université Henri Poincaré Nancy 1,France,L,VH,FO,25.93
+401-450,University of Trento,Italy,L,VH,CO,26.31
+401-450,University of Oklahoma,United States,L,VH,FC,27.71
+401-450,College of William & Mary,United States,M,VH,CO,26.64
+401-450,University of Vermont,United States,M,VH,FC,26.01
+401-450,University of Kent,United Kingdom,L,VH,CO,26.47
+401-450,Florida State University,United States,L,HI,FC,28.55
+401-450,Universität Dortmund,Germany,L,VH,CO,26.63
+401-450,National Sun Yat-sen University,Taiwan,M,VH,CO,26.95
+401-450,Chiang Mai University,Thailand,XL,MD,FC,25.16
+401-450,Bandung Institute of Technology (ITB),Indonesia,L,LO,CO,28.6
+401-450,KoÃ§ University,Turkey,S,MD,FC,24.92
+401-450,Istanbul University,Turkey,XL,MD,FC,26.31
+401-450,University of New Mexico,United States,L,VH,FC,27.74
+401-450,Xi'an Jiaotong University,China,L,VH,FC,28.13
+401-450,Eötvös Loránd University,Hungary,L,VH,CO,26.43
+401-450,Northeastern University,United States,L,VH,CO,24.93
+401-450,University of Naples - Federico Ii,Italy,XL,VH,FC,24.92
+401-450,University of Oregon,United States,L,VH,CO,26.21
+401-450,Yeshiva University,United States,S,MD,FC,24.9
+401-450,Université Paris Dauphine,France,M,VH,SP,27.14
+401-450,University of Tehran,Iran,XL,VH,CO,25.91
+401-450,University of Delaware,United States,L,VH,CO,25.53
+401-450,University of Trieste,Italy,L,HI,FC,26.16
+401-450,Tomsk State University,Russia,M,HI,CO,24.9
+401-450,University of Houston,United States,L,VH,CO,25.96
+401-450,Technische Universität Braunschweig,Germany,L,VH,CO,25.75
+401-450,Tianjin University,China,L,VH,CO,26.82
+401-450,Carleton University,Canada,L,VH,CO,25.62
+401-450,Yokohama City University,Japan,S,VH,FO,27.71
+401-450,Drexel University,United States,L,HI,FC,27.79
+401-450,University of Crete,Greece,L,MD,FC,26.35
+401-450,Oregon State University,United States,L,VH,CO,25.31
+401-450,Swinburne University of Technology,Australia,L,HI,CO,28.63
+401-450,Aristotle University of Thessaloniki,Greece,XL,VH,FC,28.29
+401-450,City University of New York,United States,XL,VH,CO,25.86
+401-450,Okayama University,Japan,L,VH,FC,27.78
+401-450,Concordia University,Canada,L,VH,CO,25.56
+401-450,Tokyo Metropolitan University,Japan,M,VH,CO,26.64
+401-450,Nagasaki University,Japan,M,VH,FO,28.39
+401-450,National University of Ireland Maynooth,Ireland,M,VH,FO,24.9
+401-450,University of South Carolina,United States,L,HI,FC,25.4
+401-450,King Abdul Aziz University (KAU),Saudi Arabia,XL,LO,FC,26.1
+401-450,Czech Technical University In Prague,Czech Republic,L,VH,SP,27.41
+401-450,Universitat de Valencia,Spain,XL,HI,FC,27.23
+401-450,Lehigh University,United States,M,VH,CO,26.07
+401-450,Inha University,"Korea, South",L,HI,FC,25.36
+401-450,Kumamoto University,Japan,M,VH,FC,26.73
+401-450,Sabanci University,Turkey,S,VH,CO,25.41
+401-450,University of South Carolina,United States,L,HI,FC,25.4
+401-450,Université Henri Poincaré Nancy 1,France,L,VH,FO,25.93
+451-500,National Technical University of Athens,Greece,L,VH,FO,23.94
+451-500,University of Granada,Spain,XL,HI,FC,23.48
+451-500,Thammasat University,Thailand,XL,LO,FC,23.4
+451-500,L.N. Gumilyov Eurasian National University,Kazakhstan,M,LO,CO,24.73
+451-500,Université du Québec,Canada,XL,HI,FC,23.91
+451-500,Aalborg University,Denmark,M,HI,FC,24.12
+451-500,University of Milano,Italy,XL,LO,FC,22.02
+451-500,Universidad ORT Uruguay,Uruguay,S,HI,FO,23.95
+451-500,Worcester Polytechnic Institute,United States,S,VH,CO,22.98
+451-500,Osaka City University,Japan,M,VH,FC,24.41
+451-500,Politecnico di Torino,Italy,L,VH,FO,24.8
+451-500,Kanazawa University,Japan,M,VH,FC,24.48
+451-500,Syracuse University,United States,L,VH,CO,22.19
+451-500,Airlangga University,Indonesia,L,LO,FC,22.6
+451-500,University of Siena,Italy,L,HI,FC,23.44
+451-500,University of Porto,Portugal,XL,HI,FC,22.09
+451-500,Kyungpook National University,"Korea, South",L,HI,FC,22.69
+451-500,State University Higher School of Economics (HSE),Russia,L,LO,FO,22.52
+451-500,Universidade de Santiago de Compostela,Spain,L,VH,CO,24.08
+451-500,University of Salamanca,Spain,XL,MD,FC,23.2
+451-500,De La Salle University,Philippines,M,LO,CO,24.66
+451-500,Virginia Commonwealth University,United States,L,HI,FC,22.82
+451-500,University of Mumbai,India,XL,LO,FC,22.38
+451-500,University of Limerick,Ireland,M,HI,FC,24.36
+451-500,"Université Paris 2, Panthéon-Assas",France,L,VH,SP,22.37
+451-500,Murdoch University,Australia,M,VH,CO,24.31
+451-500,Tokyo University of Science (TUS),Japan,L,VH,CO,23.16
+451-500,Cairo University,Egypt,XL,VH,CO,23.8
+451-500,University of Nebraska,United States,L,VH,CO,24.08
+451-500,The Open University,United Kingdom,XL,VH,CO,23.07
+451-500,University of Patras,Greece,L,HI,FC,24.08
+451-500,Temple University,United States,XL,HI,FC,22.19
+451-500,Yokohama National University,Japan,M,VH,FO,24.24
+451-500,University of Hull,United Kingdom,L,MD,FC,23.82
+451-500,Istanbul Technical University,Turkey,L,VH,CO,23.09
+451-500,National Taiwan Normal University,Taiwan,L,HI,CO,22.12
+451-500,American University,United States,M,VH,CO,22.98
+451-500,Gifu University,Japan,M,VH,FC,23.68
+451-500,Universität Duisburg-Essen,Germany,XL,HI,FC,24.36
+451-500,Leibniz Universität Hannover,Germany,L,VH,CO,23.91
+451-500,City University London,United Kingdom,L,HI,CO,22.91
+451-500,University of Pretoria,South Africa,XL,MD,FC,22.77
+451-500,University of Szeged,Hungary,L,HI,FC,23.24
+451-500,Johannes Kepler University Linz,Austria,M,VH,CO,24.28
+451-500,Justus-Liebig-Universität Gießen,Germany,L,HI,FC,22.32
+451-500,University of Turin,Italy,XL,VH,FC,22.69
+451-500,Université de Rennes 1,France,L,VH,FO,23.8
+451-500,Martin-Luther-Universität Halle-Wittenberg,Germany,L,HI,FC,23.47
+501-550,National Chengchi University,Taiwan,L,MD,CO,19.97
+501-550,University of Denver,United States,M,VH,CO,18.48
+501-550,Universidad de Sevilla,Spain,XL,HI,FC,19.83
+501-550,Universidad Torcuato Di Tella,Argentina,S,VH,SP,18.13
+501-550,University of Ljubljana,Slovenia,XL,HI,FC,21.03
+501-550,Chonbuk National University,"Korea, South",L,HI,FC,19.25
+501-550,Chungnam National University,"Korea, South",L,HI,FC,17.75
+501-550,Vilnius University,Lithuania,L,MD,FC,17.79
+501-550,Indian Institute of Technology Guwahati (IITG),India,S,VH,CO,21.94
+501-550,University of Genoa,Italy,XL,HI,FC,21.34
+501-550,Loyola University Chicago,United States,L,MD,FC,20.48
+501-550,Perugia University,Italy,L,HI,FC,18.21
+501-550,Universidad de Los Andes,Colombia,L,MD,FC,20.87
+501-550,Sharif University of Technology,Iran,M,VH,FO,20.42
+501-550,Shandong University,China,XL,VH,FC,21.01
+501-550,Umm Al-Qura University,Saudi Arabia,XL,LO,FC,19.29
+501-550,Universidade Federal de Minas Gerais,,L,,FC,18.66
+501-550,Prince of Songkla University,Thailand,XL,LO,FC,20.49
+501-550,University of Calcutta,India,XL,HI,CO,21.37
+501-550,"Université Toulouse 1, Capitole",France,L,HI,FO,20.01
+501-550,University of Modena,Italy,L,HI,FC,21.56
+501-550,Tokai University,Japan,L,HI,FC,20.98
+501-550,Missouri University of Science and Technology,United States,M,VH,CO,18.62
+501-550,Chonnam National University,"Korea, South",L,HI,FC,19
+501-550,Bogor Agricultural University,Indonesia,L,LO,CO,18.16
+501-550,Université Montpellier 1,France,L,VH,SP,18.28
+501-550,Universidad de Zaragoza,Spain,XL,HI,FC,19.42
+501-550,Jilin University,China,XL,VH,FC,17.97
+501-550,Ural State University,,S,VH,CO,21.58
+501-550,Al-Farabi Kazakh National University,Kazakhstan,L,LO,CO,21.93
+501-550,Georgia State University,United States,L,VH,CO,18.57
+501-550,University of Kwazulu-Natal,South Africa,L,MD,FC,18.35
+501-550,Niigata University,Japan,L,HI,FC,19.72
+501-550,University of South Florida,United States,XL,VH,CO,20.62
+501-550,University of Bucharest,Romania,XL,HI,CO,19.39
+501-550,Universidad de Santiago de Chile,Chile,L,LO,FC,19.42
+501-550,Pontificia Universidade Católica do Rio de Janeiro,Brazil,L,HI,CO,17.71
+501-550,Louisiana State University,United States,XL,VH,CO,21.66
+501-550,University at Albany SUNY,,L,VH,CO,19.95
+501-550,Tilburg University,Netherlands,L,VH,FO,20.86
+501-550,Brigham Young University,United States,XL,VH,CO,18.86
+501-550,Clark University,United States,S,VH,CO,18.58
+501-550,Ritsumeikan University,Japan,XL,HI,CO,19.61
+501-550,Southeast University,China,L,VH,FC,20.16
+501-550,Warsaw University of Technology,Poland,XL,VH,CO,20.57
+501-550,Kazan State University,Russia,L,MD,CO,20.11
+501-550,"Universidade Catolica Portuguesa, Lisboa",Portugal,M,LO,FC,21.06
+501-550,Universidad Politecnica de Valencia,Spain,L,VH,CO,19.69
+501-550,Catholic University of The Sacred Heart,Italy,XL,VH,FO,20.96
+501-550,Universidad Nacional de la Plata,,XL,,FC,18.39
+551-600,Kasetsart University,Thailand,XL,HI,CO,16.91
+551-600,University of Engineering & Technology (UET) Lahore,Pakistan,M,VH,FO,15.25
+551-600,Université de Caen Basse-Normandie,France,L,LO,FC,16.94
+551-600,Chung-Ang University,"Korea, South",L,MD,FC,15.23
+551-600,Universidad Nacional de Cordoba,,XL,,FO,14.22
+551-600,Smith College,United States,S,VH,CO,16.58
+551-600,Saitama University,Japan,M,VH,CO,16.58
+551-600,University of Tartu,Estonia,L,MD,FC,15.52
+551-600,Université Pierre-Mendès-France (UPMF),France,L,HI,FO,14.85
+551-600,"Universidade Estadual Paulista ""Júlio de Mesquita Filho""",Brazil,L,VH,FC,17.27
+551-600,Université de Cergy-Pontoise,France,M,HI,CO,17.02
+551-600,"Université Lyon 2, Louis Lumière",France,L,VH,SP,16.67
+551-600,American University in Cairo,Egypt,,,CO,16.78
+551-600,University of Karachi,Pakistan,L,LO,FC,17.32
+551-600,Kagoshima University,Japan,M,VH,FC,15.95
+551-600,Southern Methodist University,United States,M,VH,CO,16.17
+551-600,Khon Kaen University,Thailand,XL,LO,FC,16.74
+551-600,Masaryk University,Czech Republic,XL,MD,FC,15.04
+551-600,University of Central Lancashire,United Kingdom,L,HI,CO,14.72
+551-600,Mie University,Japan,M,HI,FC,15.92
+551-600,Brno University of Technology,Czech Republic,L,VH,FO,17.56
+551-600,University of Salford,United Kingdom,L,HI,CO,15.1
+551-600,University of the Pacific,United States,M,MD,CO,15.18
+551-600,Fu Jen Catholic University,Taiwan,L,LO,FC,16.68
+551-600,"Université Toulouse II, Le Mirail",France,L,VH,FO,14.07
+551-600,Universidad Nacional de Colombia,Colombia,XL,,FC,16.71
+551-600,Universidad del Belgrano,Argentina,L,LO,CO,15.22
+551-600,National Chung Hsing University,Taiwan,L,VH,CO,14.89
+551-600,Stevens Institute of Technology,United States,S,VH,CO,17.62
+551-600,Athens University of Economics And Business,Greece,M,VH,FO,15.96
+551-600,Marquette University,United States,M,VH,CO,14.22
+551-600,University of Lahore,Pakistan,M,HI,FO,16.36
+551-600,Baylor University,United States,L,VH,CO,16.37
+551-600,University of Dhaka,Bangladesh,XL,LO,FC,13.86
+551-600,University of Western Sydney,Australia,L,MD,FC,13.74
+551-600,University of Arkansas,United States,L,VH,CO,16.89
+551-600,Catania University,Italy,XL,HI,FC,14.28
+551-600,Alpen-Adria-Universität Klagenfurt,Austria,M,VH,FO,14.04
+551-600,Doshisha University,Japan,L,HI,CO,15.31
+551-600,Universidad de Concepción,,L,,FC,14.59
+551-600,Université Lille 2,France,L,VH,SP,16.13
+551-600,Universidad de Antioquia,,XL,,FC,15.05
+551-600,Gunma University,Japan,M,VH,FO,17.56
+551-600,University of Tulsa,United States,S,VH,CO,16.51
+551-600,University of Santo Tomas,Philippines,XL,LO,FC,17.15
+551-600,University of Pune,India,S,VH,CO,15.73
+551-600,Clemson University,United States,L,VH,CO,14.17
+551-600,Universidad Iberoamericana (UIA),Mexico,M,LO,FC,15.87
+551-600,"Rutgers - The State University of New Jersey, Newark",United States,M,MD,CO,16.54
+551-600,Lodz University,Poland,XL,HI,CO,14.07
+601+,Moscow State Institute of International Relations (MGIMO-University),Russia,S,LO,FO,11.08
+601+,Université Paris Ouest Nanterre La Défense,France,S,VH,FO,9.38
+601+,Universidad de Guadalajara (UAG),,,,FC,9.17
+601+,Sepuluh Nopember Institute of Technology,Indonesia,L,VH,SP,12.25
+601+,Pontificia Universidad Católica de Valparaíso,Chile,L,,FC,9.64
+601+,"Université Lille 3, Charles-de-Gaulle",France,L,HI,FO,11.25
+601+,Universidad Central de Venezuela,,XL,,FC,8.82
+601+,Aoyama Gakuin University,Japan,L,MD,CO,13.11
+601+,"Université Grenoble 3, Stendhal",France,M,VH,SP,12.83
+601+,Al-Imam Mohamed Ibn Saud Islamic University,Saudi Arabia,XL,LO,FO,13.42
+601+,Ca' Foscari University of Venice,Italy,L,VH,FO,12.5
+601+,Pepperdine University,United States,M,LO,CO,11.33
+601+,Universidad Simón Bolívar,,M,,FO,9.76
+601+,Binghamton University SUNY,,L,HI,CO,13.56
+601+,"Université Montpellier 3, Paul-Valery",France,L,MD,FO,12.94
+601+,Pontificia Universidad Javeriana,,,,FC,6.52
+601+,Cukurova University,Turkey,XL,LO,FC,11.2
+601+,Instituto Tecnologico Autonomo de Mexico (ITAM),Mexico,,,FO,6.39
+601+,Ochanomizu University,Japan,S,VH,CO,13.17
+601+,Universidad Austral de Chile,,M,,FC,10.03
+601+,Universidad Adolfo Ibanez,Chile,M,HI,FO,12.44
+601+,Universidad Catolica Andres Bello,Venezuela,,,FO,5.9
+601+,University of Brawijaya,Indonesia,XL,LO,FC,9
+601+,Universidad de La Republica,,XL,,FC,7.29
+601+,Fordham University,United States,L,MD,CO,12.25
+601+,E.A.Buketov Karaganda State University,Kazakhstan,L,LO,CO,5.42
+601+,Universidad de Medellin,Colombia,M,,SP,4.53
+601+,Pontificia Universidad Católica del Perú,Peru,L,MD,FO,11.77
+601+,Babes-Bolyai University,Romania,XL,,CO,6.38
+601+,Universidad Diego Portales,Chile,M,,FC,13
+601+,University of Murcia,Spain,L,MD,FC,13.04
+601+,Kazakh national technical university,Kazakhstan,L,LO,FO,10.77
+601+,Universidad del Talca,,M,,FO,9.51
+601+,Diponegoro University,Indonesia,XL,LO,FC,13.51
+601+,Universidad Autónoma Metropolitana (UAM),,XL,,FC,12.79
+601+,Hacettepe University,Turkey,L,LO,FC,6.43
+601+,University of Colombo,Sri Lanka,L,LO,FC,9.68
+601+,Paris Lodron University of Salzburg,Austria,,,CO,3.18
+601+,Universidad Tecnica Federico Santa Maria,Chile,M,,CO,9.36
+601+,"Université Lyon 3, Jean Moulin",France,L,VH,SP,13.7
+601+,Université Nancy 2,France,L,HI,FO,9.8
+601+,Universidad Autonoma de Nuevo Leon (UANL),,XL,,FC,12.71
