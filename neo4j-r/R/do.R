@@ -174,26 +174,27 @@ scoreCrunchBase <- function(count=10000) {
                 # As a result, it reduces number of rows available to regression
                 # The correct way to produce full dataset with NUll values is to use property! in the RETURN clause
                 # TODO(anthony): Fix 
-                "WHERE f.total_money_raised! <> \"$0\" AND HAS(f.value) AND HAS(j.title) AND HAS(e.type) AND HAS(e.institution)",
+                "WHERE f.total_money_raised! <> \"$0\" AND HAS(p.source_uid) AND HAS(f.value) AND HAS(j.title) AND HAS(e.type) AND HAS(e.institution) AND HAS(c.source_uid)",
                 "RETURN p.source_uid, f.value, j.title, e.institution, e.type, c.source_uid, f.total_money_raised",
                 (if (count<0) "" else paste("LIMIT",as.integer(count))));
   
   results <- queryCypher2(query);
   names(results) <- c("person", "company", "title", "school", "degree", "coworker", "total_money_raised")
-  
-  results$score <- sapply(results[,"total_money_raised"], function(x) str_extract(x,"[0-9.]+"))
+
   
   # Add a numeric feature to the school
   results <- scoreSchool(results)
 
   # Add a numeric feature based on degree description
   results <- scoreDegree(results)
-  
+ 
+  results$score <- sapply(results[,"total_money_raised"], function(x) str_extract(x,"[0-9.]+"))
   exchange <- c("$"=1.0, "¥"=.01, "£"=1.5, "€"=1.3, "c$"=0.95)
   unit <- c("m"=1e6, "k"=1e3, "b"=1e9)
   results[,"score"] <- as.numeric(results[,"score"]) * unit[str_extract(results[,"total_money_raised"], "([^0-9.]+)$")]
   results[,"score"] <- results[,"score"] * sapply(results[,"title"], weightByTitle)
-  results
+  
+  return(results)
 }
 
 #'
@@ -238,6 +239,58 @@ runPageRank <- function(top=20) {
   vector
 }
 
+#' 
+#' Run regression on all persons from CrunchBase
+#' First query produce all coworker relations, then used to generate pagerank scores
+#' Second query creates personal attributes, such as education and work titles, used to compute numeric variables
+#' Then pagerank scores are added as feature
+#' 
+runRegression <- function(count=1000) {
+  coworkerQuery = paste("MATCH (p:PersonGUID)-[:HAS_EMPLOYMENT]->j-[:HAS_EMPLOYMENT_FIRM]->(f:EmploymentFirm)<-[:HAS_EMPLOYMENT_FIRM]-k<-[:HAS_EMPLOYMENT]-(c:PersonGUID)",
+                        "WHERE HAS(p.source_uid) AND HAS(c.source_uid)",
+                        "RETURN p.source_uid, c.source_uid",
+                        (if (count<0) "" else paste("LIMIT",as.integer(count))));
+  relations <- queryCypher2(coworkerQuery)
+  names(relations) <- c("person", "coworker")
+  pr <- page.rank.old(createGraph(relations))
+  prdf <- data.frame(names(pr), pr)
+  names(prdf) <- c("person", "pagerank")
+  
+  # Query for just person' education, what company worked for and title, no relations to other people
+  trainQuery = paste("MATCH (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment)-[:HAS_EMPLOYMENT_FIRM]->(f:EmploymentFirm),",
+                     "(p:PersonGUID)-[:HAS_EDUCATION]-(e:Education)",
+                     "WHERE f.total_money_raised! <> \"$0\" AND HAS(p.source_uid) AND HAS(f.value) AND HAS(j.title) AND HAS(e.type) AND HAS(e.institution)",
+                     "RETURN p.source_uid, f.value, j.title, e.institution, e.type, f.total_money_raised",
+                     (if (count<0) "" else paste("LIMIT",as.integer(count))));
+  training <- queryCypher2(trainQuery)  
+  names(training) <- c("person", "company", "title", "school", "degree", "total_money_raised")
+  
+  training <- weightScoreByTitle(training)
+  training <- scoreSchool(training)
+  training <- scoreDegree(training)
+  
+  training <- merge(training, prdf, by="person")
+  
+  # Query with all other entries with zero money raised (no score)
+  testsetQuery = paste("MATCH (p:PersonGUID)-[:HAS_EDUCATION]-(e:Education)",
+                    "WHERE HAS(p.source_uid)",
+                    "RETURN p.source_uid, e.institution?, e.type?",
+                    (if (count<0) "" else paste("LIMIT",as.integer(count))));
+  test <- queryCypher2(testsetQuery)  
+  names(test) <- c("person", "school", "degree")
+  test$person <- unlist(test$person)
+  known <- unique(training$person)
+  test <- test[!(test$person %in% known),]
+  test <- scoreSchool(test)
+  test <- scoreDegree(test)
+  test <- merge(test, prdf, by="person")
+  test$company <- rep(NA, nrow(test))
+  test$title <- rep(NA, nrow(test))
+  return(test)
+}
+
+
+
 crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cypher") {
   queryCypher2("match (p:PersonGUID) return count(p);")
   queryCypher2("match (p:PersonGUID)-[:HAS_EDUCATION]->(d) where HAS(d.institution) return count(p);")
@@ -246,6 +299,8 @@ crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cy
   queryCypher2("match (d:Degree) return count(d)")  
   # number of institutions
   queryCypher2("match (i:Institution) return length(collect(i.value?))")
+  # how many "co-worker" relationships - 4681532 on 8/10/2013
+  queryCypher2("MATCH (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment)-[:HAS_EMPLOYMENT_FIRM]->(f:EmploymentFirm)<-[:HAS_EMPLOYMENT_FIRM]-k<-[:HAS_EMPLOYMENT]-(c:PersonGUID)  RETURN count(*);")
 }
 
 #' 
@@ -256,16 +311,14 @@ crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cy
 #' @export
 #'
 scoreSchool <- function(edu, scores=NULL) {
-  if (any(is.null(edu)) || any(is.na(edu))) {
-    warning('x cannot have any NA')
-    return
-  }
   if (is.null(scores)) {
     scores <- read.csv("~/git/opencpu/neo4j-r/data/University Rankings 2011 QS.csv")
     scores <- scores[,c("School.Name", "Score")]
-  } 
+  }   
+  schoolNames <- tolower(scores$School.Name)
   # try partial match by grep first 
-  edu$school_score <- sapply(edu$school, function(x) ave(scores[grep(str_trim(x),scores$School.Name,ignore.case=T),]$Score)[1])
+  #edu$school_score <- sapply(edu$school, function(x) ave(scores[grep(str_trim(x),scores$School.Name,ignore.case=T),]$Score)[1])
+  edu$school_score <- sapply(edu$school, function(x) ifelse(is.null(x), 0, ave(scores[pmatch(str_trim(x),schoolNames),]$Score)[1]))
   # TODO(anthony): partial match using grep only fills in 50 percent of the scores, fill in the rest as 50 out of 100 as the median
   med <- rep(50, length(edu[is.na(edu$school_score),]$school_score))
   edu[is.na(edu$school_score),]$school_score <- med
@@ -291,10 +344,25 @@ scoreDegree <- function(degs) {
 }
 
 #'
+#' Weight score by factor based on title
+#' @param results dataframe must have "score" and "title" columns
+#' @return data.frame with scores adjusted
+#'
+weightScoreByTitle <- function(results) {
+  results$score <- sapply(results[,"total_money_raised"], function(x) str_extract(x,"[0-9.]+"))
+  exchange <- c("$"=1.0, "¥"=.01, "£"=1.5, "€"=1.3, "c$"=0.95)
+  unit <- c("m"=1e6, "k"=1e3, "b"=1e9)
+  results[,"score"] <- as.numeric(results[,"score"]) * unit[str_extract(results[,"total_money_raised"], "([^0-9.]+)$")]
+  results[,"score"] <- results[,"score"] * sapply(results[,"title"], weightByTitle)
+  return(results)
+}
+
+#'
 #' Generate a random sample of specified size
 #'
 writeSampleCSV <- function(file="~/git/opencpu/neo4j-r/data/sample.csv", dataSize=5000, sampleSize=100) {
   r <- scoreCrunchBase(dataSize)
   write.table(r[sample(x=1:dataSize,size=sampleSize),], file=file, append=F, row.names=F, sep=",")
 }
+
 
