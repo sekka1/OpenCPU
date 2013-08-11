@@ -269,7 +269,8 @@ runRegression <- function(count=1000) {
   training <- scoreSchool(training)
   training <- scoreDegree(training)
   
-  training <- merge(training, prdf, by="person")
+  training <- merge(merge(merge(aggregate(score ~ person, data=training, FUN=sum), aggregate(school_score ~ person, data=training, FUN=max)), aggregate(deg_score ~ person, data=training, FUN=max)), prdf, all.x=T)
+  training <- training[,c('score', 'school_score', 'deg_score', 'pagerank')]
   
   # Query with all other entries with zero money raised (no score)
   testsetQuery = paste("MATCH (p:PersonGUID)-[:HAS_EDUCATION]-(e:Education)",
@@ -283,10 +284,14 @@ runRegression <- function(count=1000) {
   test <- test[!(test$person %in% known),]
   test <- scoreSchool(test)
   test <- scoreDegree(test)
-  test <- merge(test, prdf, by="person")
-  test$company <- rep(NA, nrow(test))
-  test$title <- rep(NA, nrow(test))
-  return(test)
+  test <- merge(merge(aggregate(school_score ~ person, data=test, FUN=max), aggregate(deg_score ~ person, data=test, FUN=max)), prdf, all.x=T)
+  testNames <- test$person
+  test <- test[,c('school_score', 'deg_score', 'pagerank')]
+#  test$company <- rep(NA, nrow(test))
+#  test$title <- rep(NA, nrow(test))
+  output <- data.frame(testNames, regressionLinear(training, test, dependentVariable='score'), decisionTree(training, test, dependentVariable='score', regression=T), SVM(training, test, dependentVariable='score', regression=T), rForest(training, test, dependentVariable='score', regression=T))
+  names(output) <- c('person', 'scoreLinearRegression', 'scoreDecisionTree', 'scoreSVM', 'scoreRandomForest')
+  return(output)
 }
 
 
@@ -312,7 +317,7 @@ crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cy
 #'
 scoreSchool <- function(edu, scores=NULL) {
   if (is.null(scores)) {
-    scores <- read.csv("~/git/opencpu/neo4j-r/data/University Rankings 2011 QS.csv")
+    scores <- read.csv("data/University Rankings 2011 QS.csv")
     scores <- scores[,c("School.Name", "Score")]
   }   
   schoolNames <- tolower(scores$School.Name)
@@ -360,7 +365,7 @@ weightScoreByTitle <- function(results) {
 #'
 #' Generate a random sample of specified size
 #'
-writeSampleCSV <- function(file="~/git/opencpu/neo4j-r/data/sample.csv", dataSize=5000, sampleSize=100) {
+writeSampleCSV <- function(file="data/sample.csv", dataSize=5000, sampleSize=100) {
   r <- scoreCrunchBase(dataSize)
   write.table(r[sample(x=1:dataSize,size=sampleSize),], file=file, append=F, row.names=F, sep=",")
 }
