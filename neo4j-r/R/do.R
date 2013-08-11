@@ -231,7 +231,7 @@ runPageRank <- function(top=20) {
   personCompanyScore <- aggregate(persons$score, by=list(persons$person, persons$company), FUN=mean)
   personScore <- aggregate(personCompanyScore$x, by=list(personCompanyScore$Group.1), FUN=sum)
   names <- V(graph)$name
-  personScoreRightOrder <- merge(data.frame(names), personScore, by.x='names', by.y='Group.1', all.x=T)
+  personScoreRightOrder <- merge(data.frame(names), personScore, by.x='names', by.y='Group.1', all.x=T, sort=F)
   vector <- page.rank(graph, personalized=personScoreRightOrder$x)$vector
 #  vector <- page.rank(graph)$vector
   head(sort(vector, decreasing=T),n=top)
