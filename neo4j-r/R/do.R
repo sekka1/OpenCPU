@@ -320,7 +320,7 @@ runRegression <- function(count=1000) {
   score <- (o$scoreLinearRegression + o$scoreSVM + o$scoreRandomForest) / 3
   o<- cbind(o, score)
   o<- rbind(o[,c('person','score')], trainingNamesAndScores)
-  return(output)
+  return(o)
 }
 
 
