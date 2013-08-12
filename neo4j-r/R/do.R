@@ -239,6 +239,24 @@ runPageRank <- function(top=20) {
   vector
 }
 
+
+scoreTitle <- function(titles) {
+#   titles$title <- sapply(titles$title, str_trim)
+  titles$title_score <- ifelse(grepl(pattern="c\\.?e\\.?o|chief.*ex.*off", titles$title), 10, 0)
+  titles$title_score <- ifelse(grepl(pattern=".*president.*|.*coo.*|.*chief.*oper.*", titles$title) & sapply(titles$title_score, function(x) x==0), 6, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern="founder", titles$title) & sapply(titles$title_score, function(x) x==0), 8, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*cto*|chief.*tech|chief.*scientist", titles$title) & sapply(titles$title_score, function(x) x==0), 7, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*architect.*|lead.*engineer", titles$title) & sapply(titles$title_score, function(x) x==0), 2, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*.*v\\.?p\\.?.*", titles$title) & sapply(titles$title_score, function(x) x==0), 3, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*cpo.*|chief.*product.*", titles$title) & sapply(titles$title_score, function(x) x==0), 3, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*chair.*", titles$title) & sapply(titles$title_score, function(x) x==0), 1, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*c\\.?f\\.?o*|chief.*finan", titles$title) & sapply(titles$title_score, function(x) x==0), 7, titles$title_score)
+  titles$title_score <- ifelse(grepl(pattern=".*engineer|developer", titles$title) & sapply(titles$title_score, function(x) x==0), 1.5, titles$title_score)
+  
+  return(titles)
+}
+
+
 #' 
 #' Run regression on all persons from CrunchBase
 #' First query produce all coworker relations, then used to generate pagerank scores
@@ -268,29 +286,40 @@ runRegression <- function(count=1000) {
   training <- weightScoreByTitle(training)
   training <- scoreSchool(training)
   training <- scoreDegree(training)
-  
-  training <- merge(merge(merge(aggregate(score ~ person, data=training, FUN=sum), aggregate(school_score ~ person, data=training, FUN=max)), aggregate(deg_score ~ person, data=training, FUN=max)), prdf, all.x=T)
-  training <- training[,c('score', 'school_score', 'deg_score', 'pagerank')]
+  training <- scoreTitle(training)
+  training <- merge(merge(merge(merge(aggregate(score ~ person, data=training, FUN=sum), aggregate(school_score ~ person, data=training, FUN=max)), aggregate(deg_score ~ person, data=training, FUN=max)), aggregate(title_score ~ person, data=training, FUN=max)), prdf, all.x=T)
+  trainingNamesAndScores <- training[,c('person', 'score')]
+  training <- training[,c('score', 'school_score', 'deg_score', 'title_score', 'pagerank')]
   
   # Query with all other entries with zero money raised (no score)
-  testsetQuery = paste("MATCH (p:PersonGUID)-[:HAS_EDUCATION]-(e:Education)",
+  testsetQuery = paste("MATCH (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment),(p:PersonGUID)-[:HAS_EDUCATION]-(e:Education) where HAS(p.source_uid) return p.source_uid, e.institution?, e.type?, j.title?",
+                       (if (count<0) "" else paste("LIMIT",as.integer(count))));
+  test <- queryCypher2(testsetQuery)  
+  names(test) <- c("person", "school", "degree", "title")
+  testsetQuery2 = paste("MATCH (p:PersonGUID)-[:HAS_EDUCATION]-(e:Education)",
                     "WHERE HAS(p.source_uid)",
                     "RETURN p.source_uid, e.institution?, e.type?",
                     (if (count<0) "" else paste("LIMIT",as.integer(count))));
-  test <- queryCypher2(testsetQuery)  
-  names(test) <- c("person", "school", "degree")
+  test2 <- queryCypher2(testsetQuery2) 
+  names(test2) <- c("person", "school", "degree")
+  title <- NA
+  test2 <- cbind(test2, title)
+  test <- rbind(test, test2)
+
   test$person <- unlist(test$person)
   known <- unique(training$person)
   test <- test[!(test$person %in% known),]
   test <- scoreSchool(test)
   test <- scoreDegree(test)
-  test <- merge(merge(aggregate(school_score ~ person, data=test, FUN=max), aggregate(deg_score ~ person, data=test, FUN=max)), prdf, all.x=T)
+  test <- scoreTitle(test)
+  test <- merge(merge(merge(aggregate(school_score ~ person, data=test, FUN=max), aggregate(deg_score ~ person, data=test, FUN=max)), aggregate(title_score ~ person, data=test, FUN=max)), prdf, all.x=T)
   testNames <- test$person
-  test <- test[,c('school_score', 'deg_score', 'pagerank')]
-#  test$company <- rep(NA, nrow(test))
-#  test$title <- rep(NA, nrow(test))
-  output <- data.frame(testNames, regressionLinear(training, test, dependentVariable='score'), decisionTree(training, test, dependentVariable='score', regression=T), SVM(training, test, dependentVariable='score', regression=T), rForest(training, test, dependentVariable='score', regression=T))
-  names(output) <- c('person', 'scoreLinearRegression', 'scoreDecisionTree', 'scoreSVM', 'scoreRandomForest')
+  test <- test[,c('school_score', 'deg_score', 'title_score', 'pagerank')]
+  o <- data.frame(testNames, regressionLinear(training, test, dependentVariable='score'), decisionTree(training, test, dependentVariable='score', regression=T), SVM(training, test, dependentVariable='score', regression=T), rForest(training, test, dependentVariable='score', regression=T))
+  names(o) <- c('person', 'scoreLinearRegression', 'scoreDecisionTree', 'scoreSVM', 'scoreRandomForest')
+  score <- (o$scoreLinearRegression + o$scoreSVM + o$scoreRandomForest) / 3
+  o<- cbind(o, score)
+  o<- rbind(o[,c('person','score')], trainingNamesAndScores)
   return(output)
 }
 
