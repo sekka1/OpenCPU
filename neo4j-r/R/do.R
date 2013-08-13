@@ -320,6 +320,7 @@ runRegression <- function(count=1000) {
   score <- (o$scoreLinearRegression + o$scoreSVM + o$scoreRandomForest) / 3
   o<- cbind(o, score)
   o<- rbind(o[,c('person','score')], trainingNamesAndScores)
+  o <- filterLawyer(filterInvestor(o))
   return(o)
 }
 
@@ -383,6 +384,7 @@ scoreDegree <- function(degs) {
 #' @return data.frame with scores adjusted
 #'
 weightScoreByTitle <- function(results) {
+  library(stringr)
   results$score <- sapply(results[,"total_money_raised"], function(x) str_extract(x,"[0-9.]+"))
   exchange <- c("$"=1.0, "¥"=.01, "£"=1.5, "€"=1.3, "c$"=0.95)
   unit <- c("m"=1e6, "k"=1e3, "b"=1e9)
@@ -397,6 +399,24 @@ weightScoreByTitle <- function(results) {
 writeSampleCSV <- function(file="data/sample.csv", dataSize=5000, sampleSize=100) {
   r <- scoreCrunchBase(dataSize)
   write.table(r[sample(x=1:dataSize,size=sampleSize),], file=file, append=F, row.names=F, sep=",")
+}
+
+#' Filter out investors
+#' @description Filter out all rows from data frame with matching name to an investor
+filterInvestor <- function(x) {
+  # TODO(anthony): queryCypher2 has a bug for returning single column
+  ivs <- queryCypher2("match (p:PersonGUID)-[:HAS_EMPLOYMENT]->(f) where f.firm_type_of_entity! = \"financial_org\" return distinct p.source_uid, p.twitter_username?")
+  names(ivs) <- c("person", "twitter")
+  filtered <- x[!x$person %in% as.vector(ivs$person),]
+  return(filtered)
+}
+
+#' Filter out laywers from input data frame
+filterLawyer <- function(x) {
+  counsels <- queryCypher2("match (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j) where j.title! =~ \".*[Cc]ounsel.*\" return p.source_uid, j.title")
+  names(counsels) <- c("person", "title")
+  filtered <- x[!x$person %in% as.vector(counsels$person),]
+  return(filtered)
 }
 
 
