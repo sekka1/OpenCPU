@@ -1,15 +1,12 @@
-Package: neo4j-r
+Package: neo4jR
 Title: 
 Description: 
 Version: 0.1
-Authors@R: # getOptions('devtools.desc.author')
+Authors@R: 'Anthony Yee <anthony@algorithms.io> [aut, cre]'
+Author Maintainer: 'Anthony Yee <anthony@algorithms.io> [aut, cre]'
 Depends:
     R (>= 3.0.0)
 License: # getOptions('devtools.desc.license')
 LazyData: true
 Collate:
-    'RCurl,
-    RJSONIO,
-    bitops'
     'do.R'
-    'neo4j-r-package.r'
