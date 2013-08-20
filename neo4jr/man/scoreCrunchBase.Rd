@@ -2,7 +2,7 @@
 \alias{scoreCrunchBase}
 \title{Score persons}
 \usage{
-  scoreCrunchBase()
+  scoreCrunchBase(count = 10000)
 }
 \value{
   a data.frame with columns "person", "coworker" and

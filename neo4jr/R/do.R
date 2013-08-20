@@ -24,8 +24,9 @@ queryCypher <- function(querystring) {
 #' @param serverURL URL of Neo4j cypher query endpoint.  It should end with db/data/cypher
 #' @param querystring Query
 #' @export
-#' @import RCurl RJSONIO bitops
-#' @include RCurl RJSONIO bitops
+#' @import RCurl
+#' @import RJSONIO
+#' @import bitops
 #' @examples queryCypher2("match (e)-[:HAS_EMPLOYMENT]->(j) return e,j limit 10")
 #'
 queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/data/cypher") {
@@ -159,7 +160,7 @@ getScore <- function(moneyString) {
   }
 }
 
-#' Score persons  
+#' Score Crunchbase person profiles  
 #' @description Score is based on the total money raised of a company, discounted according to person's job title.  
 #' @return a data.frame with columns "person", "coworker" and "score"
 #'
@@ -349,8 +350,9 @@ crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cy
 #'
 scoreSchool <- function(edu, scores=NULL) {
   if (is.null(scores)) {
-    system.file(package=)
-    scores <- read.csv("data/University Rankings 2011 QS.csv")
+    scores <- read.csv(unz(system.file(package="neo4jr", "data/University Rankings 2011 QS.csv.zip"), 
+                           "University Rankings 2011 QS.csv"))
+#     scores <- read.csv("data/University Rankings 2011 QS.csv")
     scores <- scores[,c("School.Name", "Score")]
   }   
   schoolNames <- tolower(scores$School.Name)
