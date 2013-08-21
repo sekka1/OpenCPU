@@ -425,15 +425,17 @@ filterLawyer <- function(x) {
 }
 
 topSchoolsByVcs <- function() {
-  aggregateBySchoolNames("match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where  j.firm_type_of_entity! = \"financial_org\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")  
+  aggregateBySchoolNames(query="match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where  j.firm_type_of_entity! = \"financial_org\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")  
 }
 
 topSchoolsByFounders <- function() {
-  aggregateBySchoolNames("match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where j.title! =~ \".*founder.*\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")
+  aggregateBySchoolNames(query="match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where j.title! =~ \".*founder.*\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")
 }
 
-aggregateBySchoolNames <- function(query) {
-  students <- queryCypher2(query)
+aggregateBySchoolNames <- function(students=NA, query) {
+  if (is.na(students)) {
+    students <- queryCypher2(query)
+  }
   print(paste("Found", nrow(students), "schools and total of", sum(strtoi(students$X2)), "students"))
   df <- data.frame(school=c("mit","harvard","stanford","university of pennylvania", "columbia university","uc berkeley",
                             "princeton", "university of chicago", "northwestern university", "cambridge", "dartmouth", "yale", "duke"),
@@ -488,5 +490,7 @@ topConnectedVCs <- function(top=n) {
 sanityTest <- function() {
   relations <- queryCypher2("match x-[r]->y return head(labels(x)) as head, type(r), head(labels(y)) as tail, count(*) order by count(*) desc; ")
 }
+
+
 
 
