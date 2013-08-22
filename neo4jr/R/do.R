@@ -24,8 +24,9 @@ queryCypher <- function(querystring) {
 #' @param serverURL URL of Neo4j cypher query endpoint.  It should end with db/data/cypher
 #' @param querystring Query
 #' @export
-#' @import RCurl, RJSONIO, bitops
-#' @include RCurl, RJSONIO, bitops
+#' @import RCurl
+#' @import RJSONIO
+#' @import bitops
 #' @examples queryCypher2("match (e)-[:HAS_EMPLOYMENT]->(j) return e,j limit 10")
 #'
 queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/data/cypher") {
@@ -159,7 +160,7 @@ getScore <- function(moneyString) {
   }
 }
 
-#' Score persons  
+#' Score Crunchbase person profiles  
 #' @description Score is based on the total money raised of a company, discounted according to person's job title.  
 #' @return a data.frame with columns "person", "coworker" and "score"
 #'
@@ -259,11 +260,13 @@ scoreTitle <- function(titles) {
 
 #' 
 #' Run regression on all persons from CrunchBase
-#' First query produce all coworker relations, then used to generate pagerank scores
-#' Second query creates personal attributes, such as education and work titles, used to compute numeric variables
+#' @description First query produce all coworker relations, then used to generate pagerank scores
+#' Second query creates personal attributes, such as education and work titles, used to compute numeric variables.  
 #' Then pagerank scores are added as feature
+#' @import igraph
 #' 
 runRegression <- function(count=1000) {
+  library(igraph)
   coworkerQuery = paste("MATCH (p:PersonGUID)-[:HAS_EMPLOYMENT]->j-[:HAS_EMPLOYMENT_FIRM]->(f:EmploymentFirm)<-[:HAS_EMPLOYMENT_FIRM]-k<-[:HAS_EMPLOYMENT]-(c:PersonGUID)",
                         "WHERE HAS(p.source_uid) AND HAS(c.source_uid)",
                         "RETURN p.source_uid, c.source_uid",
@@ -320,6 +323,7 @@ runRegression <- function(count=1000) {
   score <- (o$scoreLinearRegression + o$scoreSVM + o$scoreRandomForest) / 3
   o<- cbind(o, score)
   o<- rbind(o[,c('person','score')], trainingNamesAndScores)
+  o <- filterLawyer(filterInvestor(o))
   return(o)
 }
 
@@ -346,7 +350,9 @@ crunchBaseBasicStats <- function(serverURL="http://166.78.27.160:7474/db/data/cy
 #'
 scoreSchool <- function(edu, scores=NULL) {
   if (is.null(scores)) {
-    scores <- read.csv("data/University Rankings 2011 QS.csv")
+    scores <- read.csv(unz(system.file(package="neo4jr", "data/University Rankings 2011 QS.csv.zip"), 
+                           "University Rankings 2011 QS.csv"))
+#     scores <- read.csv("data/University Rankings 2011 QS.csv")
     scores <- scores[,c("School.Name", "Score")]
   }   
   schoolNames <- tolower(scores$School.Name)
@@ -383,6 +389,7 @@ scoreDegree <- function(degs) {
 #' @return data.frame with scores adjusted
 #'
 weightScoreByTitle <- function(results) {
+  library(stringr)
   results$score <- sapply(results[,"total_money_raised"], function(x) str_extract(x,"[0-9.]+"))
   exchange <- c("$"=1.0, "¥"=.01, "£"=1.5, "€"=1.3, "c$"=0.95)
   unit <- c("m"=1e6, "k"=1e3, "b"=1e9)
@@ -398,5 +405,92 @@ writeSampleCSV <- function(file="data/sample.csv", dataSize=5000, sampleSize=100
   r <- scoreCrunchBase(dataSize)
   write.table(r[sample(x=1:dataSize,size=sampleSize),], file=file, append=F, row.names=F, sep=",")
 }
+
+#' Filter out investors
+#' @description Filter out all rows from data frame with matching name to an investor
+filterInvestor <- function(x) {
+  # TODO(anthony): queryCypher2 has a bug for returning single column
+  ivs <- queryCypher2("match (p:PersonGUID)-[:HAS_EMPLOYMENT]->(f) where f.firm_type_of_entity! = \"financial_org\" return distinct p.source_uid, p.twitter_username?")
+  names(ivs) <- c("person", "twitter")
+  filtered <- x[!x$person %in% as.vector(ivs$person),]
+  return(filtered)
+}
+
+#' Filter out laywers from input data frame
+filterLawyer <- function(x) {
+  counsels <- queryCypher2("match (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j) where j.title! =~ \".*[Cc]ounsel.*\" return p.source_uid, j.title")
+  names(counsels) <- c("person", "title")
+  filtered <- x[!x$person %in% as.vector(counsels$person),]
+  return(filtered)
+}
+
+topSchoolsByVcs <- function() {
+  aggregateBySchoolNames(query="match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where  j.firm_type_of_entity! = \"financial_org\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")  
+}
+
+topSchoolsByFounders <- function() {
+  aggregateBySchoolNames(query="match (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment) where j.title! =~ \".*founder.*\" and i.value! <> \"\" WITH i.value! as school, count(distinct p) as students return school, students;")
+}
+
+aggregateBySchoolNames <- function(students=NA, query) {
+  if (is.na(students)) {
+    students <- queryCypher2(query)
+  }
+  print(paste("Found", nrow(students), "schools and total of", sum(strtoi(students$X2)), "students"))
+  df <- data.frame(school=c("mit","harvard","stanford","university of pennylvania", "columbia university","uc berkeley",
+                            "princeton", "university of chicago", "northwestern university", "cambridge", "dartmouth", "yale", "duke"),
+                   count=c(
+                     sum(strtoi(students[grepl("massachu.*inst|mit",students$X1) & !grepl("rmit|smith|amity", students$X1),]$X2)),
+                     sum(strtoi(students[grepl("harvard",students$X1),]$X2)),
+                     sum(strtoi(students[grep("stanford",students$X1),]$X2)),
+                     sum(strtoi(students[grepl("penn",students$X1) & !grepl("indianna|state|york|manor", students$X1),]$X2)),
+                     sum(strtoi(students[grepl("colum",students$X1) & !grepl("british|princeton|carolina|mailman|college", students$X1),]$X2)),
+                     sum(strtoi(students[grep("berk",students$X1),]$X2)),
+                     sum(strtoi(students[grep("princeton",students$X1),]$X2)),
+                     sum(strtoi(students[grepl("chicago",students$X1) & !grepl("loyola|illinois|columbia|professional|argosy|art institute", students$X1),]$X2)),
+                     sum(strtoi(students[grepl("northwestern",students$X1) & !grepl("military", students$X1),]$X2)),
+                     sum(strtoi(students[grepl("cambridge",students$X1) & !grepl("charlton", students$X1),]$X2)),
+                     sum(strtoi(students[grepl("dartmouth",students$X1),]$X2)),
+                     sum(strtoi(students[grepl("yale",students$X1),]$X2)),
+                     sum(strtoi(students[grepl("duke",students$X1) & !grepl("manor", students$X1),]$X2))))
+  print(paste("Matched", nrow(df), "schools", "with", sum(df$count), "students"))
+  df <- df[order(df$count, decreasing=T),]
+  return(df)
+}
+
+topConnectedVCs <- function(top=n) {
+  
+  # first query to pull all VCs connected because they worked/work for same investment company
+  vc <- queryCypher2("match (p:PersonGUID)-[:HAS_EMPLOYMENT]->(j)-[:HAS_EMPLOYMENT_FIRM]->(f:EmploymentFirm)<-[:HAS_EMPLOYMENT_FIRM]-(k)<-[:HAS_EMPLOYMENT]-(q:PersonGUID) where j.firm_type_of_entity! = \"financial_org\" return p.source_uid, f.value, q.source_uid")
+  names(vc) <- c("person", "firm", "coworker")
+  vc <- subset(vc, as.character(person)!=as.character(coworker)) # doesn't work with as.charactor because # of factor levels have to be the same
+  vc$person <- unlist(vc$person)
+  vc$coworker <- unlist(vc$coworker)
+  vc <- cbind(vc, score=rep(5,nrow(vc)))
+  
+  # second query 
+  ir <- queryCypher2("match (m:EmploymentFirm)<-[:HAS_EMPLOYMENT_FIRM]-j<-[:HAS_EMPLOYMENT]-(a:PersonGUID), m<-[:HAS_EMPLOYMENT_FIRM]-l<-[:HAS_EMPLOYMENT]-(b:PersonGUID),  m-[:HAS_FUNDING]-mm-[:HAS_INVESTOR]-i-[:HAS_EMPLOYMENT_FIRM]-k-[:HAS_EMPLOYMENT]-a, m-[:HAS_FUNDING]-mmm-[:HAS_INVESTOR]-ii-[:HAS_EMPLOYMENT_FIRM]-kk-[:HAS_EMPLOYMENT]-b return distinct a.source_uid!, m.value!, b.source_uid!")
+  names(ir) <- c("person", "firm", "coworker")
+  # last row is NA/NA, work around
+  ir <- ir[-nrow(ir), ]
+  ir$person <- unlist(ir$person)
+  ir$coworker <- unlist(ir$coworker)
+  ir <- cbind(ir, score=rep(100,nrow(ir)))
+  
+#   relations <- rbind(vc, ir)
+  g <- graph.edgelist(as.matrix(ir[,c("person", "coworker")]))
+  E(g)$weight <- ir[,"score"]
+  pr <- sort(page.rank.old(g), decreasing=T)
+  return(pr)
+  
+#   pr <- page.rank(g)$vector
+#   return(head(sort(pr, decreasing=T)))
+}
+
+sanityTest <- function() {
+  relations <- queryCypher2("match x-[r]->y return head(labels(x)) as head, type(r), head(labels(y)) as tail, count(*) order by count(*) desc; ")
+}
+
+
 
 

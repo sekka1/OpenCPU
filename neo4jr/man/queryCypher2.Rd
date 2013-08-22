@@ -2,8 +2,8 @@
 \alias{queryCypher2}
 \title{Executes cypher query}
 \usage{
-  queryCypher2(serverURL = "http://166.78.24.138:7474/db/data/cypher",
-    querystring)
+  queryCypher2(querystring,
+    serverURL = "http://166.78.27.160:7474/db/data/cypher")
 }
 \arguments{
   \item{serverURL}{URL of Neo4j cypher query endpoint.  It

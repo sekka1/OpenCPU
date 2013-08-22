@@ -1,0 +1,12 @@
+Package: neo4jr
+Title: 
+Description: 
+Version: 0.1
+Authors@R: 'Anthony Yee <anthony@algorithms.io> [aut, cre]'
+Author Maintainer: 'Anthony Yee <anthony@algorithms.io> [aut, cre]'
+Depends:
+    R (>= 3.0.0)
+License: # getOptions('devtools.desc.license')
+LazyData: true
+Collate:
+    'do.R'
