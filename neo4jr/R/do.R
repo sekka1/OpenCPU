@@ -47,6 +47,11 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
   
   result <- fromJSON(h$value())
   
+  if (!is.null(result$exception) && result$exception == "SyntaxException") {
+    write(paste(result$fullname, "...\n", result$message), stderr())
+    return(NULL)
+  }
+  
   # fromJSON returns lists and if passed to unlist, will produce rows with different number of columns.
   # For instance, 
   # "{\n  \"columns\" : [ \"p.source_uid\", \"d.type\", \"d.institution\" ],\n  \"data\" : [ [ \"niklas-zennstrom\", [ \"msc\", \"bsc\" ], \"uppsala university\" ] ]\n}"
@@ -68,15 +73,22 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
   #   [2,] "msc"               
   #   [3,] "bsc"               
   #   [4,] "uppsala university"
-  
-  data <- data.frame(t(sapply(result$data, function(x) sapply(x, function(y) if (length(y)>1) y<-paste(y, collapse=',') else y))))
-  
   # data <- data.frame(t(sapply(result$data, unlist)))
   
+  d <- sapply(result$data, function(x) sapply(x, function(y) if (length(y)>1) y<-paste(y, collapse=',') else y))
+  
+  # Handle single field returned
+  if (is.list(d)) {
+    data <- data.frame(as.matrix(d))
+    names(data) <- c("X1")
+    return (data)
+  }
+
+  data <- data.frame(t(d))
+    
   #names(data) <- result.json$columns
   junk <- c("outgoing_relationships","traverse", "all_typed_relationships","property","self","properties","outgoing_typed_relationships","incoming_relationships","create_relationship","paged_traverse","all_relationships","incoming_typed_relationships")
-  data <- data[,!(names(data) %in% junk)] 
-  data
+  return(data[,!(names(data) %in% junk)])
 }
 
 #'
