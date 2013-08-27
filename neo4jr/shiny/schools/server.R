@@ -1,5 +1,6 @@
 library(shiny)
 
+source("./do.R")
 studentData <- queryCypher2(paste("MATCH (i:Institution)-[:ATTENDED]-(e)-[:HAS_EDUCATION]-(p:PersonGUID)-[:HAS_EMPLOYMENT]->(j:Employment)",
                                   "WHERE i.value! <> \"\"",
                                   "WITH i.value! as school, j.title! as title, count(distinct p) as students",
@@ -19,6 +20,6 @@ shinyServer(function(input, output) {
     df <- aggregateBySchoolNames(studentData[grepl(jobTitle(), studentData$X3),])
     par(las=2, mar=par()$mar + c(0.0, 4, 0.0, 0.0))
     barplot(df$count, names.arg=df$school, horiz=T, col=c("lightblue", "darkorange"))
-    title("Crunchbase Profiles by Schools",sub=paste0("\"", jobTitle(), "\""))
+    title("Job Titles by Schools",sub=paste0("\"", jobTitle(), "\""))
   })
 })

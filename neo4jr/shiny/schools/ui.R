@@ -4,7 +4,7 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   # Application title
-  headerPanel("Crunchbase R"),
+  headerPanel("Job Title By Schools"),
   
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view
