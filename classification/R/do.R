@@ -35,7 +35,7 @@ createFormula <- function(dataFrame, dependentVariable) {
 #' @param test testing dataset
 #' @param dependentVariable the predicted variable
 #' @param columnNameToTypeMap overrides to columnNameToMap
-preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, text=F, maxFactorLevels=31) {
+preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, maxFactorLevels=31) {
     if (!regression) columnNameToTypeMap[dependentVariable] <- "factor";
     outputCSV <- F;
     outputFileName <- "data";
@@ -220,12 +220,21 @@ classifyRandomForest <- function(train, test, dependentVariable, columnNameToTyp
 
 rForest <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, ...) {
     library(randomForest)
+    trainFromFile <- is.character(train) && file.exists(train);
+    model <- NULL;
+    if (trainFromFile) { 
+        modelFile <- paste(train, dependentVariable, ".model.rForest.RData", sep='');
+        if (file.exists(modelFile)) { load(modelFile); }
+    }
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression);
-    train <- preProcessed[[1]];
+    if (is.null(model)) {
+        train <- preProcessed[[1]];
+        formula <- createFormula(train, dependentVariable);
+        formula <- paste('randomForest(',formula,', data=train)'); 
+        model <- eval(parse(text=formula));
+        if (trainFromFile) { save(model, file=modelFile); }
+    }
     test <- preProcessed[[2]];
-    formula <- createFormula(train, dependentVariable);
-    formula <- paste('randomForest(',formula,', data=train)'); 
-    model <- eval(parse(text=formula));
     prediction <- predict(model, newdata=test);
     if (!regression) prediction <- as.character(prediction);
     return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
@@ -348,7 +357,7 @@ classifyText <- function(train, test, dependentVariable, textVariable, algos=c('
         modelFile <- paste(train, dependentVariable, textVariable, paste(algos, collapse=''), ".model.RData", sep='');
         if (file.exists(modelFile)) { load(modelFile); }
     }
-    preProcessed <- preProcess(train, test, dependentVariable, NULL, text=T);
+    preProcessed <- preProcess(train, test, dependentVariable, NULL);
     if (is.null(models)) {
         train <- preProcessed[[1]];
         trainText <- train[[textVariable]]
