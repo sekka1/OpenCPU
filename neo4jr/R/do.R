@@ -78,7 +78,7 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
   d <- sapply(result$data, function(x) sapply(x, function(y) if (length(y)>1) y<-paste(y, collapse=',') else y))
   
   # Handle single field returned
-  if (is.list(d)) {
+  if (is.list(d) & !is.matrix(d)) {
     data <- data.frame(as.matrix(d))
     names(data) <- c("X1")
     return (data)
@@ -88,7 +88,9 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
     
   #names(data) <- result.json$columns
   junk <- c("outgoing_relationships","traverse", "all_typed_relationships","property","self","properties","outgoing_typed_relationships","incoming_relationships","create_relationship","paged_traverse","all_relationships","incoming_typed_relationships")
-  return(data[,!(names(data) %in% junk)])
+  data <- data[,!(names(data) %in% junk)] 
+  data
+#   return(data[,!(names(data) %in% junk)])
 }
 
 #'
@@ -502,6 +504,21 @@ topConnectedVCs <- function(top=n) {
 sanityTest <- function() {
   relations <- queryCypher2("match x-[r]->y return head(labels(x)) as head, type(r), head(labels(y)) as tail, count(*) order by count(*) desc; ")
 }
+
+cloudMapFromSkillsets <- function() {
+  library("tm")
+  library("RWeka")
+  library("wordcloud")
+  skills <- queryCypher2("match s:Skill return s.display_name!")
+  corpus <- tm_map(x=Corpus(DataframeSource(tail(skills,-1))), FUN=removeWords, stopwords("english"))
+  tdm <- TermDocumentMatrix(corpus)
+  wordFreq <- sort(rowSums(as.matrix(tdm)), decreasing=TRUE)
+#   grayLevels <- gray( (wordFreq+10) / (max(wordFreq)+10) )
+#   wordcloud(words=names(wordFreq), freq=wordFreq, min.freq=3, random.order=F, colors=grayLevels)
+  wordcloud(words=names(wordFreq), freq=wordFreq, min.freq=3, random.order=F, colors=brewer.pal(8, "Dark2"))
+}
+
+
 
 
 
