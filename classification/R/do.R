@@ -373,3 +373,33 @@ classifyText <- function(train, test, dependentVariable, textVariable, algos=c('
     result <- classify_models(testContainer, models)
     return(output(test, result, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
 }
+
+#' Test websocket
+#' @description Test starting websocket server to classifyRandomForest
+#' @import websockets (http://illposed.net/websockets.pdf)
+#' @return server object.  use websocket_close to close server
+#' 
+startWebsocketServer <- function() {
+  
+  library(websockets)
+  server = create_server()
+  tryCatch(set_callback("established", 
+                        function(WS) {
+                          websocket_write("Hello there!", WS)
+                        }, 
+                        server),
+           finally = websocket_close(server))
+  
+  tryCatch(set_callback("receive", 
+                        function(DATA, WS, ...) { 
+                          websocket_write(openCPUExecute(authToken=authToken,algoServer=algoServer,evalType='static',package="Classification",fun="classifyRandomForest",parameters=fromJSON(rawToChar(DATA))), WS) 
+                        }, 
+                        server),
+           finally = websocket_close(server))
+
+  while(TRUE) { 
+    service(server) 
+  }
+  
+  return(server)
+}
