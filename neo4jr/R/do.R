@@ -86,10 +86,7 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
   d <- sapply(result$data, 
               function(x) sapply(x, 
                 function(y)
-                  if (is.null(y)) {
-                    print("found null")
-                    NA 
-                  }
+                  if (is.null(y)) NA 
                   # cypher query can return NULL for variables appended with "!" which will cause 
                   # data.frame to have list elements
                   else if (length(y)>1) y<-paste(y, collapse=',') 
