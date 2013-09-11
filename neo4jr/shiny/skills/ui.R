@@ -12,7 +12,7 @@ markets <- unique(marketskills$market)
 shinyUI(pageWithSidebar(
   
   # Application title
-  headerPanel("Skills By Market"),
+  headerPanel(""),
   
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view

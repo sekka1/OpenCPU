@@ -52,6 +52,13 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
     return(NULL)
   }
   
+  # Handle single column returned
+  if (is.list(result$data) & length(result$data[[1]]) == 1) {
+    data <- data.frame(as.matrix(result$data))
+    names(data) <- c("X1")
+    return (data)
+  }
+  
   # fromJSON returns lists and if passed to unlist, will produce rows with different number of columns.
   # For instance, 
   # "{\n  \"columns\" : [ \"p.source_uid\", \"d.type\", \"d.institution\" ],\n  \"data\" : [ [ \"niklas-zennstrom\", [ \"msc\", \"bsc\" ], \"uppsala university\" ] ]\n}"
@@ -73,22 +80,47 @@ queryCypher2 <- function(querystring, serverURL="http://166.78.27.160:7474/db/da
   #   [2,] "msc"               
   #   [3,] "bsc"               
   #   [4,] "uppsala university"
+  
   # data <- data.frame(t(sapply(result$data, unlist)))
   
-  d <- sapply(result$data, function(x) sapply(x, function(y) if (length(y)>1) y<-paste(y, collapse=',') else y))
-  
-  # Handle single field returned
-  if (is.list(d)) {
-    data <- data.frame(as.matrix(d))
-    names(data) <- c("X1")
-    return (data)
-  }
+  d <- sapply(result$data, 
+              function(x) sapply(x, 
+                function(y)
+                  if (is.null(y)) NA 
+                  # cypher query can return NULL for variables appended with "!" which will cause 
+                  # data.frame to have list elements
+                  else if (length(y)>1) y<-paste(y, collapse=',') 
+                  else y))
 
   data <- data.frame(t(d))
     
   #names(data) <- result.json$columns
   junk <- c("outgoing_relationships","traverse", "all_typed_relationships","property","self","properties","outgoing_typed_relationships","incoming_relationships","create_relationship","paged_traverse","all_relationships","incoming_typed_relationships")
-  return(data[,!(names(data) %in% junk)])
+  data <- data[,!(names(data) %in% junk)] 
+  data
+#   return(data[,!(names(data) %in% junk)])
+}
+
+testQueryCypher2 <- function() {
+  library(testthat)
+  test_that("single column returned", code={
+    df = queryCypher2("match p:PersonGUID return p.source_uid! limit 10")  
+    print(df)
+    expect_equal(nrow(df), expected=10)
+    expect_equal(length(df), expected=1)
+  })
+  test_that("multiple columns returned", code={
+    df = queryCypher2("match p:PersonGUID-[:HAS_EDUCATION]->d return p.source_uid, d.type!, d.institution! limit 10")
+    print(df)
+    expect_equal(nrow(df), expected=10)
+    expect_equal(ncol(df), expected=3)
+  })
+  test_that("person and degrees", code={
+    df = queryCypher2("match p:PersonGUID-[:HAS_EDUCATION]->d return p.source_uid!, d.type!, d.institution!")
+    expect_equal(ncol(df), expected=3)
+    expect_that(nrow(r[is.na(r$X3),]), condition=
+)
+  })
 }
 
 #'
@@ -448,26 +480,43 @@ aggregateBySchoolNames <- function(students=NA, query) {
   if (is.na(students)) {
     students <- queryCypher2(query)
   }
-  print(paste("Found", nrow(students), "schools and total of", sum(strtoi(students$X2)), "students"))
+  print(paste("Found", nrow(students), "schools and total of", sum(as.numeric(students$X2)), "students"))
   df <- data.frame(school=c("mit","harvard","stanford","university of pennylvania", "columbia university","uc berkeley",
                             "princeton", "university of chicago", "northwestern university", "cambridge", "dartmouth", "yale", "duke"),
                    count=c(
-                     sum(strtoi(students[grepl("massachu.*inst|mit",students$X1) & !grepl("rmit|smith|amity", students$X1),]$X2)),
-                     sum(strtoi(students[grepl("harvard",students$X1),]$X2)),
-                     sum(strtoi(students[grep("stanford",students$X1),]$X2)),
-                     sum(strtoi(students[grepl("penn",students$X1) & !grepl("indianna|state|york|manor", students$X1),]$X2)),
-                     sum(strtoi(students[grepl("colum",students$X1) & !grepl("british|princeton|carolina|mailman|college", students$X1),]$X2)),
-                     sum(strtoi(students[grep("berk",students$X1),]$X2)),
-                     sum(strtoi(students[grep("princeton",students$X1),]$X2)),
-                     sum(strtoi(students[grepl("chicago",students$X1) & !grepl("loyola|illinois|columbia|professional|argosy|art institute", students$X1),]$X2)),
-                     sum(strtoi(students[grepl("northwestern",students$X1) & !grepl("military", students$X1),]$X2)),
-                     sum(strtoi(students[grepl("cambridge",students$X1) & !grepl("charlton", students$X1),]$X2)),
-                     sum(strtoi(students[grepl("dartmouth",students$X1),]$X2)),
-                     sum(strtoi(students[grepl("yale",students$X1),]$X2)),
-                     sum(strtoi(students[grepl("duke",students$X1) & !grepl("manor", students$X1),]$X2))))
+                     sum(as.numeric(students[grepl("massachu.*inst|mit",students$X1) & !grepl("rmit|smith|amity", students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("harvard",students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("stanford",students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("penn",students$X1) & !grepl("indianna|state|york|manor", students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("colum",students$X1) & !grepl("british|princeton|carolina|mailman|college", students$X1),]$X2)),
+                     sum(as.numeric(students[grep("berk",students$X1),]$X2)),
+                     sum(as.numeric(students[grep("princeton",students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("chicago",students$X1) & !grepl("loyola|illinois|columbia|professional|argosy|art institute", students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("northwestern",students$X1) & !grepl("military", students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("cambridge",students$X1) & !grepl("charlton", students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("dartmouth",students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("yale",students$X1),]$X2)),
+                     sum(as.numeric(students[grepl("duke",students$X1) & !grepl("manor", students$X1),]$X2))))
   print(paste("Matched", nrow(df), "schools", "with", sum(df$count), "students"))
   df <- df[order(df$count, decreasing=T),]
   return(df)
+}
+
+#'
+#' Aggregate student count by school names 
+#' @description Aggregate student count by school using "parallel" package.  
+#'
+aggregateBySchoolNames2 <- function(students=NA, query) {
+  library(parallel)
+  if (is.na(students)) {
+    students <- queryCypher2(query)
+  }
+  print(paste("Found", nrow(students), "schools and total of", sum(as.numeric(students$X2)), "students"))
+  df <- null
+  df <- rbind(df, c("mit", "massachu.*inst|mit", "rmit|smith|amity"))
+  df <- rbind(df, c("harvard", "harvard", NULL))
+  df <- data.frame(df)
+  names(df) <- c("school", "pos", "neg")
 }
 
 topConnectedVCs <- function(top=n) {
@@ -502,6 +551,21 @@ topConnectedVCs <- function(top=n) {
 sanityTest <- function() {
   relations <- queryCypher2("match x-[r]->y return head(labels(x)) as head, type(r), head(labels(y)) as tail, count(*) order by count(*) desc; ")
 }
+
+cloudMapFromSkillsets <- function() {
+  library("tm")
+  library("RWeka")
+  library("wordcloud")
+  skills <- queryCypher2("match s:Skill return s.display_name!")
+  corpus <- tm_map(x=Corpus(DataframeSource(tail(skills,-1))), FUN=removeWords, stopwords("english"))
+  tdm <- TermDocumentMatrix(corpus)
+  wordFreq <- sort(rowSums(as.matrix(tdm)), decreasing=TRUE)
+#   grayLevels <- gray( (wordFreq+10) / (max(wordFreq)+10) )
+#   wordcloud(words=names(wordFreq), freq=wordFreq, min.freq=3, random.order=F, colors=grayLevels)
+  wordcloud(words=names(wordFreq), freq=wordFreq, min.freq=3, random.order=F, colors=brewer.pal(8, "Dark2"))
+}
+
+
 
 
 

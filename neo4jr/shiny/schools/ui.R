@@ -4,14 +4,14 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   # Application title
-  headerPanel("Crunchbase R"),
+  headerPanel(""),
   
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view
   sidebarPanel(
 #     selectInput("jobTitle", label="Job Title", 
 #                 choices=list("ceo", "cto"))
-    textInput("jobTitle", label="Job Title", value="founder")
+    textInput("jobTitle", label="Job Title", value="founder")  
   ),
   
   # Show the caption and plot of the requested variable against mpg
