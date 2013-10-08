@@ -252,12 +252,21 @@ classifySVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL
 
 SVM <- function(train, test, dependentVariable, columnNameToTypeMap=NULL, regression=F, kernel="radial", ...) {
     library(e1071)
+    trainFromFile <- is.character(train) && file.exists(train);
+    model <- NULL;
+    if (trainFromFile) { 
+      modelFile <- paste(train, dependentVariable, ".model.svm.RData", sep='');
+      if (file.exists(modelFile)) { load(modelFile); }
+    }
     preProcessed <- preProcess(train, test, dependentVariable, columnNameToTypeMap, regression);
-    train <- preProcessed[[1]];
+    if (is.null(model)) {
+      train <- preProcessed[[1]];
+      formula <- createFormula(train, dependentVariable);
+      formula <- paste('svm(',formula,', data=train, kernel="',kernel,'")',sep=''); 
+      model <- eval(parse(text=formula));
+      if (trainFromFile) { save(model, file=modelFile); }
+    }
     test <- preProcessed[[2]];
-    formula <- createFormula(train, dependentVariable);
-    formula <- paste('svm(',formula,', data=train, kernel="',kernel,'")',sep=''); 
-    model <- eval(parse(text=formula));
     prediction <- predict(model , newdata=test);
     if (!regression) prediction <- as.character(prediction);
     return(output(test, prediction, dependentVariable, preProcessed[[3]], preProcessed[[4]]));
