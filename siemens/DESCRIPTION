@@ -1,0 +1,9 @@
+Package: siemens
+Title: Siemens Energy Analytics
+Description: Analytics package created to provide insights into energy usage data generated from b.data energy management system
+https://www.cee.siemens.com/WEB/AT/EN/INDUSTRY/IA_DT/PRODUKTE-LOESUNGEN/MARKET-SPECIFIC-SOLUTIONS/BDATA/Pages/Default.aspx
+Version: 0.1
+Authors@R: 'Anthony Yee <anthony@algorithms.io> [aut, cre]'
+Depends: R (>= 3.0.1)
+License: Commercial
+LazyData: true
