@@ -1,14 +1,25 @@
 require(rCharts)
 require(shiny)
 
+if (file.exists("~/git/opencpu/siemens/data/month_data.rda")) {
+  load(file="~/git/opencpu/siemens/data/month_data.rda")
+}
+if (file.exists("~/git/opencpu/siemens/data/month_series.rda")) {
+  load(file="~/git/opencpu/siemens/data/month_series.rda")
+}
+if (!exists("mdf") || !exists("mts")) {
+  print("Creating datasets from files ......")
+  mdf <- loadMonthUsageData()
+  save(mdf, file="~/git/opencpu/siemens/data/month_data.rda")
 
-load(file="~/git/opencpu/siemens/data/month_data.rda")
-load(file="~/git/opencpu/siemens/data/month_series.rda")
-# if (!exists("mdf")) {
-#   print("Loading datasets from files ......")
-#   mdf <- load_data()
-#   print("Complete")
-# }
+  mts <- append(
+    lapply(FUN=function(signal) create_month_timeseries(paste0("~/git/opencpu/siemens/data/e_BSP_",signal,".txt")), signalnames()),
+    lapply(FUN=function(signal) createTimeSeries(paste0("~/git/opencpu/siemens/data/e_BSP_",signal,".txt")), c("Produkt00", "Produkt01", "Produkt02"))
+  )
+  save(mts, file="~/git/opencpu/siemens/data/month_series.rda")
+
+  print("Complete")
+}
 
 shinyServer(function(input, output) {
   
@@ -30,7 +41,7 @@ shinyServer(function(input, output) {
   })
 
   output$forecast <- renderPlot(function() {
-    ts <- mts[[match(input$cor_var, signalnames())[1]]]
+    ts <- mts[[match(input$cor_var, append(signalnames(),signalnames2()))[1]]]
     plot <- HWplot(ts, n.ahead=input$forecast_months, CI=input$forecast_confidence)
     print(plot)
   })

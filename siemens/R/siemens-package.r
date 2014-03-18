@@ -5,11 +5,15 @@
 
 signalnames <- function() {
   c("Strom00", "Strom01", "Strom02", "Strom03", "Strom04", "Strom05", "Strom06", "Strom07", "Strom08", "Strom00C", "Strom00FE",
-    "Produkt00", "Produkt01", "Produkt02",
+#     "Produkt00", "Produkt01", "Produkt02",
     "Erdgas00", "Erdgas01", "Erdgas02", "Erdgas03", "Erdgas04",
     "HEL00M",
     "Wasser00",
     "Wetter00")
+}
+
+signalnames2 <- function() {
+  c("Produkt00", "Produkt01", "Produkt02")
 }
 
 #' Load usage data by month
@@ -26,7 +30,7 @@ loadMonthUsageData <- function(path = "./data/") {
                  rename(read.table(paste0("~/git/opencpu/siemens/data/e_BSP_",signal,".txt"), 
                                    sep=";", header=T)[,c("MSJO_DATUM", "MSJO_WERT")], 
                         c("MSJO_WERT"=signal)), 
-                 signalnames()))
+                 append(signalnames(), signalnames2())))
 
   
   df$TIMESTAMP <- as.POSIXct(df$MSJO_DATUM, format="%d.%m.%Y %H:%M:%S")
@@ -267,4 +271,6 @@ HWchart<-function(ts_object,  n.ahead=4,  CI=.95,  error.ribbon='green', line.si
   return(p)
   
 }
+
+
 

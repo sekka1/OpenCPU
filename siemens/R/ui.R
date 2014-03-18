@@ -16,7 +16,7 @@ shinyUI(pageWithSidebar(
       tags$style(type="text/css", "select[multiple], select[size] { height: 200pt; }")
     ),
     
-    selectInput(inputId = "cor_var", label = "Select time series:", choices = signalnames(), 
+    selectInput(inputId = "cor_var", label = "Select time series:", choices = append(signalnames(), signalnames2()), 
                 multiple = TRUE),
     
     sliderInput(inputId = "forecast_months", label = "Choose months to forecast:", 
