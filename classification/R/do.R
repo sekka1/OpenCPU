@@ -55,8 +55,8 @@ preProcess <- function(train, test, dependentVariable, columnNameToTypeMap=NULL,
             if (nlevels(train[[columnName]]) > maxFactorLevels) {
                 d <- data.frame(table(train[[columnName]]));
                 train[[columnName]][!(train[[columnName]] %in% head(d[order(d$Freq, decreasing=T),],n=maxFactorLevels)$Var1)] <- as.factor('Other')
-                train <- droplevels(train)
             }
+            train <- droplevels(train)
         } else if (is.numeric(train[[columnName]])) {
             train[[columnName]][is.na(train[[columnName]])] <- mean(train[[columnName]], na.rm=T)
         }
